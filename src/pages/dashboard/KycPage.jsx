@@ -269,6 +269,7 @@ function DocRow({ d, onReupload }) {
     </>
   );
 }
+
 function UploadModal({ onClose, docType, setDocType }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -306,7 +307,7 @@ function UploadModal({ onClose, docType, setDocType }) {
       toast.error("No file selected");
       return;
     }
-
+    
     try {
       setLoading(true);
 
@@ -449,6 +450,7 @@ function UploadModal({ onClose, docType, setDocType }) {
               <CloudUpload className="mx-auto mb-2 size-6" />
 
               <input
+                className="text-sm justify-center ml-25 cursor-pointer"
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}

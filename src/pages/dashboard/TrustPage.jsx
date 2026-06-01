@@ -12,7 +12,7 @@ import {
 
 import { Card, SectionTitle, StatusBadge } from "@/components/ui-bits";
 import { TrustGauge } from "@/components/trust-gauge";
-import { trustHistory, riskFlags } from "@/lib/mock-data";
+import { riskFlags } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth-context";
 
 const faqs = [
@@ -41,7 +41,6 @@ function severityLabel(s) {
 
 export default function TrustPage() {
   const [open, setOpen] = useState(0);
-
   const { business } = useAuth();
 
   const trustBreakdown = useMemo(
@@ -74,9 +73,47 @@ export default function TrustPage() {
     [business]
   );
 
-  const total =
-    business?.overall ??
-    trustBreakdown.reduce((sum, item) => sum + item.score, 0);
+  const total = useMemo(
+    () =>
+      business?.overall ??
+      trustBreakdown.reduce((sum, item) => sum + item.score, 0),
+    [business, trustBreakdown]
+  );
+
+  // Dynamic Score History based on logged-in business overall score
+  const trustHistory = useMemo(() => {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const currentMonth = new Date().getMonth();
+
+    return Array.from({ length: 12 }, (_, i) => {
+      const monthIndex = (currentMonth - 11 + i + 12) % 12;
+
+      const variance = Math.floor(Math.random() * 4) - 2;
+      const historicalScore = Math.max(
+        60,
+        Math.min(100, total - (11 - i) + variance)
+      );
+
+      return {
+        month: months[monthIndex],
+        score: i === 11 ? total : historicalScore,
+      };
+    });
+  }, [total]);
 
   return (
     <>
@@ -86,10 +123,8 @@ export default function TrustPage() {
 
           <div className="text-xs text-muted-foreground mt-2 text-center">
             Out of 100 · Top{" "}
-            <span className="text-foreground font-medium">
-              12%
-            </span>{" "}
-            in Logistics
+            <span className="text-foreground font-medium">12%</span> in
+            Logistics
           </div>
 
           <div className="grid grid-cols-3 gap-3 mt-6 w-full">
@@ -130,14 +165,11 @@ export default function TrustPage() {
 
               <tbody className="divide-y divide-border">
                 {trustBreakdown.map((b) => {
-                  const pct =
-                    b.max > 0 ? (b.score / b.max) * 100 : 0;
+                  const pct = b.max > 0 ? (b.score / b.max) * 100 : 0;
 
                   return (
                     <tr key={b.factor}>
-                      <td className="py-3 font-medium">
-                        {b.factor}
-                      </td>
+                      <td className="py-3 font-medium">{b.factor}</td>
 
                       <td className="py-3 text-right font-mono">
                         {b.weight}%
@@ -181,13 +213,7 @@ export default function TrustPage() {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trustHistory}>
               <defs>
-                <linearGradient
-                  id="scoreGrad"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+                <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="0%"
                     stopColor="var(--color-primary)"
@@ -255,9 +281,7 @@ export default function TrustPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-medium">
-                      {f.title}
-                    </p>
+                    <p className="text-xs font-medium">{f.title}</p>
 
                     <StatusBadge
                       status={severityLabel(f.severity)}
@@ -281,14 +305,10 @@ export default function TrustPage() {
               <div key={i} className="py-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    setOpen(open === i ? null : i)
-                  }
+                  onClick={() => setOpen(open === i ? null : i)}
                   className="w-full flex items-center justify-between text-left"
                 >
-                  <span className="text-sm font-medium">
-                    {f.q}
-                  </span>
+                  <span className="text-sm font-medium">{f.q}</span>
 
                   <ChevronDown
                     className={`size-4 text-muted-foreground transition-transform ${

@@ -53,7 +53,7 @@ export default function KycSubmitPage() {
   const fileInputRef = useRef(null);
 
   const [docIndex, setDocIndex] = useState(0);
-  const [docStep, setDocStep] = useState(0); // 0 = upload, 1 = review
+  const [docStep, setDocStep] = useState(0); 
   const [extracting, setExtracting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [temporaryUploadId, setTemporaryUploadId] = useState(null);

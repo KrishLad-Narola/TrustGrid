@@ -100,7 +100,7 @@ export default function KYCPage() {
       const response = await axiosInstance.get("/kyc/documents");
       setKycDocuments(response.data || []);
     } catch (error) {
-      // toast.error("Failed to load KYC documents");
+      
     }
   }
 
@@ -131,10 +131,6 @@ export default function KYCPage() {
             ))}
           </div>
 
-          {/* <button onClick={() => setUploadOpen(true)} className="btn-primary">
-            <Upload className="size-4" />
-            Upload Document
-          </button> */}
         </div>
 
         {expiring.length > 0 && (

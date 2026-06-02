@@ -18,6 +18,7 @@ import {
   CloudUpload,
   Info,
   FileWarning,
+  CloudSync,
 } from "lucide-react";
 
 import { Card, StatusBadge } from "@/components/ui-kit";
@@ -100,7 +101,7 @@ export default function KYCPage() {
       const response = await axiosInstance.get("/kyc/documents");
       setKycDocuments(response.data || []);
     } catch (error) {
-      
+
     }
   }
 
@@ -123,7 +124,7 @@ export default function KYCPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${tab === t ? "btn-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                   }`}
               >
                 {t}
@@ -245,14 +246,17 @@ function DocRow({ d, onReupload }) {
         </td>
         <td className="px-4 py-3 text-xs font-mono">{d.size ? bytesToHuman(d.size) : "—"}</td>
         <td className="px-4 py-3 flex justify-end gap-2">
-          <button onClick={handleView}>
+          <button onClick={handleView}
+            className="cursor-pointer">
             <Eye className="size-4" />
           </button>
-          <button onClick={() => handleDownload()}>
+          <button onClick={() => handleDownload()}
+            className="cursor-pointer">
             <Download className="size-4" />
           </button>
-          <button onClick={() => onReupload(d.documentType)}>
-            <RotateCcw className="size-4" />
+          <button onClick={() => onReupload(d.documentType)}
+            className="cursor-pointer">
+            <CloudSync className="size-4" />
           </button>
         </td>
       </tr>
@@ -303,7 +307,7 @@ function UploadModal({ onClose, docType, setDocType }) {
       toast.error("No file selected");
       return;
     }
-    
+
     try {
       setLoading(true);
 

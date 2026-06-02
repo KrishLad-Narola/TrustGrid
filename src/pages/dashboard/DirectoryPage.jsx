@@ -37,22 +37,22 @@ export default function DirectoryPage() {
           <select
             value={industry}
             onChange={(e) => setIndustry(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-input border border-border text-sm outline-none"
+            className="px-3 py-2 rounded-lg bg-input cursor-pointer border border-border text-sm outline-none"
           >
             {industries.map((i) => (
               <option key={i}>{i}</option>
             ))}
           </select>
-          <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-input border border-border">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">Min Trust</span>
+          <div className="flex items-center  gap-3 px-3 py-2 rounded-lg bg-input border border-border">
+            <span className="text-xs  text-muted-foreground whitespace-nowrap">Min Trust</span>
             <input
               type="range"
               min={0}
               max={100}
               value={scoreMin}
               onChange={(e) => setScoreMin(+e.target.value)}
-              className="flex-1 accent-primary"
-            />
+              className="flex-1 accent-primary cursor-pointer"
+            /> 
             <span className="font-mono text-xs w-7 text-right">{scoreMin}</span>
           </div>
         </div>

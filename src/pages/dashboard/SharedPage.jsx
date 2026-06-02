@@ -32,7 +32,7 @@ export default function SharedPage() {
             <button
               type="button"
               onClick={() => copy(b.id)}
-              className="ml-auto size-7 grid place-items-center rounded-md hover:bg-muted"
+              className="ml-auto size-7 grid place-items-center cursor-pointer rounded-md hover:bg-muted"
               aria-label="Copy link"
             >
               <Copy className="size-3.5" />

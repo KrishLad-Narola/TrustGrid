@@ -9,4 +9,9 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  darkMode: "class",
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
 });

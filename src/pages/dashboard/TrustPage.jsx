@@ -121,12 +121,12 @@ export default function TrustPage() {
       const current = trustScore.overall;
 
       return [
-        { month: "Jan", score: Math.max(current - 12, 0) },
-        { month: "Feb", score: Math.max(current - 10, 0) },
-        { month: "Mar", score: Math.max(current - 8, 0) },
-        { month: "Apr", score: Math.max(current - 6, 0) },
-        { month: "May", score: Math.max(current - 4, 0) },
-        { month: "Jun", score: Math.max(current - 2, 0) },
+        { month: "Jan", score: 0 },
+        { month: "Feb", score: Math.round(current * 0.15) },
+        { month: "Mar", score: Math.round(current * 0.3) },
+        { month: "Apr", score: Math.round(current * 0.5) },
+        { month: "May", score: Math.round(current * 0.7) },
+        { month: "Jun", score: Math.round(current * 0.85) },
         { month: "Now", score: current },
       ];
     }
@@ -141,7 +141,7 @@ export default function TrustPage() {
   }, [history, trustScore]);
 
   const growth = useMemo(() => {
-    if (!history.length) return 0;
+    if (!history.length) return trustScore.overall;
     const first = num(history[0]?.previousScore);
     return trustScore.overall - first;
   }, [history, trustScore]);
@@ -158,7 +158,6 @@ export default function TrustPage() {
     <>
       {/* TOP */}
       <div className="grid lg:grid-cols-3 gap-4">
-        {/* LEFT CARD */}
         <Card className="flex flex-col items-center p-5">
           <TrustGauge score={trustScore.overall} size={190} />
 
@@ -196,7 +195,6 @@ export default function TrustPage() {
           </div>
         </Card>
 
-        {/* BREAKDOWN */}
         <Card className="lg:col-span-2 p-5">
           <SectionTitle className="text-sm font-semibold tracking-tight">
             Score Breakdown
@@ -246,14 +244,16 @@ export default function TrustPage() {
 
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" fontSize={11} />
-              <YAxis domain={[0, 100]} fontSize={11} />
+              <YAxis domain={[0, 100]} fontSize={11}  />
               <Tooltip />
 
               <Area
                 type="monotone"
                 dataKey="score"
+                stroke="#3b82f6"
                 strokeWidth={2}
-                fill="url(#scoreGrad)"
+                fill="#93c5fd"
+                fillOpacity={0.3}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -262,7 +262,6 @@ export default function TrustPage() {
 
       {/* BOTTOM */}
       <div className="grid lg:grid-cols-2 gap-4 mt-4">
-        {/* RISK FLAGS */}
         <Card className="p-5">
           <SectionTitle className="text-sm font-semibold tracking-tight">
             <span className="inline-flex items-center gap-2">
@@ -287,7 +286,6 @@ export default function TrustPage() {
           </div>
         </Card>
 
-        {/* FAQ */}
         <Card className="p-5">
           <SectionTitle className="text-sm font-semibold tracking-tight">
             Frequently Asked
@@ -303,9 +301,8 @@ export default function TrustPage() {
                   <span className="text-sm font-medium">{f.q}</span>
 
                   <ChevronDown
-                    className={`size-4 transition-transform ${
-                      open === i ? "rotate-180" : ""
-                    }`}
+                    className={`size-4 transition-transform ${open === i ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 

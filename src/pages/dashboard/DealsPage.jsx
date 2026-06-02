@@ -338,13 +338,13 @@ export default function DealsPage() {
   return (
     <>
       <div className="flex justify-end">
-        <button type="button" onClick={() => setOpen(true)} className="btn-primary">
+        <button type="button" onClick={() => setOpen(true)} className="btn-primary cursor-pointer">
           <Plus className="size-4" />
           New Deal
         </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2  lg:grid-cols-4 gap-3">
         <StatCard icon={Handshake} label="Incoming" value={dealStats.incoming} color="blue" />
         <StatCard icon={TrendingUp} label="Active" value={dealStats.active} color="violet" />
         <StatCard icon={CheckCircle2} label="Completed" value={dealStats.completed} color="green" />
@@ -352,14 +352,14 @@ export default function DealsPage() {
       </div>
 
       {/* ── Tabs ── */}
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-xl mb-6 w-fit border border-slate-200">
+      <div className="flex gap-1 p-1 bg-slate-100 rounded-xl mb-6 w-fit border border-slate-200 ">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
             className={`
-                relative px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-150
+                relative px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer
                 ${activeTab === tab.key
                 ? "bg-white text-slate-900 shadow-sm border border-slate-200"
                 : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 border border-transparent"
@@ -765,9 +765,9 @@ function EmptyState({ tab, onNew }) {
         <button
           type="button"
           onClick={onNew}
-          className="btn-primary text-sm py-2 px-3"
+          className="btn-primary cursor-pointer text-sm py-2 px-3"
         >
-          <Plus className="h-3.5 w-3.5" /> Create a deal
+          <Plus className="h-3.5 w-3.5 " /> Create a deal
         </button>
       )}
     </div>
@@ -849,7 +849,7 @@ function CreateDealModal({ counterparties, onClose, onCreate }) {
         <Input label="Deal value (₹)" type="number" value={form.value} onChange={set("value")} placeholder="0" />
         <Input label="Description" value={form.description} onChange={set("description")} placeholder="Brief terms or notes…" />
         <div className="pt-1">
-          <button type="submit" className="w-full h-10 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+          <button type="submit" className="w-full h-10 rounded-lg btn-primary text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
             Create Deal
           </button>
         </div>
@@ -870,7 +870,7 @@ function EditDealModal({ deal, onClose, onSave }) {
         <Input label="Deal value (₹)" type="number" value={form.value} onChange={set("value")} />
         <Input label="Description" value={form.description} onChange={set("description")} />
         <div className="pt-1">
-          <button type="submit" className="w-full h-10 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+          <button type="submit" className="w-full h-10 rounded-lg btn-primary text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
             Save Changes
           </button>
         </div>
@@ -1092,7 +1092,7 @@ function ViewDealModal({ deal, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="w-full h-10 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
+          className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold  transition-colors"
         >
           Close View
         </button>

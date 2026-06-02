@@ -70,24 +70,30 @@ export function AppSidebar({ kind }) {
 
   return (
    <aside className="w-64 h-screen sticky top-0 shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col overflow-hidden">
+
   {/* Header */}
   <div className="px-5 py-5 border-b border-sidebar-border shrink-0">
-    <Link to="/dashboard" className="flex items-center gap-2">
-      <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-sm">
-        <Sparkles className="size-5 text-primary-foreground" />
+  <Link to="/dashboard" className="flex items-start gap-3 min-w-0">
+    {/* Fixed-size logo */}
+    <div className="size-9 flex-shrink-0 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-sm">
+      <Sparkles className="size-5 text-primary-foreground" />
+    </div>
+
+    {/* Text container */}
+    <div className="min-w-0 flex-1">
+      <div className="font-display font-bold tracking-tight text-sidebar-foreground truncate">
+        TrustGrid
       </div>
 
-      <div>
-        <div className="font-display font-bold tracking-tight text-sidebar-foreground">
-          TrustGrid
-        </div>
-
-        <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          {variant === "admin" ? "Admin Console" : businessName}
-        </div>
+      <div
+        className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground "
+        title={variant === "admin" ? "Admin Console" : businessName}
+      >
+        {variant === "admin" ? "Admin Console" : businessName}
       </div>
-    </Link>
-  </div>
+    </div>
+  </Link>
+</div>
 
   {/* Navigation */}
   <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -140,7 +146,7 @@ export function AppSidebar({ kind }) {
       <button
         type="button"
         onClick={handleLogout}
-        className="text-muted-foreground hover:text-foreground shrink-0"
+        className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
         aria-label="Sign out"
       >
         <LogOut className="size-4" />

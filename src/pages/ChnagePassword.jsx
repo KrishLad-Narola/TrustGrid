@@ -227,7 +227,7 @@ export default function ChangePassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full mt-6 inline-flex items-center cursor-pointer hover:bg-blue-300 justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-primary text-white font-medium shadow-glow hover:opacity-95 transition disabled:opacity-50"
+                            className="w-full mt-6 inline-flex items-center  justify-center gap-2 px-4 py-3 cursor-pointer rounded-xl btn-primary from-primary to-primary text-white font-medium shadow-glow hover:opacity-95 transition disabled:opacity-50"
                         >
                             {loading
                                 ? "Changing..."
@@ -240,7 +240,7 @@ export default function ChangePassword() {
 
                         <Link
                             to="/dashboard"
-                            className="block text-primary text-sm  hover:text-purple-200 transition mt-5"
+                            className="block text-primary text-sm hover:text-blue-600 transition mt-5"
                         >
                             Back to Dashboard →
                         </Link>

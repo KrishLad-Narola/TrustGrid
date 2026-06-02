@@ -38,7 +38,7 @@ export default function AuditPage() {
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="size-3.5" /> Last 30 days
         </div>
-        <button type="button" onClick={exportCsv} className="btn-ghost text-sm">
+        <button type="button" onClick={exportCsv} className="btn-ghost cursor-pointer text-sm">
           <Download className="size-4" /> Export CSV
         </button>
       </div>
@@ -50,9 +50,9 @@ export default function AuditPage() {
               key={t}
               type="button"
               onClick={() => setFilter(t)}
-              className={`px-3 py-1.5 rounded-full text-xs border transition ${
+              className={`px-3 py-1.5 rounded-full text-xs cursor-pointer border transition ${
                 filter === t
-                  ? "bg-primary text-primary-foreground border-primary"
+                  ? "btn-primary text-primary-foreground border-primary"
                   : "border-border text-muted-foreground hover:bg-muted"
               }`}
             >

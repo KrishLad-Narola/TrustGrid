@@ -39,59 +39,82 @@ export default function VerifyEmail() {
       toast.error("Verification token missing");
     }
   }, [token, navigate]);
-
   return (
-    <div className="min-h-screen px-4 py-10 flex flex-col">
-      <div className="max-w-lg mx-auto w-full flex-1">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
-        >
-          <ArrowLeft className="size-4" /> Back to home
-        </Link>
-
-        <div className="flex items-center gap-2 mb-6">
-          <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Sparkles className="size-5 text-primary-foreground" />
+    <div className="min-h-screen flex flex-col px-4">
+      {/* Logo */}
+      <div className="pt-8 pl-2">
+        <Link to="/" className="inline-flex items-center gap-3">
+        <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <Sparkles className="size-4 text-white" />
           </div>
+
           <div>
-            <div className="font-display font-bold">TrustGrid</div>
-            <div className="text-xs text-muted-foreground">Email verification</div>
+            <h1 className="font-display font-bold text-xl leading-none">
+              TrustGrid
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              Email verification
+            </p>
           </div>
-        </div>
+        </Link>
+      </div>
 
-        <div className="glass-card p-8 text-center">
-          {loading ? (
-            <>
-              <Loader2 className="size-14 mx-auto text-primary animate-spin" />
-              <h1 className="mt-6 font-display text-2xl font-semibold">Verifying your email…</h1>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Please wait while we securely verify your email address.
-              </p>
-            </>
-          ) : verified ? (
-            <>
-              <CheckCircle2 className="size-14 mx-auto text-success" />
-              <h1 className="mt-6 font-display text-2xl font-semibold">Email verified</h1>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Your business account has been verified. Redirecting to login…
-              </p>
-              <Link to="/" className="btn-primary inline-flex mt-6">
-                Continue to login
-              </Link>
-            </>
-          ) : (
-            <>
-              <XCircle className="size-14 mx-auto text-destructive" />
-              <h1 className="mt-6 font-display text-2xl font-semibold">Verification failed</h1>
-              <p className="mt-3 text-sm text-muted-foreground">
-                The verification link is invalid or has expired.
-              </p>
-              <Link to="/" className="btn-primary inline-flex mt-6">
-                Back to login
-              </Link>
-            </>
-          )}
+      {/* Content */}
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-full max-w-lg">
+          <div className="glass-card rounded-3xl border border-border bg-card/80 backdrop-blur-sm shadow-xl p-8 text-center">
+            {loading ? (
+              <>
+                <Loader2 className="size-16 mx-auto text-primary animate-spin" />
+
+                <h2 className="mt-6 text-4xl font-display font-bold text-foreground">
+                  Verifying email
+                </h2>
+
+                <p className="mt-4 text-lg text-muted-foreground">
+                  Please wait while we securely verify your email address.
+                </p>
+              </>
+            ) : verified ? (
+              <>
+                <CheckCircle2 className="size-20 mx-auto text-green-500" />
+
+                <h2 className="mt-6 text-4xl font-display font-bold text-foreground">
+                  Email verified
+                </h2>
+
+                <p className="mt-4 text-lg text-muted-foreground">
+                  Your business account has been verified successfully.
+                </p>
+
+                <Link
+                  to="/"
+                  className="mt-8 w-full h-14 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-500 text-white font-semibold flex items-center justify-center hover:opacity-95 transition"
+                >
+                  Continue to login
+                </Link>
+              </>
+            ) : (
+              <>
+                <XCircle className="size-20 mx-auto text-red-500" />
+
+                <h2 className="mt-6 text-4xl font-display font-bold text-foreground">
+                  Verification failed
+                </h2>
+
+                <p className="mt-4 text-lg text-muted-foreground">
+                  The verification link is invalid or has expired.
+                </p>
+
+                <Link
+                  to="/"
+                  className="mt-8 w-full h-14 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-500 text-white font-semibold flex items-center justify-center hover:opacity-95 transition"
+                >
+                  Back to login
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

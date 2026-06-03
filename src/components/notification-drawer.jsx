@@ -79,7 +79,7 @@ export function NotificationDrawer({ open, onClose }) {
       >
         <div className="h-16 px-5 flex items-center justify-between border-b border-border">
           <h3 className="font-semibold">Notifications</h3>
-          <button onClick={onClose} className="size-8 rounded-md hover:bg-muted flex items-center justify-center">
+          <button onClick={onClose} className="size-8 rounded-md hover:bg-muted flex items-center cursor-pointer justify-center">
             <X className="size-4" />
           </button>
         </div>

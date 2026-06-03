@@ -53,35 +53,50 @@ const normalizeDeal = (deal) => {
     status: mapStatus(deal.status),
     initiatorCompletedAt: deal.initiatorCompletedAt,
     counterPartyCompletedAt: deal.counterPartyCompletedAt,
-    createdAt: new Date(deal.createdAt).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }),
 
+    createdAt: new Date(deal.createdAt).toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    ),
 
-    //  deadline timestamp intact for the live interval calculation
     rawDeadline: deal.dealTimeline || deal.endDate || null,
-    deadline: deal.dealTimeline 
-      ? new Date(deal.dealTimeline).toLocaleDateString("en-IN", {
+
+    deadline: deal.dealTimeline
+      ? new Date(deal.dealTimeline).toLocaleDateString(
+        "en-IN",
+        {
           day: "2-digit",
           month: "short",
           year: "numeric",
-        })
-      : deal.endDate 
-        ? new Date(deal.endDate).toLocaleDateString("en-IN", {
+        }
+      )
+      : deal.endDate
+        ? new Date(deal.endDate).toLocaleDateString(
+          "en-IN",
+          {
             day: "2-digit",
             month: "short",
             year: "numeric",
-          })
+          }
+        )
         : null,
+
     canAccept: deal.canAccept,
     canReject: deal.canReject,
     canCancel: deal.canCancel,
+
     disputeReason: deal.disputeReason,
     disputeRaisedBy: deal.disputeRaisedBy,
     disputeId: deal.disputeId,
-    timeline: deal.dealTimeline || [], 
+
+    timeline:
+      deal.timeline ||
+      deal.dealTimeline ||
+      [],
   };
 };
 
@@ -102,7 +117,7 @@ function CountdownTimer({ targetDate }) {
 
     const calculateTime = () => {
       const difference = new Date(targetDate).getTime() - new Date().getTime();
-      
+
       if (difference <= 0) {
         setTimeLeft("Expired / Deadline Passed");
         setIsExpired(true);
@@ -167,29 +182,45 @@ export default function DealsPage() {
   const loadDeals = async (type = activeTab) => {
     try {
       setLoading(true);
+
       if (type === "disputed") {
         const res = await axiosInstance.get("/deals/disputes");
+
         const disputeRecords = res?.data?.data || res?.data || [];
+
         const mappedDeals = disputeRecords.map((record) => {
           const underlyingDeal = record.dealId || {};
-          const calculatedStatus = record.status === "RESOLVED" ? "RESOLVED" : "DISPUTED";
 
           return normalizeDeal({
             ...underlyingDeal,
             disputeId: record._id,
-            status: calculatedStatus,
+            status:
+              record.status === "RESOLVED"
+                ? "RESOLVED"
+                : "DISPUTED",
             disputeReason: record.reason,
-            disputeRaisedBy: record.raisedByBusinessId?._id || record.raisedByBusinessId,
+            disputeRaisedBy:
+              record.raisedByBusinessId?._id ||
+              record.raisedByBusinessId,
           });
         });
 
         setDeals(mappedDeals);
+        setSummary((prev) => ({
+          ...prev,
+          disputedDeals: mappedDeals.length,
+        }));
       } else {
         const res = await axiosInstance.get(`/deals?type=${type}`);
-        setDeals((res?.data.deals || []).map(normalizeDeal));
-        setSummary(res.data?.summary || summary);
+
+        setDeals((res?.data?.deals || []).map(normalizeDeal));
+
+        if (res?.data?.summary) {
+          setSummary(res.data.summary);
+        }
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       setDeals([]);
     } finally {
       setLoading(false);
@@ -206,15 +237,48 @@ export default function DealsPage() {
   const loadDealById = async (id) => {
     try {
       const res = await axiosInstance.get(`/deals/${id}`);
-      const deal = res?.deal || res?.data?.deal || res?.data;
-      return deal ? normalizeDeal(deal) : null;
-    } catch {
+
+      const dealData =
+        res?.data?.data?.deal ||
+        res?.data?.deal ||
+        res?.deal;
+
+      const timelineData =
+        res?.data?.data?.dealTimeline ||
+        res?.data?.dealTimeline ||
+        [];
+
+      if (!dealData) return null;
+
+      return normalizeDeal({
+        ...dealData,
+        timeline: timelineData,
+      });
+    } catch (error) {
+      console.error(error);
       return null;
     }
   };
 
   useEffect(() => { loadDeals(activeTab); }, [activeTab]);
   useEffect(() => { loadCounterparties(); }, []);
+
+  const loadSummary = async () => {
+    try {
+      const res = await axiosInstance.get("/deals?type=incoming");
+
+      if (res?.data?.summary) {
+        setSummary(res.data.summary);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    loadSummary();
+  }, []);
+
 
   const handleCreateDeal = async (payload) => {
     try {
@@ -1024,7 +1088,7 @@ function ViewDealModal({ deal, onClose }) {
               <p className="text-sm font-medium text-slate-900">{deal.name}</p>
             </div>
           </div>
-          
+
           <div className="flex items-start gap-2.5 text-slate-700">
             <User className="h-4 w-4 text-slate-400 mt-0.5" />
             <div>
@@ -1065,7 +1129,7 @@ function ViewDealModal({ deal, onClose }) {
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5" /> Deal Timeline
           </h3>
-          
+
           {deal.timeline && deal.timeline.length > 0 ? (
             <div className="relative pl-4 border-l border-slate-200 ml-2 space-y-4 py-1">
               {deal.timeline.map((event, idx) => (
@@ -1073,11 +1137,16 @@ function ViewDealModal({ deal, onClose }) {
                   {/* Timeline node bullet indicator */}
                   <span className="absolute -left-[21px] top-1 bg-white border-2 border-slate-400 rounded-full h-2.5 w-2.5" />
                   <div>
-                    <p className="text-xs font-semibold text-slate-800">{event.action || "Status Updated"}</p>
-                    {event.note && <p className="text-[11px] text-slate-500 mt-0.5 italic">"{event.note}"</p>}
-                    <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-                      {new Date(event.timestamp || event.createdAt).toLocaleString("en-IN")}
+                    <p className="text-xs font-semibold text-slate-800">
+                      {(event.event || "STATUS_UPDATED")
+                        .replaceAll("_", " ")}
                     </p>
+
+                    {event.description && (
+                      <p className="text-[11px] text-slate-600 mt-1">
+                        {event.description}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

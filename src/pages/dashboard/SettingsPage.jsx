@@ -42,7 +42,6 @@ export default function SettingsPage() {
     logo: null,
   });
 
- 
   const [originalData, setOriginalData] = useState({});
   const [logoFile, setLogoFile] = useState(null);
   const [saving, setSaving] = useState(false);

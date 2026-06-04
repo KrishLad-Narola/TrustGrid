@@ -190,7 +190,6 @@ export default function DealsPage() {
 
         const mappedDeals = disputeRecords.map((record) => {
           const underlyingDeal = record.dealId || {};
-
           return normalizeDeal({
             ...underlyingDeal,
             disputeId: record._id,
@@ -208,7 +207,9 @@ export default function DealsPage() {
         setDeals(mappedDeals);
         setSummary((prev) => ({
           ...prev,
-          disputedDeals: mappedDeals.length,
+          disputedDeals: mappedDeals.filter(
+            (d) => d.status === "disputed"
+          ).length,
         }));
       } else {
         const res = await axiosInstance.get(`/deals?type=${type}`);
@@ -265,11 +266,24 @@ export default function DealsPage() {
 
   const loadSummary = async () => {
     try {
-      const res = await axiosInstance.get("/deals?type=incoming");
+      const [summaryRes, disputeRes] = await Promise.all([
+        axiosInstance.get("/deals?type=incoming"),
+        axiosInstance.get("/deals/disputes"),
+      ]);
 
-      if (res?.data?.summary) {
-        setSummary(res.data.summary);
-      }
+      const summaryData = summaryRes?.data?.summary || {};
+
+      const disputes =
+        disputeRes?.data?.data ||
+        disputeRes?.data ||
+        [];
+
+      setSummary({
+        incomingDeals: summaryData.incomingDeals || 0,
+        activeDeals: summaryData.activeDeals || 0,
+        completedDeals: summaryData.completedDeals || 0,
+        disputedDeals: disputes.length,
+      });
     } catch (err) {
       console.error(err);
     }
@@ -353,30 +367,59 @@ export default function DealsPage() {
       toast.error(err?.response?.data?.message || "Failed to complete deal");
     }
   };
-
   const handleDisputeDeal = async (id, reason) => {
     if (!id) return toast.error("Invalid deal ID");
+
     try {
-      await axiosInstance.post(`/deals/${id}/disputes`, { reason });
+      await axiosInstance.post(`/deals/${id}/disputes`, {
+        reason,
+      });
+
       await loadDeals();
+      await loadSummary();
+
       setDisputingDeal(null);
+
       toast.success("Dispute raised successfully");
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to raise dispute");
+      toast.error(
+        err?.response?.data?.message ||
+        "Failed to raise dispute"
+      );
     }
   };
 
-  const handleResolveDispute = async (id, resolutionNote) => {
+
+
+  const handleResolveDispute = async (
+    id,
+    resolutionNote
+  ) => {
     if (!id) return toast.error("Invalid deal ID");
+
     try {
-      await axiosInstance.post(`/deals/disputes/${id}/resolve`, { resolutionNote });
+      await axiosInstance.post(
+        `/deals/disputes/${id}/resolve`,
+        { resolutionNote }
+      );
+
       await loadDeals();
+      await loadSummary();
+
       setResolvingDeal(null);
+
       toast.success("Dispute resolved successfully");
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to resolve dispute");
+      toast.error(
+        err?.response?.data?.message ||
+        "Failed to resolve dispute"
+      );
     }
   };
+
+  useEffect(() => {
+    loadSummary();
+  }, [deals]);
 
   const openEditModal = async (id) => {
     const deal = await loadDealById(id);
@@ -854,7 +897,7 @@ function Modal({ children, onClose, title, subtitle }) {
           <button
             type="button"
             onClick={onClose}
-            className="h-7 w-7 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors"
+            className="h-7 w-7 rounded-lg hover:bg-slate-100 flex cursor-pointer items-center justify-center transition-colors"
           >
             <X className="h-4 w-4 text-slate-500" />
           </button>

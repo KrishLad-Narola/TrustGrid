@@ -96,15 +96,15 @@ export default function TrustPage() {
       },
       {
         factor: "Legal Compliance",
-        weight: 30,
+        weight: 20,
         score: trustScore.complianceScore,
-        max: 30,
+        max: 20,
       },
       {
         factor: "Deal Performance",
-        weight: 20,
+        weight: 30,
         score: trustScore.dealPerformanceScore,
-        max: 20,
+        max: 30,
       },
       {
         factor: "Business Activity",

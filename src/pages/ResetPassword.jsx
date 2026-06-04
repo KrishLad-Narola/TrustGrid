@@ -148,7 +148,7 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full mt-6 disabled:opacity-50"
+            className="btn-primary w-full mt-6 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -161,7 +161,7 @@ export default function ResetPassword() {
             )}
           </button>
 
-          <Link to="/" className="block text-center text-sm text-muted-foreground hover:text-foreground mt-5">
+          <Link to="/" className="block text-center text-sm cursor-pointer text-muted-foreground hover:text-foreground mt-5">
             Back to <span className="text-primary">Sign in →</span>
           </Link>
         </form>

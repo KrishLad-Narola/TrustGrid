@@ -89,14 +89,21 @@ function ProtectedRoute() {
 // GUARD 2: KYC Submission Onboarding Filter
 // Controls the step 0 and step 1 screens. Stops an approved user from viewing them.
 function KycFlowCheck() {
-  const { business, loading } = useAuth();
+  const { business, loading, user } = useAuth();
 
   if (loading) return <GlobalLoader />;
 
+  // System users should never see KYC screens
+  if (user?.scope === "SYSTEM") {
+    return <Navigate to="/admin" replace />;
+  }
+
   const kycStatus = business?.kycStatus?.trim()?.toUpperCase() || "DRAFT";
 
-  // If already approved, skip onboarding completely and go to operational dashboard
-  if (kycStatus === "APPROVED") {
+  if (
+    kycStatus === "VERIFIED" ||
+    kycStatus === "APPROVED"
+  ) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -106,19 +113,57 @@ function KycFlowCheck() {
 // GUARD 3: Main Core Application Wall
 // Protects the private application pages. Users can ONLY pass if KYC status is APPROVED.
 function MainAppGuard() {
-  const { business, loading } = useAuth();
+  const { business, user, loading } = useAuth();
 
   if (loading) return <GlobalLoader />;
 
-  const kycStatus = business?.kycStatus?.trim()?.toUpperCase() || "DRAFT";
-
-  if (kycStatus === "VERIFIED") {
+  // Allow system users directly
+  if (user?.scope === "SYSTEM") {
     return <Outlet />;
   }
 
-  console.log("KYC STATUS CHECK:", kycStatus);
+  const kycStatus = business?.kycStatus?.trim()?.toUpperCase() || "DRAFT";
 
-  if (kycStatus === "SUBMITTED" || kycStatus === "UNDER_REVIEW") {
+  if (
+    kycStatus === "VERIFIED" ||
+    kycStatus === "APPROVED"
+  ) {
+    return <Outlet />;
+  }
+
+  if (
+    kycStatus === "SUBMITTED" ||
+    kycStatus === "UNDER_REVIEW"
+  ) {
+    return <Navigate to="/kyc-complete" replace />;
+  }
+
+  return <Navigate to="/kyc-submit" replace />;
+}
+
+
+function DefaultRedirect() {
+  const { user, business, loading } = useAuth();
+
+  if (loading) return <GlobalLoader />;
+
+  if (user?.scope === "SYSTEM") {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const kycStatus = business?.kycStatus?.trim()?.toUpperCase();
+
+  if (
+    kycStatus === "VERIFIED" ||
+    kycStatus === "APPROVED"
+  ) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (
+    kycStatus === "SUBMITTED" ||
+    kycStatus === "UNDER_REVIEW"
+  ) {
     return <Navigate to="/kyc-complete" replace />;
   }
 
@@ -177,6 +222,8 @@ function AppRoutes() {
           </Route>
         </Route>
       </Route>
+     
+      <Route path="/home" element={<DefaultRedirect />} />
 
       {/* 3. CATCH-ALL ROUTE (404 HANDLING) */}
       <Route path="*" element={<NotFoundPage />} />

@@ -16,7 +16,7 @@ export default function AdminTrust() {
                 <td className="px-5 py-3 font-medium">{b.name}</td>
                 <td className="px-5 py-3 font-mono">{b.trustScore}</td>
                 <td className="px-5 py-3"><input defaultValue={b.trustScore} type="number" className="w-20 px-3 py-1.5 rounded-lg bg-slate-900/[0.03] border border-slate-900/[0.08] font-mono text-sm" /></td>
-                <td className="px-5 py-3 text-right"><button type="button" onClick={() => toast.success("Override saved")} className="btn-primary text-xs py-1.5 px-3">Apply</button></td>
+                <td className="px-5 py-3 text-right"><button type="button" onClick={() => toast.success("Override saved")} className="btn-primary  cursor-pointer text-xs py-1.5 px-3">Apply</button></td>
               </tr>
             ))}
           </tbody>

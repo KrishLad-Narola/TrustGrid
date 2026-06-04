@@ -50,8 +50,24 @@ export default function Landing() {
 
       await login({ accessToken, refreshToken });
 
+      const role =
+        response.data.user?.role ||
+        response.data.data?.user?.role;
+
       toast.success(response.data.message || "Welcome back to TrustGrid");
-      navigate("/dashboard");
+      useEffect(() => {
+        if (user?.role === "admin") {
+          navigate("/admin/dashboard");
+          return;
+        }
+
+        if (!user?.isKycApproved) {
+          navigate("/kyc-submit");
+          return;
+        }
+
+        navigate("/dashboard");
+      }, [user]);
     } catch (error) {
       console.error(error);
 
@@ -112,9 +128,8 @@ export default function Landing() {
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full mt-1 px-3 py-2 rounded-lg bg-input border text-sm outline-none focus:ring-2 focus:ring-primary/30 ${
-                errors.email ? "border-destructive" : "border-border"
-              }`}
+              className={`w-full mt-1 px-3 py-2 rounded-lg bg-input border text-sm outline-none focus:ring-2 focus:ring-primary/30 ${errors.email ? "border-destructive" : "border-border"
+                }`}
               placeholder="you@company.com"
               type="email"
               required
@@ -126,9 +141,8 @@ export default function Landing() {
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`w-full px-3 py-2 pr-10 rounded-lg bg-input border text-sm outline-none focus:ring-2 focus:ring-primary/30 ${
-                  errors.password ? "border-destructive" : "border-border"
-                }`}
+                className={`w-full px-3 py-2 pr-10 rounded-lg bg-input border text-sm outline-none focus:ring-2 focus:ring-primary/30 ${errors.password ? "border-destructive" : "border-border"
+                  }`}
                 placeholder="••••••••"
                 type={showPassword ? "text" : "password"}
                 required
@@ -151,10 +165,10 @@ export default function Landing() {
             </div>
 
             <div className="flex gap-2 mt-4">
-              <button type="submit" className="btn-primary flex-1">
+              <button type="submit" className="btn-primary cursor-pointer flex-1">
                 Sign in <ArrowRight className="size-4" />
               </button>
-             
+
             </div>
           </form>
         </div>

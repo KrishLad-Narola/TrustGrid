@@ -67,14 +67,14 @@ export default function AdminHome() {
                       <button
                         type="button"
                         onClick={() => toast.success("Approved")}
-                        className="size-7 rounded-md bg-success/15 text-success flex items-center justify-center"
+                        className="size-7 rounded-md bg-success/15 text-success flex items-center cursor-pointer justify-center"
                       >
                         <Check className="size-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => toast.error("Rejected")}
-                        className="size-7 rounded-md bg-destructive/15 text-destructive flex items-center justify-center"
+                        className="size-7 rounded-md bg-destructive/15 text-destructive flex items-center cursor-pointer justify-center"
                       >
                         <X className="size-3.5" />
                       </button>

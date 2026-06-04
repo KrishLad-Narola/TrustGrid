@@ -44,9 +44,9 @@ export default function AdminBusinesses() {
                 <td className="px-5 py-4"><StatusBadge status={b.kycStatus} /></td>
                 <td className="px-5 py-4">
                   <div className="flex items-center justify-end gap-1">
-                    <button type="button" onClick={() => toast.success("Score override saved")} title="Override score" className="size-8 grid place-items-center rounded-lg hover:bg-muted text-muted-foreground hover:text-primary"><Edit3 className="size-4" /></button>
-                    <button onClick={() => toast.warning("Business flagged for review")} title="Flag" className="h-8 w-8 grid place-items-center rounded-lg hover:bg-slate-900/[0.03] text-muted-foreground hover:text-warning"><Flag className="h-4 w-4" /></button>
-                    <button onClick={() => toast.error("Account suspended")} title="Suspend" className="h-8 w-8 grid place-items-center rounded-lg hover:bg-slate-900/[0.03] text-muted-foreground hover:text-danger"><Pause className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => toast.success("Score override saved")} title="Override score" className="size-8 grid place-items-center cursor-pointer rounded-lg hover:bg-muted text-muted-foreground hover:text-primary"><Edit3 className="size-4" /></button>
+                    <button onClick={() => toast.warning("Business flagged for review")} title="Flag" className="h-8 w-8 grid place-items-center cursor-pointer rounded-lg hover:bg-slate-900/[0.03] text-muted-foreground hover:text-warning"><Flag className="h-4 w-4" /></button>
+                    <button onClick={() => toast.error("Account suspended")} title="Suspend" className="h-8 w-8 grid place-items-center cursor-pointer rounded-lg hover:bg-slate-900/[0.03] text-muted-foreground hover:text-danger"><Pause className="h-4 w-4" /></button>
                   </div>
                 </td>
               </tr>

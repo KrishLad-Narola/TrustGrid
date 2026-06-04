@@ -118,7 +118,7 @@ export default function ForgotPassword() {
             )}
           </button>
 
-          <Link to="/" className="block text-center text-sm text-muted-foreground hover:text-foreground mt-5">
+          <Link to="/" className="block text-center text-sm cursor-pointer text-muted-foreground hover:text-foreground mt-5">
             Remembered your password? <span className="text-primary">Sign in →</span>
           </Link>
         </form>

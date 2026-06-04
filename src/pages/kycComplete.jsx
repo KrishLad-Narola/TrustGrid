@@ -83,7 +83,8 @@ export default function KycCompletePage() {
           <button
             onClick={() => {
               // clearInterval(countdownRef.current);
-              navigate("/");
+              // navigate("/");
+              logoutLocal();
             }}
             className="w-full h-11 mt-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium flex items-center justify-center gap-2"
           >

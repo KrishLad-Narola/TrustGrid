@@ -79,8 +79,8 @@ export default function Landing() {
         setErrors(fieldErrors);
         return;
       }
-
-      toast.error(error.response?.data?.message || "Login failed");
+      // console.log(error.response?.data?.message)
+      // toast.error(error.response?.data?.message ?? "Login failed");
     }
   };
 

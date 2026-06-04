@@ -42,7 +42,7 @@ import PublicRoutes from "./routes/PublicRoutes";
 import KycCompletePage from "./pages/kycComplete";
 
 // Standard Global UI Loader
-function GlobalLoader() {
+export function GlobalLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="h-10 w-10 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
@@ -184,7 +184,7 @@ function AppRoutes() {
 
       {/* 2. PROTECTED PRIVATE ENVIRONMENT */}
       <Route element={<ProtectedRoute />}>
-        
+
         {/* Account Settings Profile Route */}
         <Route path="/profile" element={<ProfilePage />} />
 
@@ -222,7 +222,7 @@ function AppRoutes() {
           </Route>
         </Route>
       </Route>
-     
+
       <Route path="/home" element={<DefaultRedirect />} />
 
       {/* 3. CATCH-ALL ROUTE (404 HANDLING) */}

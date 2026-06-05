@@ -197,7 +197,7 @@ export default function AdminAudit() {
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
           <button
-            onClick={handlePrevious}
+            onClick={handlePrevious} 
             disabled={!pagination.hasPrevPage}
             className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           >

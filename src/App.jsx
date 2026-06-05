@@ -3,7 +3,6 @@ import { Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { RoleSwitcher } from "@/components/role-switcher";
 
 /* Public Pages */
 import Landing from "@/pages/Landing";
@@ -235,7 +234,6 @@ export default function App() {
   return (
     <AuthProvider>
       <AppRoutes />
-      
       <Toaster
         position="top-right"
         richColors

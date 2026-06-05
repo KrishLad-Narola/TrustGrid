@@ -431,31 +431,10 @@ export default function KycSubmitPage() {
         setDocIndex(snapIndex + 1);
       }
     } catch (err) {
-      const msg = err?.response?.data?.message || "";
+      // Toast already handled by axios interceptor
+      console.error("Document submission failed:", err);
 
-      // Handle "already uploaded" gracefully — treat as success
-      if (
-        msg.toLowerCase().includes("already") ||
-        err?.response?.status === 409
-      ) {
-        setCompletedDocs((prev) =>
-          prev.includes(snapDoc.key) ? prev : [...prev, snapDoc.key]
-        );
-        setDocStates((prev) => ({
-          ...prev,
-          [snapDoc.key]: { ...(prev[snapDoc.key] ?? {}), step: 1, temporaryUploadId: null },
-        }));
-        toast.success(`${snapDoc.label} already uploaded – moving on`);
-        if (snapIsLast) {
-          navigate("/kyc-complete");
-        } else {
-          if (fileInputRef.current) fileInputRef.current.value = "";
-          setDocIndex(snapIndex + 1);
-        }
-        return;
-      }
-
-      toast.error(msg || "Submission failed. Please try again.");
+      return;
     } finally {
       setSubmitting(false);
     }

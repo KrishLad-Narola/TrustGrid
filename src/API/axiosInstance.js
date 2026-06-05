@@ -127,6 +127,9 @@ axiosInstance.interceptors.response.use(
       case 404:
         toast.error(error.response.data?.message || "Resource not found");
         break;
+      case 409: 
+        toast.error(error.response.data?.message || "Conflict error");
+        break;
       case 422:
         toast.error(error.response.data?.message || "Validation error");
         break;

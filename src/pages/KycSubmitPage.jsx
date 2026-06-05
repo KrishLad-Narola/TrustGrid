@@ -7,6 +7,7 @@ import {
 import axiosInstance from "@/API/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
 
 const DOCUMENT_OPTIONS = [
   {
@@ -140,7 +141,7 @@ export default function KycSubmitPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const blobUrlsRef = useRef({}); // track blob URL so we can revoke it
-
+  const { logout } = useAuth();
   // Per-document state stored as a map keyed by doc.key so switching docs
   // preserves each document's individual state.
   const [docStates, setDocStates] = useState({});
@@ -180,10 +181,10 @@ export default function KycSubmitPage() {
 
   // Revoke blob URL on unmount
   useEffect(() => {
-  return () => {
-    Object.values(blobUrlsRef.current).forEach(URL.revokeObjectURL);
-  };
-}, []);
+    return () => {
+      Object.values(blobUrlsRef.current).forEach(URL.revokeObjectURL);
+    };
+  }, []);
 
   // ── Initial load ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -461,11 +462,8 @@ export default function KycSubmitPage() {
   };
 
   // ── Logout ────────────────────────────────────────────────────────────────
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    navigate("/login");
-    toast.success("Logged out successfully");
+  const handleLogout = async () => {
+    await logout();
   };
 
   // ── Nav helpers ───────────────────────────────────────────────────────────

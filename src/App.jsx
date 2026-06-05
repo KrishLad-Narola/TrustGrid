@@ -235,7 +235,7 @@ export default function App() {
   return (
     <AuthProvider>
       <AppRoutes />
-      <RoleSwitcher />
+      
       <Toaster
         position="top-right"
         richColors

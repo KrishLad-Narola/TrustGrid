@@ -8,12 +8,14 @@ import {
     Eye,
     EyeOff,
     ClockFading,
+    Undo2,
 } from "lucide-react";
 
 import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
 import axiosInstance from "@/API/axiosInstance";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 
 
 const changePasswordSchema = z
@@ -150,103 +152,88 @@ export default function ChangePassword() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden">
-            <div className="absolute inset-0 grid-bg opacity-40" />
-            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/30 blur-[140px]" />
-            <div className="absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-[140px]" />
-
-            <header className="relative z-10 px-5 py-5 h-16 flex items-center justify-between ">
-                <Link to="/dashboard" className="flex items-center gap-3">
-                    <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-sm">
-                        <ShieldCheck className="size-5 text-primary-foreground" />
-                    </div>
-
-                    <div>
-                        <div className="font-display font-bold tracking-tight text-sidebar-foreground">
-                            TrustGrid
-                        </div>
-
-                    </div>
-                </Link>
-
-            </header>
-
-            <section className="relative z-10 px-6 lg:px-12 pt-16  flex justify-center items-center">
-                <div className="w-full max-w-lg">
-                    <form
-                        onSubmit={handleSubmit}
-                        className="glass-card rounded-3xl p-8 shadow-card"
+        <div className="min-h-screen px-4 py-10">
+            <div className="w-full mx-auto flex flex-col justify-center items-center">
+                <div className="flex max-w-7xl justify-between items-center w-full">
+                    <CompanyLogo />
+                    <Link
+                        to="/"
+                        className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
                     >
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-mono text-primary mb-6">
-                            <Sparkles className="h-3 w-3" />
-                            <span>Password Security</span>
-                        </div>
-
-                        <h1 className="font-display text-4xl font-semibold">
-                            Change Password
-                        </h1>
-
-                        <p className="mt-3 text-muted-foreground">
-                            Keep your account secure with a strong password.
-                        </p>
-
-                        <PasswordInput
-                            label="Current Password"
-                            name="currentPassword"
-                            value={formData.currentPassword}
-                            onChange={handleChange}
-                            show={showPassword.current}
-                            toggle={() =>
-                                togglePassword("current")
-                            }
-                            placeholder="Enter current password"
-                        />
-
-                        <PasswordInput
-                            label="New Password"
-                            name="newPassword"
-                            value={formData.newPassword}
-                            onChange={handleChange}
-                            show={showPassword.new}
-                            toggle={() => togglePassword("new")}
-                            placeholder="Enter new password"
-                        />
-
-                        <PasswordInput
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            show={showPassword.confirm}
-                            toggle={() =>
-                                togglePassword("confirm")
-                            }
-                            placeholder="Confirm password"
-                        />
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full mt-6 inline-flex items-center  justify-center gap-2 px-4 py-3 cursor-pointer rounded-xl btn-primary from-primary to-primary text-white font-medium shadow-glow hover:opacity-95 transition disabled:opacity-50"
-                        >
-                            {loading
-                                ? "Changing..."
-                                : "Change Password"}
-
-                            {!loading && (
-                                <ArrowRight className="h-4 w-4" />
-                            )}
-                        </button>
-
-                        <Link
-                            to="/dashboard"
-                            className="block text-primary text-sm hover:text-blue-600 transition mt-5"
-                        >
-                            Back to Dashboard →
-                        </Link>
-                    </form>
+                        <Undo2 className="size-4" /> Back to home
+                    </Link>
                 </div>
-            </section>
+                <section className="relative z-10 px-6 lg:px-12 pt-16  flex justify-center items-center">
+                    <div className="w-full max-w-lg">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="glass-card rounded-3xl p-8 shadow-card"
+                        >
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-mono text-primary mb-6">
+                                <Sparkles className="h-3 w-3" />
+                                <span>Password Security</span>
+                            </div>
+
+                            <h1 className="font-display text-4xl font-semibold">
+                                Change Password
+                            </h1>
+
+                            <p className="mt-3 text-muted-foreground">
+                                Keep your account secure with a strong password.
+                            </p>
+
+                            <PasswordInput
+                                label="Current Password"
+                                name="currentPassword"
+                                value={formData.currentPassword}
+                                onChange={handleChange}
+                                show={showPassword.current}
+                                toggle={() =>
+                                    togglePassword("current")
+                                }
+                                placeholder="Enter current password"
+                            />
+
+                            <PasswordInput
+                                label="New Password"
+                                name="newPassword"
+                                value={formData.newPassword}
+                                onChange={handleChange}
+                                show={showPassword.new}
+                                toggle={() => togglePassword("new")}
+                                placeholder="Enter new password"
+                            />
+
+                            <PasswordInput
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                show={showPassword.confirm}
+                                toggle={() =>
+                                    togglePassword("confirm")
+                                }
+                                placeholder="Confirm password"
+                            />
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full mt-6 inline-flex items-center  justify-center gap-2 px-4 py-3 cursor-pointer rounded-xl btn-primary from-primary to-primary text-white font-medium shadow-glow hover:opacity-95 transition disabled:opacity-50"
+                            >
+                                {loading
+                                    ? "Changing..."
+                                    : "Change Password"}
+
+                                {!loading && (
+                                    <ArrowRight className="h-4 w-4" />
+                                )}
+                            </button>
+
+                        </form>
+                    </div>
+                </section>
+            </div>
         </div>
     );
 }

@@ -1,9 +1,10 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { ArrowRight, Sparkles, Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowRight, Sparkles, Lock, Eye, EyeOff, ArrowLeft, Loader2, Undo2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 
 const resetPasswordSchema = z
   .object({
@@ -81,25 +82,21 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen px-4 py-10">
-      <div className="max-w-lg mx-auto">
+      <div className="w-full mx-auto flex flex-col justify-center items-center">
+
+        <div className="flex max-w-7xl justify-between items-center w-full">
+          
+          <CompanyLogo />
+
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
+          className="inline-flex items-center gap-2 text-sm btn-ghost text-muted-foreground hover:text-foreground mb-8"
         >
-          <ArrowLeft className="size-4" /> Back to home
+          <Undo2  className="size-4" /> Back to home
         </Link>
 
-        <div className="flex items-center gap-2 mb-6">
-          <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Sparkles className="size-5 text-primary-foreground" />
-          </div>
-          <div>
-            <div className="font-display font-bold">TrustGrid</div>
-            <div className="text-xs text-muted-foreground">Password reset</div>
-          </div>
         </div>
-
-        <form onSubmit={handleResetPassword} className="glass-card p-8">
+        <form onSubmit={handleResetPassword} className="glass-card mt-10 p-8">
           <h1 className="font-display text-2xl font-semibold">Reset your password</h1>
           <p className="mt-2 text-sm text-muted-foreground">Enter your new secure password to regain access.</p>
 

@@ -8,11 +8,13 @@ import {
   Eye,
   EyeOff,
   Download,
+  Undo2,
 } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { z } from "zod";
 import jsPDF from "jspdf";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 
 const steps = ["Company", "Account"];
 
@@ -22,6 +24,7 @@ const registerSchema = z
       .string()
       .trim()
       .min(2, "Business name is required"),
+
 
     businessType: z
       .string()
@@ -74,6 +77,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     businessName: "",
@@ -251,24 +255,14 @@ export default function Register() {
   return (
     <div className="min-h-screen px-4 py-10">
       <div className="w-full mx-auto flex flex-col justify-center items-center">
-        <div className="flex justify-between w-full">
-
-          <div className="flex items-center gap-2 mb-20">
-            <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <ShieldCheck className="size-5 text-primary-foreground" />
-            </div>
-            <div>
-              <div className="font-display font-bold">Register your Business</div>
-              <div className="text-xs text-muted-foreground">Complete onboarding in two steps.</div>
-            </div>
-          </div>
+        <div className="flex max-w-7xl justify-between items-center w-full">
+          <CompanyLogo />
           <Link
             to="/"
-            className="flex justify-end items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-20"
+            className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="size-4" /> Back to home
+            <Undo2  className="size-4" /> Back to home
           </Link>
-
         </div>
 
         {/* Stepper Header */}
@@ -339,7 +333,7 @@ export default function Register() {
                   onChange={(v) =>
                     set("businessName", v)
                   }
-                  error={errors?.BusinessName?.[0]}
+                  error={errors?.businessName?.[0]}
                 />
 
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -441,26 +435,27 @@ export default function Register() {
                     error={errors?.password?.[0]}
                   />
 
-                  {/* <button
+                  <button
                     type="button"
+                    tabIndex={-1}
                     onClick={() =>
                       setShowPassword(!showPassword)
                     }
-                    className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-11 text-gray-500 hover:text-gray-700"
                   >
                     {showPassword ? (
                       <EyeOff size={20} />
                     ) : (
                       <Eye size={20} />
                     )}
-                  </button> */}
+                  </button>
                 </div>
 
                 <div className="relative">
                   <Input
                     label="Confirm Password"
                     type={
-                      showPassword ? "text" : "password"
+                      showConfirmPassword ? "text" : "password"
                     }
                     value={form.confirmPassword}
                     onChange={(v) =>
@@ -471,19 +466,20 @@ export default function Register() {
                     }
                   />
 
-                  {/* <button
+                  <button
+                    tabIndex={-1}
                     type="button"
                     onClick={() =>
-                      setShowPassword(!showPassword)
+                      setShowConfirmPassword(!showConfirmPassword)
                     }
-                    className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-11 text-gray-500 hover:text-gray-700"
                   >
-                    {showPassword ? (
+                    {showConfirmPassword ? (
                       <EyeOff size={20} />
                     ) : (
                       <Eye size={20} />
                     )}
-                  </button> */}
+                  </button>
                 </div>
               </>
             )}
@@ -514,7 +510,7 @@ export default function Register() {
                 <button
                   onClick={submit}
                   disabled={loading}
-                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
@@ -542,8 +538,8 @@ export default function Register() {
                     </>
                   ) : (
                     <>
-                      Create Account
                       <Check className="h-4 w-4" />
+                      Register
                     </>
                   )}
                 </button>

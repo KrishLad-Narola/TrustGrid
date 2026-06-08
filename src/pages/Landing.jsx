@@ -17,6 +17,7 @@ import { TrustGauge } from "@/components/trust-gauge";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email address"),
@@ -86,25 +87,19 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen">
-      <header className="px-6 md:px-10 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center glow">
-            <Sparkles className="size-5 text-primary-foreground" />
+      <div className="sticky top-0 z-10 backdrop-blur">
+        <header className="max-w-7xl mx-auto px-6 md:px-10 py-4 flex items-center justify-between">
+          <CompanyLogo />
+          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#features" className="hover:text-foreground">Features</a>
+            <a href="#trust" className="hover:text-foreground">Trust Score</a>
+            <a href="#security" className="hover:text-foreground">Security</a>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Link to="/register" className="btn-ghost">Register Business</Link>
           </div>
-          <div>
-            <div className="font-display font-bold tracking-tight">TrustGrid</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">B2B KYC & Trust</div>
-          </div>
-        </div>
-        <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground">Features</a>
-          <a href="#trust" className="hover:text-foreground">Trust Score</a>
-          <a href="#security" className="hover:text-foreground">Security</a>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Link to="/register" className="btn-ghost">Register Business</Link>
-        </div>
-      </header>
+        </header>
+      </div>
 
       <section id="trust" className="px-6 md:px-10 pt-10 pb-20 grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
         <div className="flex flex-col justify-center">

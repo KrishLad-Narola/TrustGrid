@@ -690,7 +690,7 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "incoming") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>View</Btn>
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)} className="cursor-pointer">View</Btn>
         <Btn variant="ghost-danger" icon={ThumbsDown} onClick={() => onReject(deal.id)}>Reject</Btn>
         <Btn variant="solid-success" icon={ThumbsUp} onClick={() => onAccept(deal.id)}>Accept</Btn>
       </>
@@ -700,9 +700,15 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "sent") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>View</Btn>
-        <Btn variant="ghost" icon={Pencil} onClick={() => onEdit(deal.id)}>Edit</Btn>
-        <Btn variant="ghost-danger" icon={XCircle} onClick={() => onCancel(deal.id)}>Cancel</Btn>
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)} className="cursor-pointer">
+          View
+        </Btn>
+        <Btn variant="ghost" icon={Pencil} onClick={() => onEdit(deal.id)} className="cursor-pointer">
+          Edit
+        </Btn>
+        <Btn variant="ghost-danger" icon={XCircle} onClick={() => onCancel(deal.id)} className="cursor-pointer">
+          Cancel
+        </Btn>
       </>
     );
   }
@@ -710,7 +716,9 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "active") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>View</Btn>
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)} className="cursor-pointer">
+          View
+        </Btn>
 
         {!isDisputed && (
           <Btn variant="ghost-danger" icon={AlertTriangle} onClick={() => onDispute(deal)}>
@@ -956,7 +964,7 @@ function CreateDealModal({ counterparties, onClose, onCreate }) {
         <Input label="Deal value (₹)" type="number" value={form.value} onChange={set("value")} placeholder="0" />
         <Input label="Description" value={form.description} onChange={set("description")} placeholder="Brief terms or notes…" />
         <div className="pt-1">
-          <button type="submit" className="w-full h-10 rounded-lg btn-primary text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+          <button type="submit" className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
             Create Deal
           </button>
         </div>
@@ -977,7 +985,7 @@ function EditDealModal({ deal, onClose, onSave }) {
         <Input label="Deal value (₹)" type="number" value={form.value} onChange={set("value")} />
         <Input label="Description" value={form.description} onChange={set("description")} />
         <div className="pt-1">
-          <button type="submit" className="w-full h-10 rounded-lg btn-primary text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+          <button type="submit" className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
             Save Changes
           </button>
         </div>

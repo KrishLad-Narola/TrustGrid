@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, Mail, Loader2, Clock3, ArrowLeft } from "lucide-r
 import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
 import { z } from "zod";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 
 const forgotPasswordSchema = z.object({
   email: z.string().trim().min(1, "Email is required").email("Please enter a valid email address"),
@@ -53,17 +54,9 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen px-4 py-10 flex flex-col">
       <div className="w-full mx-auto flex flex-col justify-center items-center">
-        <div className="flex justify-between w-full">
+        <div className="flex max-w-7xl justify-between items-center w-full">
 
-        <div className="flex items-center gap-2 mb-20">
-          <div className="size-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Sparkles className="size-5 text-primary-foreground" />
-          </div>
-          <div>
-            <div className="font-display font-bold">TrustGrid</div>
-            <div className="text-xs text-muted-foreground">Password recovery</div>
-          </div>
-          </div>
+          <CompanyLogo />
           
         </div>
 

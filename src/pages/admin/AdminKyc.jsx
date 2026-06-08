@@ -9,11 +9,11 @@ import {
   ChevronRight,
   AlertCircle,
   FileText,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
 const getFileServerUrl = () => {
-  
   if (axiosInstance.defaults.baseURL) {
     const url = new URL(axiosInstance.defaults.baseURL);
     return url.origin;
@@ -95,7 +95,6 @@ export default function AdminKyc() {
         `/kyc/documents/${documentId}/verify`
       );
 
-      // Check if response contains warnings and requiresConfirmation
       const data = res?.data?.data || res?.data || {};
 
       if (
@@ -103,14 +102,12 @@ export default function AdminKyc() {
         data.warnings &&
         data.warnings.length > 0
       ) {
-        // Show warning modal instead of approving directly
         setForceVerifyDocId(documentId);
         setVerificationWarnings(data.warnings);
         setForceVerifyModal(true);
         return;
       }
 
-      // No warnings, approve directly
       toast.success("Document verified");
       setSelectedDoc(null);
       loadReviewQueue(page);
@@ -167,58 +164,72 @@ export default function AdminKyc() {
 
   return (
     <>
-      <Panel className="overflow-hidden p-0">
+      <Panel className="overflow-hidden p-0 border border-border rounded-xl shadow-sm bg-card">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1100px]">
-            <thead className="bg-muted/30 border-b">
+          <table className="w-full min-w-[1100px] border-collapse text-sm">
+            <thead className="bg-muted/40 border-b border-border">
               <tr>
-                <th className="px-4 py-3 text-left">Business Name</th>
-                <th className="px-4 py-3 text-left">Document Type</th>
-                <th className="px-4 py-3 text-left">Version</th>
-                <th className="px-4 py-3 text-left">Created At</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-right">Action</th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Business Name</th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Document Type</th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Version</th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Created At</th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Status</th>
+                <th className="px-6 py-3.5 text-right font-semibold text-muted-foreground tracking-tight">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/60">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10">
-                    Loading...
+                  <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      <span className="text-xs font-medium">Fetching queue items...</span>
+                    </div>
                   </td>
                 </tr>
               ) : documents.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10">
-                    No KYC Documents Found
+                  <td colSpan={6} className="text-center py-16 text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center gap-1.5">
+                      <FileText className="w-8 h-8 opacity-40 mb-1" />
+                      <p className="font-medium text-base">No KYC Documents Found</p>
+                      <p className="text-xs max-w-xs opacity-70">There are currently no items pending or queued for security verification parameters.</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 documents.map((doc) => (
                   <tr
                     key={doc._id}
-                    className="border-b hover:bg-muted/20 transition-colors"
+                    className="hover:bg-muted/30 transition-colors duration-150 ease-in-out group"
                   >
-                    <td className="px-4 py-4">
-                      {doc?.businessId?.businessName || "-"}
+                    <td className="px-6 py-4 font-medium text-foreground">
+                      {doc?.businessId?.businessName || "—"}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4 text-muted-foreground">
                       {formatDocumentType(doc.documentType)}
                     </td>
-                    <td className="px-4 py-4">v{doc.version}</td>
-                    <td className="px-4 py-4">
-                      {new Date(doc.createdAt).toLocaleString()}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground border">
+                        v{doc.version}
+                      </span>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4 text-muted-foreground">
+                      {new Date(doc.createdAt).toLocaleString(undefined, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </td>
+                    <td className="px-6 py-4">
                       <StatusBadge status={doc.status} />
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => loadDocumentDetails(doc._id)}
-                        className="h-9 w-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors"
+                        className="inline-flex h-8 w-8 rounded-lg border border-input items-center justify-center hover:bg-accent hover:text-accent-foreground shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         title="View Document"
                       >
-                        <Eye size={16} />
+                        <Eye size={15} />
                       </button>
                     </td>
                   </tr>
@@ -229,33 +240,35 @@ export default function AdminKyc() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between border-t p-4 bg-muted/10">
-          <div className="text-sm text-muted-foreground">
-            Total Records: {paginate.totalRecords}
+        <div className="flex items-center justify-between border-t border-border px-6 py-3.5 bg-muted/20">
+          <div className="text-xs font-medium text-muted-foreground">
+            Total Records: <span className="text-foreground font-semibold">{paginate.totalRecords}</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!paginate?.hasPrevPage}
-              onClick={() => setPage((p) => p - 1)}
-              title="Previous page"
-            >
-              <ChevronLeft size={18} />
-            </button>
-
-            <span className="text-sm font-medium">
-              Page {paginate?.page} of {paginate?.totalPages}
+          <div className="flex items-center gap-6">
+            <span className="text-xs font-medium text-muted-foreground">
+              Page <span className="text-foreground font-semibold">{paginate?.page}</span> of <span className="text-foreground font-semibold">{paginate?.totalPages}</span>
             </span>
 
-            <button
-              disabled={!paginate?.hasNextPage}
-              onClick={() => setPage((p) => p + 1)}
-              className="disabled:cursor-not-allowed disabled:opacity-50"
-              title="Next page"
-            >
-              <ChevronRight size={18} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-input bg-background text-foreground shadow-sm hover:bg-accent disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                disabled={!paginate?.hasPrevPage}
+                onClick={() => setPage((p) => p - 1)}
+                title="Previous page"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <button
+                disabled={!paginate?.hasNextPage}
+                onClick={() => setPage((p) => p + 1)}
+                className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-input bg-background text-foreground shadow-sm hover:bg-accent disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                title="Next page"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </Panel>
@@ -274,84 +287,80 @@ export default function AdminKyc() {
 
       {/* Force Verify Modal */}
       {forceVerifyModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-background rounded-xl p-6 w-full max-w-2xl shadow-lg max-h-[80vh] overflow-y-auto">
-            <div className="flex items-start gap-3 mb-6">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-lg font-semibold">Data Mismatch Warnings</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  The following fields have mismatches between the document and provided data:
-                </p>
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-background rounded-xl p-6 w-full max-w-2xl shadow-xl border border-border max-h-[85vh] overflow-y-auto flex flex-col justify-between">
+            <div>
+              <div className="flex items-start gap-3.5 mb-5 pb-4 border-b border-border/80">
+                <div className="p-2 rounded-lg bg-destructive/10 text-destructive mt-0.5">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground tracking-tight">Data Mismatch Warnings</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    The automated criteria detected critical variations between structural user telemetry variables and OCR strings.
+                  </p>
+                </div>
+              </div>
+
+              {/* Warnings List */}
+              <div className="space-y-3 mb-6">
+                {verificationWarnings.map((warning, idx) => {
+                  const formatValue = (val) => {
+                    if (!val) return "—";
+                    if (typeof val === "object") {
+                      if (Array.isArray(val)) return val.join(", ");
+                      return Object.values(val).filter(Boolean).join(", ");
+                    }
+                    return String(val);
+                  };
+
+                  return (
+                    <div
+                      key={idx}
+                      className="border border-destructive/20 bg-destructive/5 rounded-xl p-4 transition-all"
+                    >
+                      <p className="font-semibold text-xs uppercase tracking-wider text-destructive mb-3">
+                        {warning.field
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/_/g, " ")
+                          .trim()
+                          .replace(/^./, (s) => s.toUpperCase())}
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="bg-background/60 p-2.5 rounded-lg border border-border/40">
+                          <span className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">Document Value</span>
+                          <span className="font-semibold text-foreground break-words">
+                            {formatValue(warning.existingValue)}
+                          </span>
+                        </div>
+                        <div className="bg-background/60 p-2.5 rounded-lg border border-border/40">
+                          <span className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">Provided Value</span>
+                          <span className="font-semibold text-foreground break-words">
+                            {formatValue(warning.submittedValue)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Warnings List */}
-            <div className="space-y-3 mb-6">
-              {verificationWarnings.map((warning, idx) => {
-                // Helper to convert values to displayable strings
-                const formatValue = (val) => {
-                  if (!val) return "—";
-                  if (typeof val === "object") {
-                    // If it's an object, show it as comma-separated values
-                    if (Array.isArray(val)) return val.join(", ");
-                    return Object.values(val)
-                      .filter(Boolean)
-                      .join(", ");
-                  }
-                  return String(val);
-                };
-
-                return (
-                  <div
-                    key={idx}
-                    className="border border-red-200 bg-red-50 rounded-lg p-4"
-                  >
-                    <p className="font-semibold text-sm text-red-900 mb-2">
-                      {warning.field
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/_/g, " ")
-                        .trim()
-                        .replace(/^./, (s) => s.toUpperCase())}
-                    </p>
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">
-                          Document Value:{" "}
-                        </span>
-                        <span className="font-medium text-red-700 break-words">
-                          {formatValue(warning.existingValue)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Provided Value:{" "}
-                        </span>
-                        <span className="font-medium text-red-700 break-words">
-                          {formatValue(warning.submittedValue)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
             {/* Action Buttons */}
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-2.5 justify-end pt-4 border-t border-border">
               <button
                 onClick={() => {
                   setForceVerifyModal(false);
                   setVerificationWarnings([]);
                   setForceVerifyDocId(null);
                 }}
-                className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium"
+                className="h-9 px-4 border border-input rounded-lg hover:bg-accent text-sm font-medium transition-colors"
               >
-                back
+                Back
               </button>
               <button
                 onClick={forceVerifyDocument}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                className="h-9 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm"
               >
                 Force Verify
               </button>
@@ -385,19 +394,12 @@ function DocumentPreviewModal({
   const metaData = selectedDoc?.metaData || {};
   const fileUrl = selectedDoc?.fileUrl;
 
-  // Build correct file URL with proper server origin
   const resolveFileUrl = (rawPath) => {
     if (!rawPath) return null;
-    // Already a full URL
     if (rawPath.startsWith("http://") || rawPath.startsWith("https://"))
       return rawPath;
-    // Normalise Windows-style backslashes
     const normalised = rawPath.replace(/\\/g, "/");
-    // Get file server origin (not API baseURL)
     const origin = getFileServerUrl();
-    // Files are at /uploads/filename, extract just that part
-    // If path is "public/uploads/file.pdf" → use "/uploads/file.pdf"
-    // If path is "uploads/file.pdf" → use "/uploads/file.pdf"
     const uploadMatch = normalised.match(/(uploads\/.+)$/);
     const uploadPath = uploadMatch ? uploadMatch[1] : normalised;
     return `${origin}/${uploadPath}`;
@@ -407,100 +409,91 @@ function DocumentPreviewModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="bg-background rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+        className="bg-background rounded-xl w-full max-w-6xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-border"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="border-b p-4 bg-muted/30 flex items-center justify-between">
+        <div className="border-b border-border p-4 bg-muted/30 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-base font-semibold text-foreground tracking-tight">
               {formatDocumentType(selectedDoc.documentType)}
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Business: {selectedDoc?.businessId?.businessName} | Uploaded by:{" "}
-              {selectedDoc?.uploadedBy?.firstName}{" "}
-              {selectedDoc?.uploadedBy?.lastName}
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Business: <span className="text-foreground font-medium">{selectedDoc?.businessId?.businessName}</span> | Uploaded by:{" "}
+              <span className="text-foreground font-medium">
+                {selectedDoc?.uploadedBy?.firstName} {selectedDoc?.uploadedBy?.lastName}
+              </span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="h-8 w-8 rounded-lg inline-flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-muted/5">
           {viewLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">Loading document...</p>
-              </div>
+            <div className="flex flex-col items-center justify-center h-96 gap-2">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-xs font-medium text-muted-foreground">Loading structural document configuration...</p>
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-6 p-6">
               {/* PDF Viewer Section */}
-              <div className="lg:col-span-2">
-                <div className="border rounded-lg overflow-hidden bg-muted/20 h-[500px] flex items-center justify-center relative">
+              <div className="lg:col-span-2 flex flex-col justify-between">
+                <div className="border border-border rounded-xl overflow-hidden bg-muted/30 h-[520px] flex items-center justify-center relative shadow-inner">
                   {displayFileUrl ? (
-                    <>
-                      <iframe
-                        src={displayFileUrl}
-                        className="w-full h-full border-0"
-                        title="Document Preview"
-                        onError={(e) => {
-                          console.error("iframe load error:", e);
-                        }}
-                        allowFullScreen
-                      />
-                    </>
+                    <iframe
+                      src={displayFileUrl}
+                      className="w-full h-full border-0"
+                      title="Document Preview"
+                      onError={(e) => console.error("iframe load error:", e)}
+                      allowFullScreen
+                    />
                   ) : (
-                    <div className="text-center text-muted-foreground">
-                      <FileText size={48} className="mx-auto mb-2 opacity-50" />
-                      <p>No document available</p>
+                    <div className="text-center text-muted-foreground/60">
+                      <FileText size={44} className="mx-auto mb-2.5 opacity-40" />
+                      <p className="text-sm font-medium">No system preview asset accessible</p>
                     </div>
                   )}
                 </div>
-                <div className="mt-3 text-xs text-muted-foreground space-y-1">
-                  <p>
-                    <span className="font-medium">File:</span> {selectedDoc?.fileName}
+                <div className="mt-4 p-3 border border-border/80 rounded-xl bg-background grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <p className="truncate">
+                    <span className="font-semibold text-foreground/80">File name:</span> {selectedDoc?.fileName}
                   </p>
                   <p>
-                    <span className="font-medium">Size:</span>{" "}
-                    {(selectedDoc?.fileSize / 1024).toFixed(2)} KB
+                    <span className="font-semibold text-foreground/80">Capacity size:</span> {(selectedDoc?.fileSize / 1024).toFixed(2)} KB
                   </p>
                   {displayFileUrl && (
-                    <p className="text-[11px] break-all text-slate-400 mt-2">
-                      <span className="font-medium">URL:</span> {displayFileUrl}
+                    <p className="text-[11px] font-mono break-all text-muted-foreground/70 col-span-1 sm:col-span-2 mt-1 pt-1.5 border-t border-border/40">
+                      <span className="font-semibold text-foreground/70 font-sans">Resolved path URI:</span> {displayFileUrl}
                     </p>
                   )}
                 </div>
               </div>
 
               {/* Data Comparison Section */}
-              <div className="space-y-4 max-h-[500px] overflow-y-auto">
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
                 <div>
-                  <h3 className="font-semibold text-sm mb-3 text-foreground">
-                    Data Verification
+                  <h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                    Telemetry Key Verification
                   </h3>
 
-                  {/* Check if there are any mismatches */}
                   {Object.keys(ocrData).length > 0 && (
                     <div className="space-y-3">
                       {Object.entries(ocrData).map(([key, ocrValue]) => {
                         const metaValue = metaData[key];
                         
-                        // Helper to convert values to displayable strings
                         const formatValue = (val) => {
                           if (!val) return "—";
                           if (typeof val === "object") {
-                            // If it's an object, show it as JSON or comma-separated values
                             if (Array.isArray(val)) return val.join(", ");
                             return Object.values(val).filter(Boolean).join(", ");
                           }
@@ -517,36 +510,36 @@ function DocumentPreviewModal({
                         return (
                           <div
                             key={key}
-                            className={`border rounded-lg p-3 ${
-                              hasMismatch ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"
+                            className={`border rounded-xl p-3.5 shadow-sm transition-all ${
+                              hasMismatch 
+                                ? "bg-red-50/40 border-red-200/80" 
+                                : "bg-emerald-50/20 border-emerald-200/60"
                             }`}
                           >
-                            <p className="text-xs font-medium text-muted-foreground uppercase">
+                            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide">
                               {key.replace(/([A-Z])/g, " $1").trim()}
                             </p>
 
-                            <div className="mt-2 space-y-1 text-xs">
-                              <div>
-                                <span className="text-muted-foreground">OCR: </span>
-                                <span className="font-medium break-words">
+                            <div className="mt-2.5 space-y-2 text-xs">
+                              <div className="flex items-start justify-between gap-2 bg-background/50 p-1.5 rounded border border-border/40">
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase mt-0.5">OCR</span>
+                                <span className="font-medium text-foreground text-right break-all max-w-[70%]">
                                   {ocrDisplay}
                                 </span>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Provided:{" "}
-                                </span>
-                                <span className="font-medium break-words">
+                              <div className="flex items-start justify-between gap-2 bg-background/50 p-1.5 rounded border border-border/40">
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase mt-0.5">Provided</span>
+                                <span className="font-medium text-foreground text-right break-all max-w-[70%]">
                                   {metaDisplay}
                                 </span>
                               </div>
                             </div>
 
                             {hasMismatch && (
-                              <div className="mt-2 flex items-center gap-1 text-red-700">
-                                <AlertCircle size={12} />
-                                <span className="text-xs font-medium">
-                                  Mismatch detected
+                              <div className="mt-2 flex items-center gap-1.5 text-red-700">
+                                <AlertCircle size={13} className="shrink-0" />
+                                <span className="text-[11px] font-medium">
+                                  Structural mismatch identified
                                 </span>
                               </div>
                             )}
@@ -557,22 +550,22 @@ function DocumentPreviewModal({
                   )}
 
                   {Object.keys(ocrData).length === 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      No OCR data extracted
+                    <p className="text-xs text-muted-foreground p-4 text-center border border-dashed rounded-xl">
+                      No matching automated strings read.
                     </p>
                   )}
                 </div>
 
                 {/* Additional Info */}
-                <div className="border-t pt-3 mt-4">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    <span className="font-medium">Status:</span>{" "}
-                    {selectedDoc.status}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="font-medium">Active:</span>{" "}
-                    {selectedDoc.isActive ? "Yes" : "No"}
-                  </p>
+                <div className="border-t border-border pt-4 space-y-2 bg-muted/20 p-3 rounded-xl border">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-medium text-muted-foreground">Queue State Status:</span>
+                    <span className="font-semibold text-foreground">{selectedDoc.status}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-medium text-muted-foreground">Active Lifecycle index:</span>
+                    <span className="font-semibold text-foreground">{selectedDoc.isActive ? "True Active" : "False Inactive"}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -581,19 +574,19 @@ function DocumentPreviewModal({
 
         {/* Action Buttons */}
         {selectedDoc?.status === "PENDING" && !viewLoading && (
-          <div className="border-t p-4 bg-muted/20 flex gap-3 justify-end">
+          <div className="border-t border-border p-4 bg-muted/40 flex gap-2.5 justify-end">
             <button
               onClick={onReject}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              className="inline-flex items-center gap-1.5 px-4 h-9 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 text-sm font-medium transition-colors shadow-sm"
             >
-              <X size={16} />
+              <X size={15} />
               Reject
             </button>
             <button
               onClick={onAccept}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              className="inline-flex items-center gap-1.5 px-4 h-9 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm"
             >
-              <Check size={16} />
+              <Check size={15} />
               Accept
             </button>
           </div>
@@ -611,38 +604,38 @@ function RejectModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="bg-background rounded-xl p-6 w-full max-w-md shadow-lg"
+        className="bg-background rounded-xl p-5 w-full max-w-md shadow-xl border border-border"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-semibold text-lg">Reject Document</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Please provide a reason for rejecting this document.
+        <h3 className="font-semibold text-base text-foreground tracking-tight">Reject Document</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Please provide a specific logging parameter explanation justifying rejection criteria.
         </p>
 
         <textarea
           rows={4}
           value={rejectReason}
           onChange={(e) => setRejectReason(e.target.value)}
-          placeholder="Enter rejection reason..."
-          className="w-full border rounded-lg p-3 mt-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          placeholder="Enter detailed reason description here..."
+          className="w-full border border-input rounded-lg p-3 mt-4 text-sm bg-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow resize-none"
         />
 
-        <div className="flex gap-3 mt-6">
+        <div className="flex gap-2.5 mt-5">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 border rounded-lg hover:bg-muted transition-colors font-medium"
+            className="flex-1 h-9 border border-input rounded-lg hover:bg-accent text-sm font-medium transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onSubmit}
-            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+            className="flex-1 h-9 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 text-sm font-medium transition-colors shadow-sm"
           >
-            Reject
+            Confirm Rejection
           </button>
         </div>
       </div>

@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
 import DocumentPreviewModal from "./DocumentPreviewModal";
 
-const tabs = ["All", "GST", "PAN", "Incorporation", "Bank"];
+const tabs = ["All", "GST", "PAN", "INCORPORATION", "BANK"];
 
 const tabsMapping = {
   GST: "GST_CERTIFICATE",
@@ -82,8 +82,6 @@ export default function KYCPage() {
   const [docType, setDocType] = useState("GST Certificate");
   const [kycDocuments, setKycDocuments] = useState([]);
 
-
-
   const filtered =
     tab === "All"
       ? kycDocuments || []
@@ -101,7 +99,7 @@ export default function KYCPage() {
       const response = await axiosInstance.get("/kyc/documents");
       setKycDocuments(response.data || []);
     } catch (error) {
-
+      // Error handling can go here
     }
   }
 
@@ -131,7 +129,6 @@ export default function KYCPage() {
               </button>
             ))}
           </div>
-
         </div>
 
         {expiring.length > 0 && (
@@ -183,6 +180,7 @@ export default function KYCPage() {
 function DocRow({ d, onReupload }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState(null);
+  const [downloading, setDownloading] = useState(false);
 
   if (!d) return null;
 
@@ -207,7 +205,7 @@ function DocRow({ d, onReupload }) {
     }
   };
 
-  const handleDownload = (openInTab = false) => {
+  const handleDownload = async (openInTab = false) => {
     try {
       const filePath = (d.fileUrl || "").replace(/\\/g, "/").replace(/^public\//, "");
       const url = `http://192.168.100.149:3000/${filePath}`;
@@ -215,17 +213,31 @@ function DocRow({ d, onReupload }) {
       if (openInTab) {
         window.open(url, "_blank");
       } else {
+        setDownloading(true);
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Network response error");
+        
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
         const link = document.createElement("a");
-        link.href = url;
+        link.href = blobUrl;
         link.download = d.fileName || `kyc-doc-${d._id}`;
         document.body.appendChild(link);
         link.click();
+        
+        // Clean up memory and elements
         document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
 
         toast.success("Download started");
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("File download failed");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -246,16 +258,21 @@ function DocRow({ d, onReupload }) {
         </td>
         <td className="px-4 py-3 text-xs font-mono">{d.size ? bytesToHuman(d.size) : "—"}</td>
         <td className="px-4 py-3 flex justify-end gap-2">
-          <button onClick={handleView}
-            className="cursor-pointer">
+          <button onClick={handleView} className="cursor-pointer">
             <Eye className="size-4" />
           </button>
-          <button onClick={() => handleDownload()}
-            className="cursor-pointer">
-            <Download className="size-4" />
+          <button 
+            onClick={() => handleDownload()} 
+            disabled={downloading}
+            className="cursor-pointer disabled:opacity-50"
+          >
+            {downloading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Download className="size-4" />
+            )}
           </button>
-          <button onClick={() => onReupload(d.documentType)}
-            className="cursor-pointer">
+          <button onClick={() => onReupload(d.documentType)} className="cursor-pointer">
             <CloudSync className="size-4" />
           </button>
         </td>

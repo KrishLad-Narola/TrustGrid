@@ -1,8 +1,9 @@
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Sparkles, ArrowLeft } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Sparkles, ArrowLeft, Undo2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -40,28 +41,21 @@ export default function VerifyEmail() {
     }
   }, [token, navigate]);
   return (
-    <div className="min-h-screen flex flex-col px-4">
-      {/* Logo */}
-      <div className="pt-8 pl-2">
-        <Link to="/" className="inline-flex items-center gap-3">
-        <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Sparkles className="size-4 text-white" />
-          </div>
-
-          <div>
-            <h1 className="font-display font-bold text-xl leading-none">
-              TrustGrid
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              Email verification
-            </p>
-          </div>
-        </Link>
-      </div>
-
+    <div className="min-h-screen px-4 py-10">
+        <div className="w-full mx-auto flex flex-col justify-center items-center">
+        <div className="flex max-w-7xl justify-between items-center w-full">
+          <CompanyLogo />
+          <Link
+            to="/"
+            className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <Undo2  className="size-4" /> Back to home
+          </Link>
+        </div>
+    </div>
       {/* Content */}
       <div className="flex-1 flex items-center justify-center">
-        <div className="w-full max-w-lg">
+        <div className="w-full max-w-lg mt-20">
           <div className="glass-card rounded-3xl border border-border bg-card/80 backdrop-blur-sm shadow-xl p-8 text-center">
             {loading ? (
               <>
@@ -118,5 +112,6 @@ export default function VerifyEmail() {
         </div>
       </div>
     </div>
+    
   );
 }

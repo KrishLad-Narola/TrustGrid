@@ -3,6 +3,7 @@ import { Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { useTheme } from "@/lib/ThemeContext";
 
 /* Public Pages */
 import Landing from "@/pages/Landing";
@@ -40,27 +41,30 @@ import AdminSettings from "@/pages/admin/AdminSettings";
 import PublicRoutes from "./routes/PublicRoutes";
 import KycCompletePage from "./pages/kycComplete";
 
-// Standard Global UI Loader
 export function GlobalLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
       <div className="h-10 w-10 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
     </div>
   );
 }
 
-// 404 Not Found Component
 function NotFoundPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-slate-950 px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-slate-900">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-slate-800">
+        <h1 className="text-7xl font-bold text-slate-900 dark:text-white">
+          404
+        </h1>
+
+        <h2 className="mt-4 text-xl font-semibold text-slate-800 dark:text-slate-200">
           Page not found
         </h2>
-        <p className="mt-2 text-sm text-slate-500">
+
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           The page you're looking for doesn't exist or has been moved.
         </p>
+
         <div className="mt-6">
           <Link
             to="/dashboard"
@@ -74,8 +78,6 @@ function NotFoundPage() {
   );
 }
 
-// GUARD 1: Authentication Wall
-// Ensures a user is fully logged in before interacting with any secure routes.
 function ProtectedRoute() {
   const { isAuthenticated, loading } = useAuth();
 
@@ -85,48 +87,36 @@ function ProtectedRoute() {
   return <Outlet />;
 }
 
-// GUARD 2: KYC Submission Onboarding Filter
-// Controls the step 0 and step 1 screens. Stops an approved user from viewing them.
 function KycFlowCheck() {
   const { business, loading, user } = useAuth();
 
   if (loading) return <GlobalLoader />;
 
-  // System users should never see KYC screens
   if (user?.scope === "SYSTEM") {
     return <Navigate to="/admin" replace />;
   }
 
   const kycStatus = business?.kycStatus?.trim()?.toUpperCase() || "DRAFT";
 
-  if (
-    kycStatus === "VERIFIED" ||
-    kycStatus === "APPROVED"
-  ) {
+  if (kycStatus === "VERIFIED" || kycStatus === "APPROVED") {
     return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;
 }
 
-// GUARD 3: Main Core Application Wall
-// Protects the private application pages. Users can ONLY pass if KYC status is APPROVED.
 function MainAppGuard() {
   const { business, user, loading } = useAuth();
 
   if (loading) return <GlobalLoader />;
 
-  // Allow system users directly
   if (user?.scope === "SYSTEM") {
     return <Outlet />;
   }
 
   const kycStatus = business?.kycStatus?.trim()?.toUpperCase() || "DRAFT";
 
-  if (
-    kycStatus === "VERIFIED" ||
-    kycStatus === "APPROVED"
-  ) {
+  if (kycStatus === "VERIFIED" || kycStatus === "APPROVED") {
     return <Outlet />;
   }
 
@@ -140,7 +130,6 @@ function MainAppGuard() {
   return <Navigate to="/kyc-submit" replace />;
 }
 
-
 function DefaultRedirect() {
   const { user, business, loading } = useAuth();
 
@@ -152,10 +141,7 @@ function DefaultRedirect() {
 
   const kycStatus = business?.kycStatus?.trim()?.toUpperCase();
 
-  if (
-    kycStatus === "VERIFIED" ||
-    kycStatus === "APPROVED"
-  ) {
+  if (kycStatus === "VERIFIED" || kycStatus === "APPROVED") {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -172,7 +158,6 @@ function DefaultRedirect() {
 function AppRoutes() {
   return (
     <Routes>
-      {/* 1. PUBLIC LANDING & AUTH PATHWAYS */}
       <Route element={<PublicRoutes />}>
         <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
@@ -181,23 +166,17 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
-      {/* 2. PROTECTED PRIVATE ENVIRONMENT */}
       <Route element={<ProtectedRoute />}>
-
-        {/* Account Settings Profile Route */}
         <Route path="/profile" element={<ProfilePage />} />
 
-        {/* SUB-SECTION A: KYC Document Collection Pipeline */}
         <Route element={<KycFlowCheck />}>
           <Route path="/kyc-submit" element={<KycSubmitPage />} />
           <Route path="/kyc-complete" element={<KycCompletePage />} />
         </Route>
 
-        {/* SUB-SECTION B: Core Production Infrastructure (Dashboard/Admin) */}
         <Route element={<MainAppGuard />}>
           <Route path="/change-password" element={<ChangePassword />} />
 
-          {/* User Console Operations Panel */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="kyc" element={<KycPage />} />
@@ -209,7 +188,6 @@ function AppRoutes() {
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 
-          {/* Super Admin Control Center */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminHome />} />
             <Route path="businesses" element={<AdminBusinesses />} />
@@ -224,24 +202,34 @@ function AppRoutes() {
 
       <Route path="/home" element={<DefaultRedirect />} />
 
-      {/* 3. CATCH-ALL ROUTE (404 HANDLING) */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
 
-export default function App() {
+function AppContent() {
+  const { theme } = useTheme();
+
   return (
-    <AuthProvider>
+    <>
       <AppRoutes />
+
       <Toaster
         position="top-right"
         richColors
         closeButton
         expand
         duration={3000}
-        theme="light"
+        theme={theme}
       />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

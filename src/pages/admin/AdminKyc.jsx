@@ -91,17 +91,11 @@ export default function AdminKyc() {
 
   const verifyDocument = async (documentId) => {
     try {
-      const res = await axiosInstance.patch(
-        `/kyc/documents/${documentId}/verify`
-      );
+      const res = await axiosInstance.patch(`/kyc/documents/${documentId}/verify`);
 
       const data = res?.data?.data || res?.data || {};
 
-      if (
-        data.requiresConfirmation &&
-        data.warnings &&
-        data.warnings.length > 0
-      ) {
+      if (data.requiresConfirmation && data.warnings && data.warnings.length > 0) {
         setForceVerifyDocId(documentId);
         setVerificationWarnings(data.warnings);
         setForceVerifyModal(true);
@@ -118,10 +112,7 @@ export default function AdminKyc() {
 
   const forceVerifyDocument = async () => {
     try {
-      await axiosInstance.patch(
-        `/kyc/documents/${forceVerifyDocId}/verify`,
-        { forceVerify: true }
-      );
+      await axiosInstance.patch(`/kyc/documents/${forceVerifyDocId}/verify`, { forceVerify: true });
 
       toast.success("Document force verified");
       setForceVerifyModal(false);
@@ -140,10 +131,9 @@ export default function AdminKyc() {
         return;
       }
 
-      await axiosInstance.patch(
-        `/kyc/documents/${selectedDoc._id}/reject`,
-        { rejectionReason: rejectReason }
-      );
+      await axiosInstance.patch(`/kyc/documents/${selectedDoc._id}/reject`, {
+        rejectionReason: rejectReason,
+      });
 
       toast.success("Document rejected");
       setRejectReason("");
@@ -169,12 +159,24 @@ export default function AdminKyc() {
           <table className="w-full min-w-[1100px] border-collapse text-sm">
             <thead className="bg-muted/40 border-b border-border">
               <tr>
-                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Business Name</th>
-                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Document Type</th>
-                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Version</th>
-                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Created At</th>
-                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">Status</th>
-                <th className="px-6 py-3.5 text-right font-semibold text-muted-foreground tracking-tight">Action</th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">
+                  Business Name
+                </th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">
+                  Document Type
+                </th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">
+                  Version
+                </th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">
+                  Created At
+                </th>
+                <th className="px-6 py-3.5 text-left font-semibold text-muted-foreground tracking-tight">
+                  Status
+                </th>
+                <th className="px-6 py-3.5 text-right font-semibold text-muted-foreground tracking-tight">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -193,7 +195,10 @@ export default function AdminKyc() {
                     <div className="flex flex-col items-center justify-center gap-1.5">
                       <FileText className="w-8 h-8 opacity-40 mb-1" />
                       <p className="font-medium text-base">No KYC Documents Found</p>
-                      <p className="text-xs max-w-xs opacity-70">There are currently no items pending or queued for security verification parameters.</p>
+                      <p className="text-xs max-w-xs opacity-70">
+                        There are currently no items pending or queued for security verification
+                        parameters.
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -242,12 +247,14 @@ export default function AdminKyc() {
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-border px-6 py-3.5 bg-muted/20">
           <div className="text-xs font-medium text-muted-foreground">
-            Total Records: <span className="text-foreground font-semibold">{paginate.totalRecords}</span>
+            Total Records:{" "}
+            <span className="text-foreground font-semibold">{paginate.totalRecords}</span>
           </div>
 
           <div className="flex items-center gap-6">
             <span className="text-xs font-medium text-muted-foreground">
-              Page <span className="text-foreground font-semibold">{paginate?.page}</span> of <span className="text-foreground font-semibold">{paginate?.totalPages}</span>
+              Page <span className="text-foreground font-semibold">{paginate?.page}</span> of{" "}
+              <span className="text-foreground font-semibold">{paginate?.totalPages}</span>
             </span>
 
             <div className="flex items-center gap-1.5">
@@ -295,9 +302,12 @@ export default function AdminKyc() {
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-foreground tracking-tight">Data Mismatch Warnings</h3>
+                  <h3 className="text-base font-semibold text-foreground tracking-tight">
+                    Data Mismatch Warnings
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    The automated criteria detected critical variations between structural user telemetry variables and OCR strings.
+                    The automated criteria detected critical variations between structural user
+                    telemetry variables and OCR strings.
                   </p>
                 </div>
               </div>
@@ -328,13 +338,17 @@ export default function AdminKyc() {
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div className="bg-background/60 p-2.5 rounded-lg border border-border/40">
-                          <span className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">Document Value</span>
+                          <span className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                            Document Value
+                          </span>
                           <span className="font-semibold text-foreground break-words">
                             {formatValue(warning.existingValue)}
                           </span>
                         </div>
                         <div className="bg-background/60 p-2.5 rounded-lg border border-border/40">
-                          <span className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">Provided Value</span>
+                          <span className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                            Provided Value
+                          </span>
                           <span className="font-semibold text-foreground break-words">
                             {formatValue(warning.submittedValue)}
                           </span>
@@ -396,8 +410,7 @@ function DocumentPreviewModal({
 
   const resolveFileUrl = (rawPath) => {
     if (!rawPath) return null;
-    if (rawPath.startsWith("http://") || rawPath.startsWith("https://"))
-      return rawPath;
+    if (rawPath.startsWith("http://") || rawPath.startsWith("https://")) return rawPath;
     const normalised = rawPath.replace(/\\/g, "/");
     const origin = getFileServerUrl();
     const uploadMatch = normalised.match(/(uploads\/.+)$/);
@@ -423,7 +436,11 @@ function DocumentPreviewModal({
               {formatDocumentType(selectedDoc.documentType)}
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Business: <span className="text-foreground font-medium">{selectedDoc?.businessId?.businessName}</span> | Uploaded by:{" "}
+              Business:{" "}
+              <span className="text-foreground font-medium">
+                {selectedDoc?.businessId?.businessName}
+              </span>{" "}
+              | Uploaded by:{" "}
               <span className="text-foreground font-medium">
                 {selectedDoc?.uploadedBy?.firstName} {selectedDoc?.uploadedBy?.lastName}
               </span>
@@ -442,7 +459,9 @@ function DocumentPreviewModal({
           {viewLoading ? (
             <div className="flex flex-col items-center justify-center h-96 gap-2">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="text-xs font-medium text-muted-foreground">Loading structural document configuration...</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Loading structural document configuration...
+              </p>
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-6 p-6">
@@ -466,14 +485,19 @@ function DocumentPreviewModal({
                 </div>
                 <div className="mt-4 p-3 border border-border/80 rounded-xl bg-background grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
                   <p className="truncate">
-                    <span className="font-semibold text-foreground/80">File name:</span> {selectedDoc?.fileName}
+                    <span className="font-semibold text-foreground/80">File name:</span>{" "}
+                    {selectedDoc?.fileName}
                   </p>
                   <p>
-                    <span className="font-semibold text-foreground/80">Capacity size:</span> {(selectedDoc?.fileSize / 1024).toFixed(2)} KB
+                    <span className="font-semibold text-foreground/80">Capacity size:</span>{" "}
+                    {(selectedDoc?.fileSize / 1024).toFixed(2)} KB
                   </p>
                   {displayFileUrl && (
                     <p className="text-[11px] font-mono break-all text-muted-foreground/70 col-span-1 sm:col-span-2 mt-1 pt-1.5 border-t border-border/40">
-                      <span className="font-semibold text-foreground/70 font-sans">Resolved path URI:</span> {displayFileUrl}
+                      <span className="font-semibold text-foreground/70 font-sans">
+                        Resolved path URI:
+                      </span>{" "}
+                      {displayFileUrl}
                     </p>
                   )}
                 </div>
@@ -490,7 +514,7 @@ function DocumentPreviewModal({
                     <div className="space-y-3">
                       {Object.entries(ocrData).map(([key, ocrValue]) => {
                         const metaValue = metaData[key];
-                        
+
                         const formatValue = (val) => {
                           if (!val) return "—";
                           if (typeof val === "object") {
@@ -499,20 +523,17 @@ function DocumentPreviewModal({
                           }
                           return String(val);
                         };
-                        
+
                         const ocrDisplay = formatValue(ocrValue);
                         const metaDisplay = formatValue(metaValue);
-                        const hasMismatch =
-                          ocrValue &&
-                          metaValue &&
-                          ocrDisplay !== metaDisplay;
+                        const hasMismatch = ocrValue && metaValue && ocrDisplay !== metaDisplay;
 
                         return (
                           <div
                             key={key}
                             className={`border rounded-xl p-3.5 shadow-sm transition-all ${
-                              hasMismatch 
-                                ? "bg-red-50/40 border-red-200/80" 
+                              hasMismatch
+                                ? "bg-red-50/40 border-red-200/80"
                                 : "bg-emerald-50/20 border-emerald-200/60"
                             }`}
                           >
@@ -522,13 +543,17 @@ function DocumentPreviewModal({
 
                             <div className="mt-2.5 space-y-2 text-xs">
                               <div className="flex items-start justify-between gap-2 bg-background/50 p-1.5 rounded border border-border/40">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase mt-0.5">OCR</span>
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase mt-0.5">
+                                  OCR
+                                </span>
                                 <span className="font-medium text-foreground text-right break-all max-w-[70%]">
                                   {ocrDisplay}
                                 </span>
                               </div>
                               <div className="flex items-start justify-between gap-2 bg-background/50 p-1.5 rounded border border-border/40">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase mt-0.5">Provided</span>
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase mt-0.5">
+                                  Provided
+                                </span>
                                 <span className="font-medium text-foreground text-right break-all max-w-[70%]">
                                   {metaDisplay}
                                 </span>
@@ -563,8 +588,12 @@ function DocumentPreviewModal({
                     <span className="font-semibold text-foreground">{selectedDoc.status}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-medium text-muted-foreground">Active Lifecycle index:</span>
-                    <span className="font-semibold text-foreground">{selectedDoc.isActive ? "True Active" : "False Inactive"}</span>
+                    <span className="font-medium text-muted-foreground">
+                      Active Lifecycle index:
+                    </span>
+                    <span className="font-semibold text-foreground">
+                      {selectedDoc.isActive ? "True Active" : "False Inactive"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -596,12 +625,7 @@ function DocumentPreviewModal({
   );
 }
 
-function RejectModal({
-  onClose,
-  onSubmit,
-  rejectReason,
-  setRejectReason,
-}) {
+function RejectModal({ onClose, onSubmit, rejectReason, setRejectReason }) {
   return (
     <div
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"

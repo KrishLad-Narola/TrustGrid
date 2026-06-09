@@ -35,12 +35,7 @@ const tabsMapping = {
   Bank: "BANK_PROOF",
 };
 
-const docTypeOptions = [
-  "GST Certificate",
-  "PAN Card",
-  "Incorporation Certificate",
-  "Bank Proof",
-];
+const docTypeOptions = ["GST Certificate", "PAN Card", "Incorporation Certificate", "Bank Proof"];
 
 const MAX_BYTES = 10 * 1024 * 1024;
 
@@ -122,8 +117,11 @@ export default function KYCPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${tab === t ? "btn-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-                  }`}
+                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${
+                  tab === t
+                    ? "btn-primary text-white shadow-sm border border-slate-200"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 border border-transparent"
+                }`}
               >
                 {t}
               </button>
@@ -217,7 +215,7 @@ function DocRow({ d, onReupload }) {
 
         const response = await fetch(url);
         if (!response.ok) throw new Error("Network response error");
-        
+
         const blob = await response.blob();
         const blobUrl = window.URL.createObjectURL(blob);
 
@@ -226,7 +224,7 @@ function DocRow({ d, onReupload }) {
         link.download = d.fileName || `kyc-doc-${d._id}`;
         document.body.appendChild(link);
         link.click();
-        
+
         // Clean up memory and elements
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
@@ -261,8 +259,8 @@ function DocRow({ d, onReupload }) {
           <button onClick={handleView} className="cursor-pointer">
             <Eye className="size-4" />
           </button>
-          <button 
-            onClick={() => handleDownload()} 
+          <button
+            onClick={() => handleDownload()}
             disabled={downloading}
             className="cursor-pointer disabled:opacity-50"
           >
@@ -280,8 +278,12 @@ function DocRow({ d, onReupload }) {
 
       {previewOpen &&
         createPortal(
-          <DocumentPreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} data={previewData} />,
-          document.body
+          <DocumentPreviewModal
+            open={previewOpen}
+            onClose={() => setPreviewOpen(false)}
+            data={previewData}
+          />,
+          document.body,
         )}
     </>
   );
@@ -302,9 +304,7 @@ function UploadModal({ onClose, docType, setDocType }) {
 
     const isValid =
       ACCEPTED_MIME.includes(file.type) ||
-      ACCEPTED_EXT.some((ext) =>
-        file.name.toLowerCase().endsWith(ext)
-      );
+      ACCEPTED_EXT.some((ext) => file.name.toLowerCase().endsWith(ext));
 
     if (!isValid) {
       toast.error("Invalid file type");
@@ -329,21 +329,14 @@ function UploadModal({ onClose, docType, setDocType }) {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append(
-        "type",
-        tabsMapping[docType] || "GST_CERTIFICATE"
-      );
+      formData.append("type", tabsMapping[docType] || "GST_CERTIFICATE");
       formData.append("document", selectedFile);
 
-      const res = await axiosInstance.post(
-        "/kyc/documents/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axiosInstance.post("/kyc/documents/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       const data = res.data?.data || res.data;
 
@@ -354,9 +347,7 @@ function UploadModal({ onClose, docType, setDocType }) {
 
       setDocumentData(meta);
 
-      toast.success(
-        "Document uploaded. Please verify details."
-      );
+      toast.success("Document uploaded. Please verify details.");
     } catch (err) {
       console.error(err);
       toast.error("Upload failed");
@@ -369,16 +360,11 @@ function UploadModal({ onClose, docType, setDocType }) {
     try {
       setLoading(true);
 
-      await axiosInstance.post(
-        "/kyc/documents",
-        {
-          temporaryUploadId:
-            uploadedDoc?.temporaryUploadId ||
-            uploadedDoc?.data?.temporaryUploadId,
+      await axiosInstance.post("/kyc/documents", {
+        temporaryUploadId: uploadedDoc?.temporaryUploadId || uploadedDoc?.data?.temporaryUploadId,
 
-          metaData: documentData,
-        }
-      );
+        metaData: documentData,
+      });
 
       toast.success("Document confirmed successfully");
       onClose();
@@ -402,9 +388,7 @@ function UploadModal({ onClose, docType, setDocType }) {
         {Object.entries(documentData).map(([key, value]) => (
           <div key={key}>
             <label className="block text-xs text-muted-foreground mb-1">
-              {key
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (s) => s.toUpperCase())}
+              {key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
             </label>
 
             <input
@@ -421,24 +405,19 @@ function UploadModal({ onClose, docType, setDocType }) {
         ))}
       </div>
     ) : (
-      <p className="text-sm text-muted-foreground">
-        No metadata extracted from document.
-      </p>
+      <p className="text-sm text-muted-foreground">No metadata extracted from document.</p>
     );
   };
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="glass-card w-full max-w-xl p-6 space-y-4 max-h-[90vh] overflow-auto">
-
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-lg">
-            Upload KYC Document
-          </h3>
+          <h3 className="font-semibold text-lg">Upload KYC Document</h3>
 
           <button onClick={onClose}>
-            <X className="size-4" />
+            <X className="size-4 cursor-pointer" />
           </button>
         </div>
 
@@ -446,24 +425,20 @@ function UploadModal({ onClose, docType, setDocType }) {
         {!uploadedDoc && (
           <>
             <div>
-              <label className="text-xs text-muted-foreground">
-                Document Type
-              </label>
+              <label className="text-xs text-muted-foreground">Document Type</label>
 
               <select
                 value={docType}
-                onChange={(e) =>
-                  setDocType(e.target.value)
-                }
-                className="w-full mt-1 px-3 py-2 border rounded-lg bg-input"
+                onChange={(e) => setDocType(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border rounded-lg cursor-pointer bg-input"
               >
                 {docTypeOptions.map((opt) => (
                   <option key={opt}>{opt}</option>
                 ))}
-              </select>
+              </select> 
             </div>
 
-            <div className="border border-dashed p-6 text-center rounded-lg">
+            <div className="border border-dashed p-6 text-center justify-center cursor-pointer rounded-lg">
               <CloudUpload className="mx-auto mb-2 size-6" />
 
               <input
@@ -473,23 +448,15 @@ function UploadModal({ onClose, docType, setDocType }) {
                 onChange={handleFileChange}
               />
 
-              {selectedFile && (
-                <p className="text-xs mt-2">
-                  {selectedFile.name}
-                </p>
-              )}
+              {selectedFile && <p className="text-xs mt-2">{selectedFile.name}</p>}
             </div>
 
-            <div className="flex justify-end gap-2">
-              <button onClick={onClose} className="btn-ghost">
+            <div className="flex justify-end gap-2 ">
+              <button onClick={onClose} className="btn-ghost cursor-pointer ">
                 Cancel
               </button>
 
-              <button
-                onClick={handleUpload}
-                disabled={loading}
-                className="btn-primary"
-              >
+              <button onClick={handleUpload} disabled={loading} className="btn-primary cursor-pointer">
                 {loading ? "Uploading..." : "Upload"}
               </button>
             </div>
@@ -500,35 +467,24 @@ function UploadModal({ onClose, docType, setDocType }) {
         {uploadedDoc && (
           <>
             <div className="rounded-lg border p-4 space-y-3">
-              <h4 className="font-medium">
-                Verify Document Details
-              </h4>
+              <h4 className="font-medium">Verify Document Details</h4>
 
               {renderFormFields()}
             </div>
 
             <div className="flex justify-end gap-2">
-              <button
-                onClick={reset}
-                className="btn-ghost"
-              >
+              <button onClick={reset} className="btn-ghost">
                 Reupload
               </button>
 
-              <button
-                onClick={handleConfirm}
-                disabled={loading}
-                className="btn-primary"
-              >
-                {loading
-                  ? "Confirming..."
-                  : "Confirm Upload"}
+              <button onClick={handleConfirm} disabled={loading} className="btn-primary">
+                {loading ? "Confirming..." : "Confirm Upload"}
               </button>
             </div>
           </>
         )}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

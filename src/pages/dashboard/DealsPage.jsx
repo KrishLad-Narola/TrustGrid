@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import axiosInstance from "@/API/axiosInstance";
 import { formatINR } from "@/lib/mock-data";
 import { toast } from "sonner";
@@ -39,7 +39,8 @@ const mapStatus = (status) => {
 };
 
 const normalizeDeal = (deal) => {
-  const rawCounterparty = deal.counterPartyBusinessId ?? deal.counterPartyBusiness ?? deal.counterparty;
+  const rawCounterparty =
+    deal.counterPartyBusinessId ?? deal.counterPartyBusiness ?? deal.counterparty;
   const rawCreator = deal.createdByBusinessId ?? deal.createdByBusiness;
 
   return {
@@ -54,35 +55,26 @@ const normalizeDeal = (deal) => {
     initiatorCompletedAt: deal.initiatorCompletedAt,
     counterPartyCompletedAt: deal.counterPartyCompletedAt,
 
-    createdAt: new Date(deal.createdAt).toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    ),
+    createdAt: new Date(deal.createdAt).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
 
     rawDeadline: deal.dealTimeline || deal.endDate || null,
 
     deadline: deal.dealTimeline
-      ? new Date(deal.dealTimeline).toLocaleDateString(
-        "en-IN",
-        {
+      ? new Date(deal.dealTimeline).toLocaleDateString("en-IN", {
           day: "2-digit",
           month: "short",
           year: "numeric",
-        }
-      )
+        })
       : deal.endDate
-        ? new Date(deal.endDate).toLocaleDateString(
-          "en-IN",
-          {
+        ? new Date(deal.endDate).toLocaleDateString("en-IN", {
             day: "2-digit",
             month: "short",
             year: "numeric",
-          }
-        )
+          })
         : null,
 
     canAccept: deal.canAccept,
@@ -93,10 +85,7 @@ const normalizeDeal = (deal) => {
     disputeRaisedBy: deal.disputeRaisedBy,
     disputeId: deal.disputeId,
 
-    timeline:
-      deal.timeline ||
-      deal.dealTimeline ||
-      [],
+    timeline: deal.timeline || deal.dealTimeline || [],
   };
 };
 
@@ -179,75 +168,65 @@ export default function DealsPage() {
 
   const { business } = useAuth();
 
-  const loadDeals = async (type = activeTab) => {
-    try {
-      setLoading(true);
+  const loadDeals = useCallback(
+    async (type = activeTab) => {
+      try {
+        setLoading(true);
 
-      if (type === "disputed") {
-        const res = await axiosInstance.get("/deals/disputes");
+        if (type === "disputed") {
+          const res = await axiosInstance.get("/deals/disputes");
 
-        const disputeRecords = res?.data?.data || res?.data || [];
+          const disputeRecords = res?.data?.data || res?.data || [];
 
-        const mappedDeals = disputeRecords.map((record) => {
-          const underlyingDeal = record.dealId || {};
-          return normalizeDeal({
-            ...underlyingDeal,
-            disputeId: record._id,
-            status:
-              record.status === "RESOLVED"
-                ? "RESOLVED"
-                : "DISPUTED",
-            disputeReason: record.reason,
-            disputeRaisedBy:
-              record.raisedByBusinessId?._id ||
-              record.raisedByBusinessId,
+          const mappedDeals = disputeRecords.map((record) => {
+            const underlyingDeal = record.dealId || {};
+            return normalizeDeal({
+              ...underlyingDeal,
+              disputeId: record._id,
+              status: record.status === "RESOLVED" ? "RESOLVED" : "DISPUTED",
+              disputeReason: record.reason,
+              disputeRaisedBy: record.raisedByBusinessId?._id || record.raisedByBusinessId,
+            });
           });
-        });
 
-        setDeals(mappedDeals);
-        setSummary((prev) => ({
-          ...prev,
-          disputedDeals: mappedDeals.filter(
-            (d) => d.status === "disputed"
-          ).length,
-        }));
-      } else {
-        const res = await axiosInstance.get(`/deals?type=${type}`);
+          setDeals(mappedDeals);
+          setSummary((prev) => ({
+            ...prev,
+            disputedDeals: mappedDeals.filter((d) => d.status === "disputed").length,
+          }));
+        } else {
+          const res = await axiosInstance.get(`/deals?type=${type}`);
 
-        setDeals((res?.data?.deals || []).map(normalizeDeal));
+          setDeals((res?.data?.deals || []).map(normalizeDeal));
 
-        if (res?.data?.summary) {
-          setSummary(res.data.summary);
+          if (res?.data?.summary) {
+            setSummary(res.data.summary);
+          }
         }
+      } catch (err) {
+        console.error(err);
+        setDeals([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setDeals([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [activeTab],
+  );
 
-  const loadCounterparties = async () => {
+  const loadCounterparties = useCallback(async () => {
     try {
       const res = await axiosInstance.get("/businesses/counterparties");
       setCounterparties(res?.businesses || res?.data?.businesses || res?.data || []);
-    } catch { }
-  };
+    } catch {}
+  }, []);
 
   const loadDealById = async (id) => {
     try {
       const res = await axiosInstance.get(`/deals/${id}`);
 
-      const dealData =
-        res?.data?.data?.deal ||
-        res?.data?.deal ||
-        res?.deal;
+      const dealData = res?.data?.data?.deal || res?.data?.deal || res?.deal;
 
-      const timelineData =
-        res?.data?.data?.dealTimeline ||
-        res?.data?.dealTimeline ||
-        [];
+      const timelineData = res?.data?.data?.dealTimeline || res?.data?.dealTimeline || [];
 
       if (!dealData) return null;
 
@@ -261,8 +240,12 @@ export default function DealsPage() {
     }
   };
 
-  useEffect(() => { loadDeals(activeTab); }, [activeTab]);
-  useEffect(() => { loadCounterparties(); }, []);
+  useEffect(() => {
+    loadDeals(activeTab);
+  }, [activeTab, loadDeals]);
+  useEffect(() => {
+    loadCounterparties();
+  }, [loadCounterparties]);
 
   const loadSummary = async () => {
     try {
@@ -273,10 +256,7 @@ export default function DealsPage() {
 
       const summaryData = summaryRes?.data?.summary || {};
 
-      const disputes =
-        disputeRes?.data?.data ||
-        disputeRes?.data ||
-        [];
+      const disputes = disputeRes?.data?.data || disputeRes?.data || [];
 
       setSummary({
         incomingDeals: summaryData.incomingDeals || 0,
@@ -293,7 +273,6 @@ export default function DealsPage() {
     loadSummary();
   }, []);
 
-
   const handleCreateDeal = async (payload) => {
     try {
       await axiosInstance.post("/deals", {
@@ -305,7 +284,7 @@ export default function DealsPage() {
       await loadDeals();
       setOpen(false);
       toast.success("Deal created successfully");
-    } catch { }
+    } catch {}
   };
 
   const handleUpdateDeal = async (updatedDeal) => {
@@ -318,7 +297,7 @@ export default function DealsPage() {
       await loadDeals();
       setEditingDeal(null);
       toast.success("Deal updated successfully");
-    } catch { }
+    } catch {}
   };
 
   const handleDeleteDeal = async (id) => {
@@ -327,7 +306,7 @@ export default function DealsPage() {
       await axiosInstance.delete(`/deals/${id}`);
       await loadDeals();
       toast.success("Deal deleted successfully");
-    } catch { }
+    } catch {}
   };
 
   const handleAcceptDeal = async (id) => {
@@ -335,7 +314,7 @@ export default function DealsPage() {
       await axiosInstance.patch(`/deals/${id}/accept`);
       await loadDeals();
       toast.success("Deal accepted");
-    } catch { }
+    } catch {}
   };
 
   const handleRejectDeal = async (id) => {
@@ -343,7 +322,7 @@ export default function DealsPage() {
       await axiosInstance.patch(`/deals/${id}/reject`);
       await loadDeals();
       toast.success("Deal rejected");
-    } catch { }
+    } catch {}
   };
 
   const handleCancelDeal = async (id) => {
@@ -382,26 +361,15 @@ export default function DealsPage() {
 
       toast.success("Dispute raised successfully");
     } catch (err) {
-      toast.error(
-        err?.response?.data?.message ||
-        "Failed to raise dispute"
-      );
+      toast.error(err?.response?.data?.message || "Failed to raise dispute");
     }
   };
 
-
-
-  const handleResolveDispute = async (
-    id,
-    resolutionNote
-  ) => {
+  const handleResolveDispute = async (id, resolutionNote) => {
     if (!id) return toast.error("Invalid deal ID");
 
     try {
-      await axiosInstance.post(
-        `/deals/disputes/${id}/resolve`,
-        { resolutionNote }
-      );
+      await axiosInstance.post(`/deals/disputes/${id}/resolve`, { resolutionNote });
 
       await loadDeals();
       await loadSummary();
@@ -410,10 +378,7 @@ export default function DealsPage() {
 
       toast.success("Dispute resolved successfully");
     } catch (err) {
-      toast.error(
-        err?.response?.data?.message ||
-        "Failed to resolve dispute"
-      );
+      toast.error(err?.response?.data?.message || "Failed to resolve dispute");
     }
   };
 
@@ -435,12 +400,15 @@ export default function DealsPage() {
     }
   };
 
-  const dealStats = useMemo(() => ({
-    incoming: summary.incomingDeals,
-    active: summary.activeDeals,
-    completed: summary.completedDeals,
-    disputed: summary.disputedDeals,
-  }), [summary]);
+  const dealStats = useMemo(
+    () => ({
+      incoming: summary.incomingDeals,
+      active: summary.activeDeals,
+      completed: summary.completedDeals,
+      disputed: summary.disputedDeals,
+    }),
+    [summary],
+  );
 
   return (
     <>
@@ -467,18 +435,21 @@ export default function DealsPage() {
             onClick={() => setActiveTab(tab.key)}
             className={`
                 relative px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer
-                ${activeTab === tab.key
-                ? "bg-white text-slate-900 shadow-sm border border-slate-200"
-                : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 border border-transparent"
-              }
-                ${tab.key === "disputed" && activeTab !== "disputed"
-                ? "text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                : ""
-              }
-                ${tab.key === "disputed" && activeTab === "disputed"
-                ? "bg-rose-50 text-rose-700 shadow-sm border border-rose-200"
-                : ""
-              }
+                ${
+                  activeTab === tab.key
+                    ? "btn-primary text-white shadow-sm border border-slate-200"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 border border-transparent"
+                }
+                ${
+                  tab.key === "disputed" && activeTab !== "disputed"
+                    ? "text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                    : ""
+                }
+                ${
+                  tab.key === "disputed" && activeTab === "disputed"
+                    ? "bg-rose-50 text-rose-700 shadow-sm border border-rose-200"
+                    : ""
+                }
               `}
           >
             {tab.label}
@@ -495,7 +466,10 @@ export default function DealsPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-xl bg-white border border-slate-200 animate-pulse" />
+            <div
+              key={i}
+              className="h-28 rounded-xl bg-white border border-slate-200 animate-pulse"
+            />
           ))}
         </div>
       ) : deals.length === 0 ? (
@@ -551,25 +525,36 @@ export default function DealsPage() {
           onSubmit={handleResolveDispute}
         />
       )}
-      {viewingDeal && (
-        <ViewDealModal
-          deal={viewingDeal}
-          onClose={() => setViewingDeal(null)}
-        />
-      )}
+      {viewingDeal && <ViewDealModal deal={viewingDeal} onClose={() => setViewingDeal(null)} />}
     </>
   );
 }
 
-function DealCard({ deal, activeTab, onAccept, onReject, onCancel, onEdit, onView,
-  onDelete, onComplete, onDispute, onResolve, business }) {
+function DealCard({
+  deal,
+  activeTab,
+  onAccept,
+  onReject,
+  onCancel,
+  onEdit,
+  onView,
+  onDelete,
+  onComplete,
+  onDispute,
+  onResolve,
+  business,
+}) {
   const completionState = activeTab === "active" ? getCompletionState(deal, business) : null;
   const cpName = deal.counterparty?.tradeName || deal.counterparty?.legalName || "—";
 
   return (
-    <div className={`bg-white rounded-xl border hover:shadow-sm transition-all duration-200 ${activeTab === "disputed" ? "border-rose-200 hover:border-rose-300" : "border-slate-200 hover:border-slate-300"
-      }`}>
-
+    <div
+      className={`bg-white rounded-xl border hover:shadow-sm transition-all duration-200 ${
+        activeTab === "disputed"
+          ? "border-rose-200 hover:border-rose-300"
+          : "border-slate-200 hover:border-slate-300"
+      }`}
+    >
       <div className="flex items-start justify-between gap-4 p-4 pb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -601,9 +586,9 @@ function DealCard({ deal, activeTab, onAccept, onReject, onCancel, onEdit, onVie
         <DisputeBanner reason={deal.disputeReason} />
       )}
 
-      {activeTab === "active" && completionState !== "not_started" && deal.status !== "disputed" && (
-        <CompletionBanner state={completionState} />
-      )}
+      {activeTab === "active" &&
+        completionState !== "not_started" &&
+        deal.status !== "disputed" && <CompletionBanner state={completionState} />}
 
       <div className="border-t border-slate-100 px-4 py-2.5 flex items-center justify-end gap-2">
         <DealActions
@@ -631,7 +616,9 @@ function DisputeBanner({ reason }) {
     <div className="mx-4 mb-3 flex items-start gap-2 px-3 py-2.5 rounded-lg border border-rose-100 bg-rose-50">
       <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0 mt-0.5" />
       <div>
-        <p className="text-[11px] font-semibold text-rose-500 uppercase tracking-wide mb-0.5">Dispute Raised</p>
+        <p className="text-[11px] font-semibold text-rose-500 uppercase tracking-wide mb-0.5">
+          Dispute Raised
+        </p>
         <p className="text-xs text-rose-700 leading-relaxed">{reason}</p>
       </div>
     </div>
@@ -662,24 +649,39 @@ function CompletionBanner({ state }) {
   const c = configs[state];
   if (!c) return null;
   return (
-    <div className={`mx-4 mb-3 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium ${c.bg} ${c.text}`}>
+    <div
+      className={`mx-4 mb-3 flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium ${c.bg} ${c.text}`}
+    >
       {c.icon}
       {c.msg}
     </div>
   );
 }
 
-function DealActions({ activeTab, deal, completionState, business,
-  onAccept, onReject, onCancel, onEdit, onView, onDelete,
-  onComplete, onDispute, onResolve }) {
-
+function DealActions({
+  activeTab,
+  deal,
+  completionState,
+  business,
+  onAccept,
+  onReject,
+  onCancel,
+  onEdit,
+  onView,
+  onDelete,
+  onComplete,
+  onDispute,
+  onResolve,
+}) {
   const isDisputed = deal.status === "disputed";
   const raisedByMe = deal.disputeRaisedBy === business?._id;
 
   if (deal.status === "cancelled" || deal.status === "rejected") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>View</Btn>
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>
+          View
+        </Btn>
         <span className="text-xs font-medium text-slate-400 border border-slate-200 bg-slate-50 px-2 py-1 rounded-md capitalize">
           {deal.status}
         </span>
@@ -690,9 +692,20 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "incoming") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)} className="cursor-pointer">View</Btn>
-        <Btn variant="ghost-danger" icon={ThumbsDown} onClick={() => onReject(deal.id)}>Reject</Btn>
-        <Btn variant="solid-success" icon={ThumbsUp} onClick={() => onAccept(deal.id)}>Accept</Btn>
+        <Btn
+          variant="ghost"
+          icon={ExternalLink}
+          onClick={() => onView(deal.id)}
+          className="cursor-pointer"
+        >
+          View
+        </Btn>
+        <Btn variant="ghost-danger" icon={ThumbsDown} onClick={() => onReject(deal.id)}>
+          Reject
+        </Btn>
+        <Btn variant="solid-success" icon={ThumbsUp} onClick={() => onAccept(deal.id)}>
+          Accept
+        </Btn>
       </>
     );
   }
@@ -700,13 +713,28 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "sent") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)} className="cursor-pointer">
+        <Btn
+          variant="ghost"
+          icon={ExternalLink}
+          onClick={() => onView(deal.id)}
+          className="cursor-pointer"
+        >
           View
         </Btn>
-        <Btn variant="ghost" icon={Pencil} onClick={() => onEdit(deal.id)} className="cursor-pointer">
+        <Btn
+          variant="ghost"
+          icon={Pencil}
+          onClick={() => onEdit(deal.id)}
+          className="cursor-pointer"
+        >
           Edit
         </Btn>
-        <Btn variant="ghost-danger" icon={XCircle} onClick={() => onCancel(deal.id)} className="cursor-pointer">
+        <Btn
+          variant="ghost-danger"
+          icon={XCircle}
+          onClick={() => onCancel(deal.id)}
+          className="cursor-pointer"
+        >
           Cancel
         </Btn>
       </>
@@ -716,7 +744,12 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "active") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)} className="cursor-pointer">
+        <Btn
+          variant="ghost"
+          icon={ExternalLink}
+          onClick={() => onView(deal.id)}
+          className="cursor-pointer"
+        >
           View
         </Btn>
 
@@ -742,7 +775,9 @@ function DealActions({ activeTab, deal, completionState, business,
           </Btn>
         )}
         {!isDisputed && completionState === "user_completed" && (
-          <Btn variant="ghost" disabled>Awaiting confirmation</Btn>
+          <Btn variant="ghost" disabled>
+            Awaiting confirmation
+          </Btn>
         )}
         {!isDisputed && completionState === "waiting_completion" && (
           <Btn variant="solid-success" icon={BadgeCheck} onClick={() => onComplete(deal.id)}>
@@ -761,7 +796,9 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "completed") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>View</Btn>
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>
+          View
+        </Btn>
         <span className="text-xs font-medium text-emerald-600 flex items-center gap-1.5">
           <CheckCircle2 className="h-3.5 w-3.5" /> Completed
         </span>
@@ -772,7 +809,9 @@ function DealActions({ activeTab, deal, completionState, business,
   if (activeTab === "disputed") {
     return (
       <>
-        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>View</Btn>
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>
+          View
+        </Btn>
 
         {deal.status === "resolved" ? (
           <span className="text-xs font-medium text-emerald-600 flex items-center gap-1.5">
@@ -795,14 +834,20 @@ function DealActions({ activeTab, deal, completionState, business,
 }
 
 function Btn({ children, icon: Icon, variant = "ghost", onClick, disabled }) {
-  const base = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  const base =
+    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    "ghost": "bg-slate-100 text-slate-700 hover:bg-slate-200",
+    ghost: "bg-slate-100 text-slate-700 hover:bg-slate-200",
     "ghost-danger": "bg-rose-50 text-rose-600 hover:bg-rose-100",
     "solid-success": "bg-emerald-600 text-white hover:bg-emerald-700",
   };
   return (
-    <button type="button" className={`${base} ${variants[variant]}`} onClick={onClick} disabled={disabled}>
+    <button
+      type="button"
+      className={`${base} ${variants[variant]}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {Icon && <Icon className="h-3.5 w-3.5" />}
       {children}
     </button>
@@ -829,7 +874,9 @@ function StatusBadge({ status }) {
     cancelled: "Cancelled",
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ring-1 ${styles[status] ?? "bg-slate-100 text-slate-500 ring-slate-200"}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ring-1 ${styles[status] ?? "bg-slate-100 text-slate-500 ring-slate-200"}`}
+    >
       {labels[status] ?? status}
     </span>
   );
@@ -919,14 +966,18 @@ function Modal({ children, onClose, title, subtitle }) {
 function Field({ label, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+        {label}
+      </label>
       {children}
     </div>
   );
 }
 
-const inputCls = "w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition disabled:opacity-50 disabled:bg-slate-100";
-const textareaCls = "w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition resize-none";
+const inputCls =
+  "w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition disabled:opacity-50 disabled:bg-slate-100";
+const textareaCls =
+  "w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition resize-none";
 
 // ─── Input Form Component ───────────────────────────────────────────────────
 function Input({ label, ...props }) {
@@ -958,13 +1009,43 @@ function CreateDealModal({ counterparties, onClose, onCreate }) {
 
   return (
     <Modal title="New Deal" subtitle="Create a business agreement" onClose={onClose}>
-      <form onSubmit={async (e) => { e.preventDefault(); await onCreate(form); }} className="space-y-4">
-        <Input label="Deal title" value={form.name} onChange={set("name")} placeholder="e.g. Q3 Supply Agreement" />
-        <Select label="Counterparty" options={counterparties} value={form.counterparty} onChange={set("counterparty")} />
-        <Input label="Deal value (₹)" type="number" value={form.value} onChange={set("value")} placeholder="0" />
-        <Input label="Description" value={form.description} onChange={set("description")} placeholder="Brief terms or notes…" />
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await onCreate(form);
+        }}
+        className="space-y-4"
+      >
+        <Input
+          label="Deal title"
+          value={form.name}
+          onChange={set("name")}
+          placeholder="e.g. Q3 Supply Agreement"
+        />
+        <Select
+          label="Counterparty"
+          options={counterparties}
+          value={form.counterparty}
+          onChange={set("counterparty")}
+        />
+        <Input
+          label="Deal value (₹)"
+          type="number"
+          value={form.value}
+          onChange={set("value")}
+          placeholder="0"
+        />
+        <Input
+          label="Description"
+          value={form.description}
+          onChange={set("description")}
+          placeholder="Brief terms or notes…"
+        />
         <div className="pt-1">
-          <button type="submit" className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+          <button
+            type="submit"
+            className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
+          >
             Create Deal
           </button>
         </div>
@@ -979,13 +1060,26 @@ function EditDealModal({ deal, onClose, onSave }) {
 
   return (
     <Modal title="Edit Deal" subtitle={deal.referenceNumber} onClose={onClose}>
-      <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSave(form);
+        }}
+        className="space-y-4"
+      >
         <Input label="Deal title" value={form.name} onChange={set("name")} />
-        <Input label="Counterparty" value={form.counterparty?.tradeName || form.counterparty?.legalName} disabled />
+        <Input
+          label="Counterparty"
+          value={form.counterparty?.tradeName || form.counterparty?.legalName}
+          disabled
+        />
         <Input label="Deal value (₹)" type="number" value={form.value} onChange={set("value")} />
         <Input label="Description" value={form.description} onChange={set("description")} />
         <div className="pt-1">
-          <button type="submit" className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+          <button
+            type="submit"
+            className="w-full h-10 rounded-lg btn-primary cursor-pointer text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
+          >
             Save Changes
           </button>
         </div>
@@ -1125,7 +1219,8 @@ function ResolveDisputeModal({ deal, onClose, onSubmit }) {
 
 // ─── View Deal Timeline Modal (With Real-Time Deadlines) ────────────────────
 function ViewDealModal({ deal, onClose }) {
-  const counterpartyName = deal.counterparty?.tradeName || deal.counterparty?.legalName || deal.counterparty || "—";
+  const counterpartyName =
+    deal.counterparty?.tradeName || deal.counterparty?.legalName || deal.counterparty || "—";
 
   return (
     <Modal title="Deal Details" subtitle={deal.referenceNumber} onClose={onClose}>
@@ -1135,7 +1230,9 @@ function ViewDealModal({ deal, onClose }) {
           <div className="flex items-start gap-2.5 text-slate-700">
             <FileText className="h-4 w-4 text-slate-400 mt-0.5" />
             <div>
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Title</h4>
+              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                Title
+              </h4>
               <p className="text-sm font-medium text-slate-900">{deal.name}</p>
             </div>
           </div>
@@ -1143,7 +1240,9 @@ function ViewDealModal({ deal, onClose }) {
           <div className="flex items-start gap-2.5 text-slate-700">
             <User className="h-4 w-4 text-slate-400 mt-0.5" />
             <div>
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Counterparty</h4>
+              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                Counterparty
+              </h4>
               <p className="text-sm font-medium text-slate-900">{counterpartyName}</p>
             </div>
           </div>
@@ -1151,7 +1250,9 @@ function ViewDealModal({ deal, onClose }) {
           <div className="flex items-start gap-2.5 text-slate-700">
             <TrendingUp className="h-4 w-4 text-slate-400 mt-0.5" />
             <div>
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Deal Value</h4>
+              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                Deal Value
+              </h4>
               <p className="text-sm font-bold text-slate-900">{formatINR(deal.value)}</p>
             </div>
           </div>
@@ -1160,7 +1261,9 @@ function ViewDealModal({ deal, onClose }) {
             <div className="flex items-start gap-2.5 text-slate-700">
               <Clock className="h-4 w-4 text-slate-400 mt-0.5" />
               <div>
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Deal Deadline</h4>
+                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                  Deal Deadline
+                </h4>
                 {/* Dynamically tracking and processing live ticking dates inside the card placeholder */}
                 <CountdownTimer targetDate={deal.rawDeadline} />
               </div>
@@ -1169,7 +1272,9 @@ function ViewDealModal({ deal, onClose }) {
 
           {deal.description && (
             <div className="border-t border-slate-200 pt-2.5 mt-1">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Terms / Description</h4>
+              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">
+                Terms / Description
+              </h4>
               <p className="text-xs text-slate-600 leading-relaxed">{deal.description}</p>
             </div>
           )}
@@ -1189,14 +1294,11 @@ function ViewDealModal({ deal, onClose }) {
                   <span className="absolute -left-[21px] top-1 bg-white border-2 border-slate-400 rounded-full h-2.5 w-2.5" />
                   <div>
                     <p className="text-xs font-semibold text-slate-800">
-                      {(event.event || "STATUS_UPDATED")
-                        .replaceAll("_", " ")}
+                      {(event.event || "STATUS_UPDATED").replaceAll("_", " ")}
                     </p>
 
                     {event.description && (
-                      <p className="text-[11px] text-slate-600 mt-1">
-                        {event.description}
-                      </p>
+                      <p className="text-[11px] text-slate-600 mt-1">{event.description}</p>
                     )}
                   </div>
                 </div>

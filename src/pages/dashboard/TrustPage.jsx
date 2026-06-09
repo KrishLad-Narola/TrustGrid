@@ -113,7 +113,7 @@ export default function TrustPage() {
         max: 10,
       },
     ],
-    [trustScore]
+    [trustScore],
   );
 
   const trustHistory = useMemo(() => {
@@ -161,36 +161,24 @@ export default function TrustPage() {
         <Card className="flex flex-col items-center p-5">
           <TrustGauge score={trustScore.overall} size={190} />
 
-          <div className="text-[11px] text-muted-foreground mt-1">
-            Out of 100
-          </div>
+          <div className="text-[11px] text-muted-foreground mt-1">Out of 100</div>
 
           <div className="grid grid-cols-3 gap-2 mt-4 w-full">
             <div className="rounded-md border py-2 text-center">
               <div className="text-[9px] uppercase tracking-wide text-muted-foreground">
                 Current
               </div>
-              <div className="text-sm font-semibold text-primary">
-                {trustScore.overall}
-              </div>
+              <div className="text-sm font-semibold text-primary">{trustScore.overall}</div>
             </div>
 
             <div className="rounded-md border py-2 text-center">
-              <div className="text-[9px] uppercase tracking-wide text-muted-foreground">
-                Events
-              </div>
-              <div className="text-sm font-semibold text-primary">
-                {history.length}
-              </div>
+              <div className="text-[9px] uppercase tracking-wide text-muted-foreground">Events</div>
+              <div className="text-sm font-semibold text-primary">{history.length}</div>
             </div>
 
             <div className="rounded-md border py-2 text-center">
-              <div className="text-[9px] uppercase tracking-wide text-muted-foreground">
-                Growth
-              </div>
-              <div className="text-sm font-semibold text-green-600">
-                +{growth}
-              </div>
+              <div className="text-[9px] uppercase tracking-wide text-muted-foreground">Growth</div>
+              <div className="text-sm font-semibold text-green-600">+{growth}</div>
             </div>
           </div>
         </Card>
@@ -214,10 +202,7 @@ export default function TrustPage() {
                   </div>
 
                   <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${pct}%` }}
-                    />
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -228,9 +213,7 @@ export default function TrustPage() {
 
       {/* HISTORY */}
       <Card className="mt-4 p-5">
-        <SectionTitle className="text-sm font-semibold tracking-tight">
-          Score History
-        </SectionTitle>
+        <SectionTitle className="text-sm font-semibold tracking-tight">Score History</SectionTitle>
 
         <div className="h-60">
           <ResponsiveContainer width="100%" height="100%">
@@ -244,7 +227,7 @@ export default function TrustPage() {
 
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" fontSize={11} />
-              <YAxis domain={[0, 100]} fontSize={11}  />
+              <YAxis domain={[0, 100]} fontSize={11} />
               <Tooltip />
 
               <Area
@@ -278,9 +261,7 @@ export default function TrustPage() {
                   <StatusBadge status={severityLabel(f.severity)} />
                 </div>
 
-                <p className="text-[12px] text-muted-foreground mt-1">
-                  {f.description}
-                </p>
+                <p className="text-[12px] text-muted-foreground mt-1">{f.description}</p>
               </div>
             ))}
           </div>
@@ -301,15 +282,12 @@ export default function TrustPage() {
                   <span className="text-sm font-medium">{f.q}</span>
 
                   <ChevronDown
-                    className={`size-4 transition-transform ${open === i ? "rotate-180" : ""
-                      }`}
+                    className={`size-4 transition-transform ${open === i ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {open === i && (
-                  <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">
-                    {f.a}
-                  </p>
+                  <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">{f.a}</p>
                 )}
               </div>
             ))}

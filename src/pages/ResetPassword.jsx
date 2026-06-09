@@ -83,22 +83,21 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen px-4 py-10">
       <div className="w-full mx-auto flex flex-col justify-center items-center">
-
         <div className="flex max-w-7xl justify-between items-center w-full">
-          
           <CompanyLogo />
 
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-sm btn-ghost text-muted-foreground hover:text-foreground mb-8"
-        >
-          <Undo2  className="size-4" /> Back to home
-        </Link>
-
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm btn-ghost text-muted-foreground hover:text-foreground mb-8"
+          >
+            <Undo2 className="size-4" /> Back to home
+          </Link>
         </div>
         <form onSubmit={handleResetPassword} className="glass-card mt-10 p-8">
           <h1 className="font-display text-2xl font-semibold">Reset your password</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Enter your new secure password to regain access.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Enter your new secure password to regain access.
+          </p>
 
           <div className="mt-6">
             <label className="text-xs text-muted-foreground">New password</label>
@@ -158,7 +157,10 @@ export default function ResetPassword() {
             )}
           </button>
 
-          <Link to="/" className="block text-center text-sm cursor-pointer text-muted-foreground hover:text-foreground mt-5">
+          <Link
+            to="/"
+            className="block text-center text-sm cursor-pointer text-muted-foreground hover:text-foreground mt-5"
+          >
             Back to <span className="text-primary">Sign in →</span>
           </Link>
         </form>

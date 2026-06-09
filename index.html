@@ -1,18 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" />
     <title>TrustGrid</title>
-    <meta name="description" content="Verify once. Trust always. Enterprise-grade KYC, trust scoring, and deal intelligence for businesses." />
+    <meta
+      name="description"
+      content="Verify once. Trust always. Enterprise-grade KYC, trust scoring, and deal intelligence for businesses."
+    />
     <meta name="author" content="Trustline" />
     <meta property="og:title" content="Trustline — Verify Once. Trust Always." />
-    <meta property="og:description" content="B2B trust infrastructure for procurement, partnerships, and finance." />
+    <meta
+      property="og:description"
+      content="B2B trust infrastructure for procurement, partnerships, and finance."
+    />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <script>
+      const storedTheme = localStorage.getItem("theme");
+      const preferDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+      const theme =
+        storedTheme === "dark" || storedTheme === "light"
+          ? storedTheme
+          : preferDark
+            ? "dark"
+            : "light";
+      document.documentElement.classList.add(theme);
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

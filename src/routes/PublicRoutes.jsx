@@ -9,7 +9,7 @@ const PublicRoutes = () => {
 
   if (isAuthenticated) {
     if (user?.scope === "SYSTEM") return <Navigate to="/admin" replace />;
-    return <Navigate to="/home" replace />;  
+    return <Navigate to="/home" replace />;
   }
 
   return <Outlet />;

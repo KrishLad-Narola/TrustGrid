@@ -1,5 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap");
-@import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 @custom-variant dark (&:where(.dark, .dark *));
@@ -67,7 +66,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.04 260);
 
-  --primary: oklch(0.55 0.22 262);            /* electric blue #2563EB */
+  --primary: oklch(0.55 0.22 262); /* electric blue #2563EB */
   --primary-foreground: oklch(0.99 0 0);
 
   --secondary: oklch(0.96 0.01 250);
@@ -76,7 +75,7 @@
   --muted: oklch(0.96 0.01 250);
   --muted-foreground: oklch(0.5 0.02 255);
 
-  --accent: oklch(0.78 0.16 75);              /* warm amber */
+  --accent: oklch(0.78 0.16 75); /* warm amber */
   --accent-foreground: oklch(0.22 0.05 60);
 
   --destructive: oklch(0.6 0.22 25);
@@ -108,16 +107,21 @@
   --sidebar-ring: oklch(0.55 0.22 262);
 
   --gradient-primary: linear-gradient(135deg, oklch(0.55 0.22 262), oklch(0.62 0.2 280));
-  --gradient-glow: radial-gradient(circle at 20% 0%, oklch(0.55 0.22 262 / 0.08), transparent 55%),
-                   radial-gradient(circle at 90% 10%, oklch(0.78 0.16 75 / 0.08), transparent 55%);
+  --gradient-glow:
+    radial-gradient(circle at 20% 0%, oklch(0.55 0.22 262 / 0.08), transparent 55%),
+    radial-gradient(circle at 90% 10%, oklch(0.78 0.16 75 / 0.08), transparent 55%);
   --shadow-glow: 0 10px 40px -12px oklch(0.55 0.22 262 / 0.35);
-  --shadow-card: 0 1px 2px oklch(0.21 0.04 260 / 0.04), 0 8px 24px -12px oklch(0.21 0.04 260 / 0.08);
+  --shadow-card:
+    0 1px 2px oklch(0.21 0.04 260 / 0.04), 0 8px 24px -12px oklch(0.21 0.04 260 / 0.08);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
 
-  html, body {
+  html,
+  body {
     font-family: var(--font-sans);
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -125,12 +129,26 @@
       linear-gradient(to right, oklch(0.21 0.04 260 / 0.04) 1px, transparent 1px),
       linear-gradient(to bottom, oklch(0.21 0.04 260 / 0.04) 1px, transparent 1px),
       var(--gradient-glow);
-    background-size: 48px 48px, 48px 48px, 100% 100%;
+    background-size:
+      48px 48px,
+      48px 48px,
+      100% 100%;
     background-attachment: fixed;
   }
 
-  h1, h2, h3, h4, h5 { font-family: var(--font-display); letter-spacing: -0.02em; }
-  .font-mono, .data-num { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  .font-mono,
+  .data-num {
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum";
+  }
 }
 
 @layer components {
@@ -141,7 +159,9 @@
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-card);
   }
-  .glow { box-shadow: var(--shadow-glow); }
+  .glow {
+    box-shadow: var(--shadow-glow);
+  }
   .gradient-text {
     background: linear-gradient(135deg, var(--color-primary), oklch(0.6 0.2 290));
     -webkit-background-clip: text;
@@ -149,56 +169,82 @@
     color: transparent;
   }
   .btn-primary {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.55rem 1rem; border-radius: var(--radius-lg);
-    background: var(--gradient-primary); color: var(--color-primary-foreground);
-    font-size: 0.875rem; font-weight: 500; transition: transform 0.15s, box-shadow 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-lg);
+    background: var(--gradient-primary);
+    color: var(--color-primary-foreground);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s;
     box-shadow: var(--shadow-glow);
   }
-  .btn-primary:hover { transform: translateY(-1px); }
-  .btn-ghost {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.5rem 0.9rem; border-radius: var(--radius-lg);
-    border: 1px solid var(--color-border); background: var(--color-card);
-    font-size: 0.875rem; font-weight: 500; transition: background 0.15s;
+  .btn-primary:hover {
+    transform: translateY(-1px);
   }
-  .btn-ghost:hover { background: var(--color-muted); }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .btn-ghost:hover {
+    background: var(--color-muted);
+  }
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 oklch(0.55 0.22 262 / 0.4); }
-  100% { box-shadow: 0 0 0 18px oklch(0.55 0.22 262 / 0); }
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.55 0.22 262 / 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 18px oklch(0.55 0.22 262 / 0);
+  }
 }
-.pulse-ring { animation: pulse-ring 2s infinite; }
+.pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
 
 /* globals.css */
 
 @layer base {
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    --background: oklch(222 47% 7%);
+    --foreground: oklch(210 40% 98%);
 
-    --card: 222 30% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: oklch(222 30% 11%);
+    --card-foreground: oklch(210 40% 98%);
 
-    --popover: 222 30% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: oklch(222 30% 11%);
+    --popover-foreground: oklch(210 40% 98%);
 
-    --primary: 226 100% 64%;
-    --primary-foreground: 0 0% 100%;
+    --primary: oklch(226 100% 64%);
+    --primary-foreground: oklch(0 0% 100%);
 
-    --secondary: 222 22% 16%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: oklch(222 22% 16%);
+    --secondary-foreground: oklch(210 40% 98%);
 
-    --muted: 222 22% 16%;
-    --muted-foreground: 215 20% 65%;
+    --muted: oklch(222 22% 16%);
+    --muted-foreground: oklch(215 20% 65%);
 
-    --accent: 222 22% 16%;
-    --accent-foreground: 210 40% 98%;
+    --accent: oklch(222 22% 16%);
+    --accent-foreground: oklch(210 40% 98%);
 
-    --border: 222 20% 20%;
-    --input: 222 20% 18%;
-    --ring: 226 100% 64%;
+    --border: oklch(222 20% 20%);
+    --input: oklch(222 20% 18%);
+    --ring: oklch(226 100% 64%);
   }
 }
 
@@ -208,33 +254,58 @@
     color: var(--color-foreground) !important;
   }
 
-  .dark .bg-white {
-    background-color: var(--color-card) !important;
+  .dark .bg-white,
+  .dark .bg-slate-100,
+  .dark .bg-slate-200,
+  .dark .bg-gray-100,
+  .dark .bg-gray-200 {
+    background-color: color-mix(
+      in oklab,
+      var(--color-card) 90%,
+      var(--color-background) 10%
+    ) !important;
   }
 
+  .dark .bg-slate-900\/\[0\.03\],
+  .dark .bg-slate-900\/\[0\.06\],
+  .dark .bg-slate-900\/\[0\.08\],
+  .dark .bg-slate-50\/50,
   .dark .bg-slate-50,
-  .dark .bg-gray-50,
-  .dark .bg-slate-100 {
-    background-color: color-mix(in oklab, var(--color-card) 90%, var(--color-background) 10%) !important;
+  .dark .bg-gray-50 {
+    background-color: color-mix(
+      in oklab,
+      var(--color-card) 85%,
+      var(--color-background) 15%
+    ) !important;
   }
 
   .dark .border-slate-200,
   .dark .border-slate-100,
   .dark .border-slate-50,
-  .dark .border-slate-900\/\[0\.06\] {
-    border-color: color-mix(in oklab, var(--color-border) 80%, var(--color-background) 20%) !important;
+  .dark .border-gray-100,
+  .dark .border-slate-900\/\[0\.06\],
+  .dark .border-slate-900\/\[0\.08\],
+  .dark .border-slate-900\/\[0\.03\] {
+    border-color: color-mix(
+      in oklab,
+      var(--color-border) 80%,
+      var(--color-background) 20%
+    ) !important;
   }
 
   .dark .text-slate-900,
   .dark .text-slate-800,
-  .dark .text-slate-700 {
+  .dark .text-slate-700,
+  .dark .text-slate-600,
+  .dark .text-gray-900 {
     color: var(--color-foreground) !important;
   }
 
   .dark .text-slate-500,
   .dark .text-slate-400,
   .dark .text-gray-500,
-  .dark .text-gray-400 {
+  .dark .text-gray-400,
+  .dark .text-gray-700 {
     color: var(--muted-foreground) !important;
   }
 }

@@ -55,9 +55,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen px-4 py-10 flex flex-col">
       <div className="w-full mx-auto flex flex-col justify-center items-center">
         <div className="flex max-w-7xl justify-between items-center w-full">
-
           <CompanyLogo />
-          
         </div>
 
         <form onSubmit={handleForgotPassword} className="glass-card p-8 mt-10">
@@ -111,7 +109,10 @@ export default function ForgotPassword() {
             )}
           </button>
 
-          <Link to="/" className="block text-center text-sm cursor-pointer text-muted-foreground hover:text-foreground mt-5">
+          <Link
+            to="/"
+            className="block text-center text-sm cursor-pointer text-muted-foreground hover:text-foreground mt-5"
+          >
             Remembered your password? <span className="text-primary">Sign in →</span>
           </Link>
         </form>

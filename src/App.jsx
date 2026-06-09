@@ -3,6 +3,7 @@ import { Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { ThemeProvider } from "../src/lib/ThemeContext";
 import { useTheme } from "@/lib/ThemeContext";
 
 /* Public Pages */
@@ -53,9 +54,7 @@ function NotFoundPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white dark:bg-slate-950 px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-slate-900 dark:text-white">
-          404
-        </h1>
+        <h1 className="text-7xl font-bold text-slate-900 dark:text-white">404</h1>
 
         <h2 className="mt-4 text-xl font-semibold text-slate-800 dark:text-slate-200">
           Page not found
@@ -120,10 +119,7 @@ function MainAppGuard() {
     return <Outlet />;
   }
 
-  if (
-    kycStatus === "SUBMITTED" ||
-    kycStatus === "UNDER_REVIEW"
-  ) {
+  if (kycStatus === "SUBMITTED" || kycStatus === "UNDER_REVIEW") {
     return <Navigate to="/kyc-complete" replace />;
   }
 
@@ -145,10 +141,7 @@ function DefaultRedirect() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (
-    kycStatus === "SUBMITTED" ||
-    kycStatus === "UNDER_REVIEW"
-  ) {
+  if (kycStatus === "SUBMITTED" || kycStatus === "UNDER_REVIEW") {
     return <Navigate to="/kyc-complete" replace />;
   }
 
@@ -208,24 +201,17 @@ function AppRoutes() {
 }
 
 function AppContent() {
+  console.log("AppContent rendered");
+
   const { theme } = useTheme();
 
   return (
     <>
       <AppRoutes />
-
-      <Toaster
-        position="top-right"
-        richColors
-        closeButton
-        expand
-        duration={3000}
-        theme={theme}
-      />
+      <Toaster theme={theme} />
     </>
   );
 }
-
 export default function App() {
   return (
     <AuthProvider>

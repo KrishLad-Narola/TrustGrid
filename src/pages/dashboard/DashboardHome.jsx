@@ -22,12 +22,7 @@ import {
 
 import { TrustGauge } from "@/components/trust-gauge";
 
-import {
-  StatCard,
-  Card,
-  SectionTitle,
-  StatusBadge,
-} from "@/components/ui-bits";
+import { StatCard, Card, SectionTitle, StatusBadge } from "@/components/ui-bits";
 
 import {
   kycDocuments,
@@ -48,17 +43,11 @@ function severityLabel(s) {
 export default function DashboardHome() {
   const { business } = useAuth();
 
-  const verified = kycDocuments.filter(
-    (d) => d.status === "verified"
-  ).length;
+  const verified = kycDocuments.filter((d) => d.status === "verified").length;
 
-  const pending = kycDocuments.filter(
-    (d) => d.status === "pending"
-  ).length;
+  const pending = kycDocuments.filter((d) => d.status === "pending").length;
 
-  const activeDeals = deals.filter(
-    (d) => d.status === "active"
-  ).length;
+  const activeDeals = deals.filter((d) => d.status === "active").length;
 
   const dealTotal = deals
     .filter((d) => d.status === "active")
@@ -74,60 +63,37 @@ export default function DashboardHome() {
           <TrustGauge score={business?.overall} size={220} />
 
           <div className="mt-4 text-xs text-muted-foreground text-center">
-            Updated 12m ago · Tier:{" "}
-            <span className="text-success font-medium">
-              Trusted
-            </span>
+            Updated 12m ago · Tier: <span className="text-success font-medium">Trusted</span>
           </div>
 
           {/* API Breakdown Scores */}
           <div className="w-full mt-5 space-y-2">
-
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                KYC Score
-              </span>
+              <span className="text-muted-foreground">KYC Score</span>
 
-              <span className="font-medium">
-                {business?.kycScore}
-              </span>
+              <span className="font-medium">{business?.kycScore}</span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Compliance Score
-              </span>
+              <span className="text-muted-foreground">Compliance Score</span>
 
-              <span className="font-medium">
-                {business?.complianceScore}
-              </span>
+              <span className="font-medium">{business?.complianceScore}</span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Deal Performance
-              </span>
+              <span className="text-muted-foreground">Deal Performance</span>
 
-              <span className="font-medium">
-                {business?.dealPerformanceScore}
-              </span>
+              <span className="font-medium">{business?.dealPerformanceScore}</span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Activity Score
-              </span>
+              <span className="text-muted-foreground">Activity Score</span>
 
-              <span className="font-medium">
-                {business?.activityScore}
-              </span>
+              <span className="font-medium">{business?.activityScore}</span>
             </div>
           </div>
 
-          <Link
-            to="/dashboard/trust"
-            className="btn-ghost mt-3 text-xs"
-          >
+          <Link to="/dashboard/trust" className="btn-ghost mt-3 text-xs">
             View breakdown
             <ArrowUpRight className="size-3.5" />
           </Link>
@@ -160,9 +126,7 @@ export default function DashboardHome() {
           <StatCard
             label="Active Deals"
             value={String(activeDeals)}
-            delta={`${formatINR(
-              dealTotal
-            )} · Score ${business?.dealPerformanceScore}`}
+            delta={`${formatINR(dealTotal)} · Score ${business?.dealPerformanceScore}`}
             icon={<Handshake className="size-4" />}
           />
         </div>
@@ -171,11 +135,7 @@ export default function DashboardHome() {
       <div className="grid lg:grid-cols-3 gap-5">
         <Card className="lg:col-span-2">
           <SectionTitle
-            action={
-              <span className="text-xs text-muted-foreground font-mono">
-                Last 12 months
-              </span>
-            }
+            action={<span className="text-xs text-muted-foreground font-mono">Last 12 months</span>}
           >
             Trust Score History
           </SectionTitle>
@@ -183,22 +143,11 @@ export default function DashboardHome() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trustHistory}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-border)"
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
 
-                <XAxis
-                  dataKey="month"
-                  stroke="var(--color-muted-foreground)"
-                  fontSize={11}
-                />
+                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" fontSize={11} />
 
-                <YAxis
-                  domain={[0, 100]}
-                  stroke="var(--color-muted-foreground)"
-                  fontSize={11}
-                />
+                <YAxis domain={[0, 100]} stroke="var(--color-muted-foreground)" fontSize={11} />
 
                 <Tooltip
                   contentStyle={{
@@ -227,32 +176,21 @@ export default function DashboardHome() {
 
           <div className="space-y-2">
             {riskFlags.map((f) => (
-              <div
-                key={f.id}
-                className="p-3 rounded-lg border border-border bg-card flex gap-2"
-              >
+              <div key={f.id} className="p-3 rounded-lg border border-border bg-card flex gap-2">
                 <AlertTriangle
                   className={`size-4 mt-0.5 shrink-0 ${
-                    f.severity === "high"
-                      ? "text-destructive"
-                      : "text-warning"
+                    f.severity === "high" ? "text-destructive" : "text-warning"
                   }`}
                 />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-medium">
-                      {f.title}
-                    </p>
+                    <p className="text-xs font-medium">{f.title}</p>
 
-                    <StatusBadge
-                      status={severityLabel(f.severity)}
-                    />
+                    <StatusBadge status={severityLabel(f.severity)} />
                   </div>
 
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    {f.description}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{f.description}</p>
                 </div>
               </div>
             ))}
@@ -266,17 +204,12 @@ export default function DashboardHome() {
 
           <div className="divide-y divide-border">
             {recentActivity.map((a) => (
-              <div
-                key={a.id}
-                className="py-3 flex items-center gap-3 text-sm"
-              >
+              <div key={a.id} className="py-3 flex items-center gap-3 text-sm">
                 <span className="size-2 rounded-full bg-primary shrink-0" />
 
                 <span className="flex-1">{a.text}</span>
 
-                <span className="text-xs text-muted-foreground font-mono">
-                  {a.time}
-                </span>
+                <span className="text-xs text-muted-foreground font-mono">{a.time}</span>
               </div>
             ))}
           </div>
@@ -286,26 +219,17 @@ export default function DashboardHome() {
           <SectionTitle>Quick Actions</SectionTitle>
 
           <div className="space-y-2">
-            <Link
-              to="/dashboard/kyc"
-              className="btn-ghost w-full justify-start"
-            >
+            <Link to="/dashboard/kyc" className="btn-ghost w-full justify-start">
               <Upload className="size-4" />
               Upload Document
             </Link>
 
-            <Link
-              to="/dashboard/deals"
-              className="btn-ghost w-full justify-start"
-            >
+            <Link to="/dashboard/deals" className="btn-ghost w-full justify-start">
               <FilePlus2 className="size-4" />
               Create Deal
             </Link>
 
-            <Link
-              to="/dashboard/shared"
-              className="btn-ghost w-full justify-start"
-            >
+            <Link to="/dashboard/shared" className="btn-ghost w-full justify-start">
               <Share2 className="size-4" />
               Share Profile
             </Link>

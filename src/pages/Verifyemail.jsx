@@ -42,17 +42,17 @@ export default function VerifyEmail() {
   }, [token, navigate]);
   return (
     <div className="min-h-screen px-4 py-10">
-        <div className="w-full mx-auto flex flex-col justify-center items-center">
+      <div className="w-full mx-auto flex flex-col justify-center items-center">
         <div className="flex max-w-7xl justify-between items-center w-full">
           <CompanyLogo />
           <Link
             to="/"
             className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
-            <Undo2  className="size-4" /> Back to home
+            <Undo2 className="size-4" /> Back to home
           </Link>
         </div>
-    </div>
+      </div>
       {/* Content */}
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-lg mt-20">
@@ -112,6 +112,5 @@ export default function VerifyEmail() {
         </div>
       </div>
     </div>
-    
   );
 }

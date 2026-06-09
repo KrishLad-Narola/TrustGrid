@@ -1,10 +1,5 @@
 import axiosInstance from "@/API/axiosInstance";
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
@@ -27,76 +22,44 @@ export function AuthProvider({ children }) {
 
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-
   };
 
   const normalizeBusiness = (businessData) => {
     if (!businessData) return null;
 
-    const trust =
-      businessData.trustScore ||
-      businessData.trust_score ||
-      {};
+    const trust = businessData.trustScore || businessData.trust_score || {};
 
     return {
       ...businessData,
 
-      overall:
-        businessData.overall ??
-        trust.overall ??
-        0,
+      overall: businessData.overall ?? trust.overall ?? 0,
 
-      kycScore:
-        businessData.kycScore ??
-        trust.kycScore ??
-        0,
+      kycScore: businessData.kycScore ?? trust.kycScore ?? 0,
 
-      complianceScore:
-        businessData.complianceScore ??
-        trust.complianceScore ??
-        0,
+      complianceScore: businessData.complianceScore ?? trust.complianceScore ?? 0,
 
-      dealPerformanceScore:
-        businessData.dealPerformanceScore ??
-        trust.dealPerformanceScore ??
-        0,
+      dealPerformanceScore: businessData.dealPerformanceScore ?? trust.dealPerformanceScore ?? 0,
 
-      activityScore:
-        businessData.activityScore ??
-        trust.activityScore ??
-        0,
+      activityScore: businessData.activityScore ?? trust.activityScore ?? 0,
     };
-
   };
 
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
 
-      const { data } =
-        await axiosInstance.get("/auth/me");
+      const { data } = await axiosInstance.get("/auth/me");
 
-      const userData =
-        data?.user ||
-        data?.data?.user ||
-        null;
+      const userData = data?.user || data?.data?.user || null;
 
       const scope = data.membership?.scope || data.scope || "";
 
-      const businessData =
-        data?.business ||
-        data?.data?.business ||
-        null;
+      const businessData = data?.business || data?.data?.business || null;
 
       setUser({ ...userData, scope });
-      setBusiness(
-        normalizeBusiness(businessData)
-      );
+      setBusiness(normalizeBusiness(businessData));
     } catch (error) {
-      console.error(
-        "Profile fetch failed:",
-        error
-      );
+      console.error("Profile fetch failed:", error);
 
       if (error.response?.status === 401) {
         logoutLocal();
@@ -104,13 +67,11 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-
   };
 
   useEffect(() => {
     const initializeAuth = async () => {
       const { accessToken } = getTokens();
-
 
       if (accessToken) {
         await fetchUserProfile();
@@ -120,37 +81,21 @@ export function AuthProvider({ children }) {
     };
 
     initializeAuth();
-
-
   }, []);
 
   const login = async (payload) => {
-    localStorage.setItem(
-      "accessToken",
-      payload.accessToken
-    );
+    localStorage.setItem("accessToken", payload.accessToken);
 
-
-    localStorage.setItem(
-      "refreshToken",
-      payload.refreshToken
-    );
+    localStorage.setItem("refreshToken", payload.refreshToken);
 
     await fetchUserProfile();
-
   };
 
   const logout = async () => {
     try {
-      await axiosInstance.post(
-        "/auth/logout",
-        {
-          refreshToken:
-            localStorage.getItem(
-              "refreshToken"
-            ),
-        }
-      );
+      await axiosInstance.post("/auth/logout", {
+        refreshToken: localStorage.getItem("refreshToken"),
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -180,13 +125,10 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => {
-  const context =
-    useContext(AuthContext);
+  const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      "useAuth must be used inside AuthProvider"
-    );
+    throw new Error("useAuth must be used inside AuthProvider");
   }
 
   return context;

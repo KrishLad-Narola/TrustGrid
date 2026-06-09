@@ -1,29 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Panel } from "@/components/ui-kit";
-import {
-  Bell,
-  Eye,
-  LockKeyhole,
-  Trash2,
-  Upload,
-  ChevronRight,
-  X,
-  Save,
-} from "lucide-react";
+import { Bell, Eye, LockKeyhole, Trash2, Upload, ChevronRight, X, Save } from "lucide-react";
 import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
 import { useAuth } from "@/lib/auth-context";
 
-
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const {
-    business,
-    fetchUserProfile,
-    logout,
-  } = useAuth();
-
+  const { business, fetchUserProfile, logout } = useAuth();
 
   const fileInputRef = useRef(null);
 
@@ -45,26 +30,16 @@ export default function SettingsPage() {
   const [originalData, setOriginalData] = useState({});
   const [logoFile, setLogoFile] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [deleteAccountLoading, setDeleteAccountLoading] =
-    useState(false);
+  const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
 
   useEffect(() => {
     if (business) {
       const data = {
-        legalName:
-          business.legalName ||
-          business.legal_name ||
-          "",
+        legalName: business.legalName || business.legal_name || "",
 
-        companyType:
-          business.companyType ||
-          business.company_type ||
-          "",
+        companyType: business.companyType || business.company_type || "",
 
-        logo:
-          business.logo ||
-          business.logoUrl ||
-          null,
+        logo: business.logo || business.logoUrl || null,
       };
 
       setFormData(data);
@@ -72,10 +47,7 @@ export default function SettingsPage() {
     }
   }, [business]);
 
-  const hasChanges =
-    JSON.stringify(formData) !==
-    JSON.stringify(originalData) ||
-    !!logoFile;
+  const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData) || !!logoFile;
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -128,15 +100,9 @@ export default function SettingsPage() {
 
       const payload = new FormData();
 
-      payload.append(
-        "legalName",
-        formData.legalName
-      );
+      payload.append("legalName", formData.legalName);
 
-      payload.append(
-        "companyType",
-        formData.companyType
-      );
+      payload.append("companyType", formData.companyType);
 
       if (logoFile) {
         payload.append("logo", logoFile);
@@ -146,39 +112,28 @@ export default function SettingsPage() {
         payload.append("removeLogo", "true");
       }
 
-      await axiosInstance.put(
-        "/business/profile",
-        payload,
-        {
-          headers: {
-            "Content-Type":
-              "multipart/form-data",
-          },
-        }
-      );
+      await axiosInstance.put("/business/profile", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       await fetchUserProfile();
 
       setOriginalData(formData);
       setLogoFile(null);
 
-      toast.success(
-        "Profile updated successfully"
-      );
+      toast.success("Profile updated successfully");
     } catch (error) {
-
     } finally {
       setSaving(false);
     }
   };
 
-
   const handleDeleteAccount = async () => {
     if (deleteAccountLoading) return;
 
-    const confirmed = window.confirm(
-      "Are you sure you want to deactivate your account?"
-    );
+    const confirmed = window.confirm("Are you sure you want to deactivate your account?");
 
     if (!confirmed) return;
 
@@ -186,15 +141,12 @@ export default function SettingsPage() {
       setDeleteAccountLoading(true);
 
       await axiosInstance.delete("/business/deactivate");
-      toast.success(
-        "Your account has been deactivated successfully."
-      );
+      toast.success("Your account has been deactivated successfully.");
 
       localStorage.clear();
 
       navigate("/login");
     } catch (error) {
-
     } finally {
       setDeleteAccountLoading(false);
     }
@@ -206,9 +158,7 @@ export default function SettingsPage() {
       <Panel className="border border-border rounded-2xl bg-card p-8">
         <div className="mb-6">
           <div className="mb-6">
-            <h3 className="text-xl font-semibold text-foreground">
-              Business Profile
-            </h3>
+            <h3 className="text-xl font-semibold text-foreground">Business Profile</h3>
 
             <p className="text-sm text-muted-foreground mt-1">
               Update your business information, branding and organization details.
@@ -266,23 +216,13 @@ export default function SettingsPage() {
             <Input
               label="Legal Name"
               value={formData.legalName}
-              onChange={(e) =>
-                handleInputChange(
-                  "legalName",
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleInputChange("legalName", e.target.value)}
             />
 
             <Input
               label="Company Type"
               value={formData.companyType}
-              onChange={(e) =>
-                handleInputChange(
-                  "companyType",
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleInputChange("companyType", e.target.value)}
             />
           </div>
 
@@ -290,10 +230,11 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={!hasChanges || saving}
-              className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${hasChanges
-                ? "btn-primary text-primary-foreground hover:opacity-90"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-                }`}
+              className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${
+                hasChanges
+                  ? "btn-primary text-primary-foreground hover:opacity-90"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
+              }`}
             >
               <Save className="h-4 w-4" />
               {saving ? "Saving..." : "Save Profile Changes"}
@@ -369,10 +310,11 @@ export default function SettingsPage() {
               <button
                 key={o}
                 onClick={() => setVis(o)}
-                className={`px-4 py-3 rounded-xl border text-sm font-medium transition cursor-pointer ${vis === o
-                  ? "btn-primary text-primary-foreground"
-                  : "bg-background border-border hover:bg-muted"
-                  }`}
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition cursor-pointer ${
+                  vis === o
+                    ? "btn-primary text-primary-foreground"
+                    : "bg-background border-border hover:bg-muted"
+                }`}
               >
                 {o}
               </button>
@@ -394,9 +336,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="rounded-xl border border-border bg-muted/30 p-5">
-            <h4 className="font-medium">
-              Account Password
-            </h4>
+            <h4 className="font-medium">Account Password</h4>
 
             <p className="text-sm text-muted-foreground mt-2 mb-4">
               Update your login password and account security settings.
@@ -419,24 +359,20 @@ export default function SettingsPage() {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
               <Trash2 className="h-5 w-5 text-red-500" />
-              <h3 className="font-semibold text-lg text-red-500 dark:text-red-400">
-                Danger Zone
-              </h3>
+              <h3 className="font-semibold text-lg text-red-500 dark:text-red-400">Danger Zone</h3>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Deactivating your account will hide your business profile, disable
-              public access, and pause all ongoing verification workflows. You can
-              reactivate your account later after support review.
+              Deactivating your account will hide your business profile, disable public access, and
+              pause all ongoing verification workflows. You can reactivate your account later after
+              support review.
             </p>
 
             <div className="mt-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-background p-4">
-              <p className="text-sm font-medium text-red-500 dark:text-red-400">
-                Warning
-              </p>
+              <p className="text-sm font-medium text-red-500 dark:text-red-400">Warning</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                This action will temporarily disable your business account and may
-                affect active verification requests.
+                This action will temporarily disable your business account and may affect active
+                verification requests.
               </p>
             </div>
           </div>
@@ -450,9 +386,7 @@ export default function SettingsPage() {
             >
               <Trash2 className="h-4 w-4" />
 
-              {deleteAccountLoading
-                ? "Deactivating..."
-                : "Deactivate Account"}
+              {deleteAccountLoading ? "Deactivating..." : "Deactivate Account"}
             </button>
           </div>
         </div>
@@ -475,28 +409,22 @@ export default function SettingsPage() {
     );
   }
 
-  function Toggle({
-    label,
-    checked = false,
-    onChange,
-  }) {
+  function Toggle({ label, checked = false, onChange }) {
     return (
       <label className="flex items-center justify-between py-3 cursor-pointer">
-        <span className="text-sm font-medium">
-          {label}
-        </span>
+        <span className="text-sm font-medium">{label}</span>
 
         <button
           type="button"
           onClick={() => onChange?.(!checked)}
-          className={`relative h-6 w-11 rounded-full cursor-pointer transition ${checked
-            ? "btn-primary"
-            : "bg-slate-300"
-            }`}
+          className={`relative h-6 w-11 rounded-full cursor-pointer transition ${
+            checked ? "btn-primary" : "bg-slate-300"
+          }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${checked ? "left-5" : "left-0.5"
-              }`}
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${
+              checked ? "left-5" : "left-0.5"
+            }`}
           />
         </button>
       </label>

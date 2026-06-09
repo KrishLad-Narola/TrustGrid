@@ -34,8 +34,14 @@ function formatValue(value) {
 // Status badge colour — green for verified, yellow for pending, red for rejected
 function statusStyle(status) {
   const s = (status || "").toUpperCase();
-  if (s === "VERIFIED") return { wrap: "bg-green-50 border-green-100", icon: "text-green-600", text: "text-green-700" };
-  if (s === "PENDING") return { wrap: "bg-yellow-50 border-yellow-100", icon: "text-yellow-500", text: "text-yellow-700" };
+  if (s === "VERIFIED")
+    return { wrap: "bg-green-50 border-green-100", icon: "text-green-600", text: "text-green-700" };
+  if (s === "PENDING")
+    return {
+      wrap: "bg-yellow-50 border-yellow-100",
+      icon: "text-yellow-500",
+      text: "text-yellow-700",
+    };
   return { wrap: "bg-red-50 border-red-100", icon: "text-red-500", text: "text-red-700" };
 }
 
@@ -71,17 +77,13 @@ function DocumentPreviewModal({ open, onClose, data }) {
               {formatKey(data.documentType || "Document")}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 transition"
-          >
+          <button onClick={onClose} className="p-2 rounded-full cursor-pointer hover:bg-gray-100 transition">
             <X size={22} />
           </button>
         </div>
 
         {/* ── BODY ── */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.8fr] gap-5 p-5 flex-1 overflow-hidden">
-
           {/* LEFT — file preview */}
           <div className="bg-gray-100 rounded-2xl border overflow-hidden flex items-center justify-center h-full">
             {isPdf ? (
@@ -103,10 +105,11 @@ function DocumentPreviewModal({ open, onClose, data }) {
 
           {/* RIGHT — info sidebar */}
           <div className="bg-white border rounded-2xl h-full overflow-y-auto p-5 space-y-5">
-
             {/* Status badge */}
             <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 ${style.wrap}`}>
-              <span className={style.icon}><StatusIcon status={data.status} /></span>
+              <span className={style.icon}>
+                <StatusIcon status={data.status} />
+              </span>
               <span className={`font-semibold ${style.text}`}>{data.status || "—"}</span>
             </div>
 
@@ -121,8 +124,14 @@ function DocumentPreviewModal({ open, onClose, data }) {
                   ["File Name", data.fileName],
                   ["File Size", data.fileSize ? `${(data.fileSize / 1024).toFixed(2)} KB` : null],
                   ["Version", data.version],
-                  ["Uploaded At", data.createdAt ? new Date(data.createdAt).toLocaleString() : null],
-                  ["Verified At", data.verifiedAt ? new Date(data.verifiedAt).toLocaleString() : null],
+                  [
+                    "Uploaded At",
+                    data.createdAt ? new Date(data.createdAt).toLocaleString() : null,
+                  ],
+                  [
+                    "Verified At",
+                    data.verifiedAt ? new Date(data.verifiedAt).toLocaleString() : null,
+                  ],
                   ["Expires At", data.expiresAt ? new Date(data.expiresAt).toLocaleString() : null],
                 ].map(([label, value]) => (
                   <div key={label}>
@@ -150,7 +159,6 @@ function DocumentPreviewModal({ open, onClose, data }) {
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>

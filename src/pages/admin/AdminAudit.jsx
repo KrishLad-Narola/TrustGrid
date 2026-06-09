@@ -15,7 +15,7 @@ export default function AdminAudit() {
       setLoading(true);
       const response = await axiosInstance.post("/audit-logs", {
         page: 1,
-        limit: 100, // Fetch an accessible pool size to manage pagination on the client
+        limit: 100,
       });
 
       console.log("--- DEBUGGING API RESPONSE ---");
@@ -77,20 +77,47 @@ export default function AdminAudit() {
 
   const getActionBadgeStyles = (actionName) => {
     const normalized = actionName?.toLowerCase() || "";
-    
-    if (normalized.includes("accept") || normalized.includes("approve") || normalized.includes("success")) {
+
+    // 1. Explicit priority statuses requested by you
+    if (normalized.includes("verified")) {
+      return "bg-green-50 text-green-700 border-green-200";
+    }
+    if (normalized.includes("submitted")) {
+      return "bg-blue-50 text-blue-700 border-blue-200";
+    }
+
+    // 2. Rest of your existing keyword styling rules
+    if (
+      normalized.includes("accept") ||
+      normalized.includes("approve") ||
+      normalized.includes("success")
+    ) {
       return "bg-emerald-50 text-emerald-700 border-emerald-200/60";
     }
-    if (normalized.includes("create") || normalized.includes("add") || normalized.includes("post")) {
+    if (
+      normalized.includes("create") ||
+      normalized.includes("add") ||
+      normalized.includes("post")
+    ) {
       return "bg-green-50 text-green-700 border-green-100";
     }
-    if (normalized.includes("update") || normalized.includes("edit") || normalized.includes("patch") || normalized.includes("put")) {
+    if (
+      normalized.includes("update") ||
+      normalized.includes("edit") ||
+      normalized.includes("patch") ||
+      normalized.includes("put")
+    ) {
       return "bg-amber-50 text-amber-700 border-amber-100";
     }
-    if (normalized.includes("delete") || normalized.includes("remove") || normalized.includes("reject") || normalized.includes("fail")) {
+    if (
+      normalized.includes("delete") ||
+      normalized.includes("remove") ||
+      normalized.includes("reject") ||
+      normalized.includes("fail")
+    ) {
       return "bg-rose-50 text-rose-700 border-rose-100";
     }
-    
+
     // Default fallback style
     return "bg-blue-50 text-blue-700 border-blue-100";
   };
@@ -132,7 +159,9 @@ export default function AdminAudit() {
                 <tr key={log._id} className="hover:bg-slate-50/60 transition-colors group">
                   {/* Action Type Badge Column */}
                   <td className="px-6 py-4 align-middle">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-semibold border tracking-wide uppercase ${getActionBadgeStyles(log.action)}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-semibold border tracking-wide uppercase ${getActionBadgeStyles(log.action)}`}
+                    >
                       {log.action || "-"}
                     </span>
                   </td>
@@ -148,10 +177,16 @@ export default function AdminAudit() {
                   <td className="px-6 py-4">
                     {log?.businessId ? (
                       <div className="max-w-[200px]">
-                        <div className="font-medium text-slate-900 truncate" title={log?.businessId?.tradeName}>
+                        <div
+                          className="font-medium text-slate-900 truncate"
+                          title={log?.businessId?.tradeName}
+                        >
                           {log?.businessId?.tradeName || "N/A"}
                         </div>
-                        <div className="text-xs text-slate-400 font-mono truncate mt-0.5" title={log?.businessId?.legalName}>
+                        <div
+                          className="text-xs text-slate-400 font-mono truncate mt-0.5"
+                          title={log?.businessId?.legalName}
+                        >
                           {log?.businessId?.legalName || log?.businessId?._id}
                         </div>
                       </div>

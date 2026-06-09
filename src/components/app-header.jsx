@@ -33,21 +33,13 @@ export function AppHeader({ title, subtitle }) {
   return (
     <>
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold tracking-tight text-foreground">
-            {title}
-          </h1>
+          <h1 className="truncate text-lg font-semibold tracking-tight text-foreground">{title}</h1>
 
-          {subtitle && (
-            <p className="truncate text-xs text-muted-foreground mt-0.5">
-              {subtitle}
-            </p>
-          )}
+          {subtitle && <p className="truncate text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
 
         <div className="flex items-center gap-3">
-
           <div className="hidden md:flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20 w-80">
             <Search className="h-4 w-4 text-muted-foreground" />
 
@@ -99,10 +91,7 @@ export function AppHeader({ title, subtitle }) {
         </div>
       </header>
 
-      <NotificationDrawer
-        open={open}
-        onClose={() => setOpen(false)}
-      />
+      <NotificationDrawer open={open} onClose={() => setOpen(false)} />
     </>
   );
 }

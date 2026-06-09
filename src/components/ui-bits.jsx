@@ -22,7 +22,9 @@ export function StatusBadge({ status }) {
 
   const s = map[normalized] ?? map.Draft;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${s.bg} ${s.text}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${s.bg} ${s.text}`}
+    >
       <span className={`size-1.5 rounded-full ${s.dot}`} />
       {status}
     </span>
@@ -45,7 +47,9 @@ export function StatCard({ label, value, delta, hint, icon, accent }) {
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
         {icon && (
-          <div className={`size-8 rounded-lg bg-muted flex items-center justify-center ${color}`}>{icon}</div>
+          <div className={`size-8 rounded-lg bg-muted flex items-center justify-center ${color}`}>
+            {icon}
+          </div>
         )}
       </div>
       <div className="font-mono text-3xl font-semibold tracking-tight">{value}</div>
@@ -61,7 +65,9 @@ export function Card({ children, className = "" }) {
 export function SectionTitle({ children, action }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h3 className="text-sm font-semibold tracking-tight uppercase text-muted-foreground">{children}</h3>
+      <h3 className="text-sm font-semibold tracking-tight uppercase text-muted-foreground">
+        {children}
+      </h3>
       {action}
     </div>
   );

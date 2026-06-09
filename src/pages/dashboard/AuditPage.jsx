@@ -1,12 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import axiosInstance from "@/API/axiosInstance";
 import { Card } from "@/components/ui-bits";
-import {
-  Download,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Download, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 // Configured to show exactly 5 records per page
@@ -48,10 +43,7 @@ export default function AuditPage() {
       setCurrentPage(1); // Reset to first page on a fresh fetch
     } catch (error) {
       console.error("Audit Log Error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-        "Failed to load audit logs"
-      );
+      toast.error(error?.response?.data?.message || "Failed to load audit logs");
       setLogs([]);
     } finally {
       setLoading(false);
@@ -102,7 +94,7 @@ export default function AuditPage() {
           row?.createdAt || "",
         ]
           .map((value) => `"${value}"`)
-          .join(",")
+          .join(","),
       ),
     ].join("\n");
 
@@ -136,7 +128,7 @@ export default function AuditPage() {
 
   const getActionStyle = (action) => {
     const value = (action || "").toLowerCase();
-    
+
     // Explicit condition checks for the requested deal statuses
     if (value.includes("completed")) {
       return "bg-green-50 text-green-700 border border-green-200";
@@ -251,13 +243,27 @@ export default function AuditPage() {
           <table className="w-full table-auto border-collapse text-left text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200/80 h-12">
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Module</th>
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Action</th>
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Actor</th>
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Business</th>
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Description</th>
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Document</th>
-                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Date</th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Module
+                </th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Action
+                </th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Actor
+                </th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Business
+                </th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Description
+                </th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Document
+                </th>
+                <th className="px-5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Date
+                </th>
               </tr>
             </thead>
 
@@ -276,7 +282,9 @@ export default function AuditPage() {
                 <tr>
                   <td colSpan={7} className="py-16 text-center">
                     <p className="text-sm font-medium text-slate-900 mb-0.5">No audit logs found</p>
-                    <p className="text-xs text-slate-400">There are no matching items inside this collection.</p>
+                    <p className="text-xs text-slate-400">
+                      There are no matching items inside this collection.
+                    </p>
                   </td>
                 </tr>
               ) : (
@@ -287,14 +295,18 @@ export default function AuditPage() {
                   >
                     {/* Module */}
                     <td className="px-5  py-2 whitespace-nowrap">
-                      <span className={`inline-flex items-center  rounded-md px-2.5 py-0.5 text-[11px] font-semibold tracking-wide ${getModuleStyle(log?.module)}`}>
+                      <span
+                        className={`inline-flex items-center  rounded-md px-2.5 py-0.5 text-[11px] font-semibold tracking-wide ${getModuleStyle(log?.module)}`}
+                      >
                         {log?.module || "-"}
                       </span>
                     </td>
 
                     {/* Action */}
                     <td className="px-5 py-2 whitespace-nowrap">
-                      <span className={`inline-flex items-center  rounded-md px-2.5 py-0.5 text-[11px] font-semibold tracking-wide ${getActionStyle(log?.action)}`}>
+                      <span
+                        className={`inline-flex items-center  rounded-md px-2.5 py-0.5 text-[11px] font-semibold tracking-wide ${getActionStyle(log?.action)}`}
+                      >
                         {log?.action || "-"}
                       </span>
                     </td>
@@ -303,7 +315,8 @@ export default function AuditPage() {
                     <td className="px-5 py-2 max-w-[180px]">
                       <div className="flex flex-col min-w-0 leading-tight">
                         <span className="text-[13px] font-semibold text-slate-800 truncate">
-                          {`${log?.actorId?.firstName || ""} ${log?.actorId?.lastName || ""}`.trim() || "-"}
+                          {`${log?.actorId?.firstName || ""} ${log?.actorId?.lastName || ""}`.trim() ||
+                            "-"}
                         </span>
                         <span className="text-[11px] text-slate-400 truncate mt-0.5">
                           {log?.actorId?.email || "-"}
@@ -373,9 +386,7 @@ export default function AuditPage() {
                 Previous
               </button>
 
-              <div className="flex items-center gap-1">
-                {renderPaginationButtons()}
-              </div>
+              <div className="flex items-center gap-1">{renderPaginationButtons()}</div>
 
               <button
                 type="button"

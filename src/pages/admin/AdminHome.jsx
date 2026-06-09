@@ -95,7 +95,10 @@ export default function AdminHome() {
             { sev: "Medium", text: "OCR confidence below threshold on 3 documents today." },
             { sev: "Low", text: "Scheduled maintenance window: Sat 02:00–04:00 IST." },
           ].map((a, i) => (
-            <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-border gap-3">
+            <div
+              key={i}
+              className="flex items-center justify-between p-3 rounded-lg border border-border gap-3"
+            >
               <span className="text-sm">{a.text}</span>
               <StatusBadge status={a.sev} />
             </div>

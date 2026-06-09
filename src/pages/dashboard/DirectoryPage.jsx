@@ -15,7 +15,7 @@ export default function DirectoryPage() {
       (industry === "All" || b.industry === industry) &&
       b.trustScore >= scoreMin &&
       (b.name.toLowerCase().includes(q.toLowerCase()) ||
-        b.industry.toLowerCase().includes(q.toLowerCase()))
+        b.industry.toLowerCase().includes(q.toLowerCase())),
   );
 
   const scoreColor = (s) =>
@@ -52,7 +52,7 @@ export default function DirectoryPage() {
               value={scoreMin}
               onChange={(e) => setScoreMin(+e.target.value)}
               className="flex-1 accent-primary cursor-pointer"
-            /> 
+            />
             <span className="font-mono text-xs w-7 text-right">{scoreMin}</span>
           </div>
         </div>
@@ -75,7 +75,9 @@ export default function DirectoryPage() {
             </div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Trust Score</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Trust Score
+                </div>
                 <div className={`font-mono text-2xl font-semibold ${scoreColor(b.trustScore)}`}>
                   {b.trustScore}
                 </div>

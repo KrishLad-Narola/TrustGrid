@@ -1,8 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  UploadCloud, Check, ArrowLeft, ArrowRight, X,
-  Loader2, FileText, ShieldCheck, ScanLine, AlertCircle,
-  ChevronRight, File, Eye, LogOut, XCircle,
+  UploadCloud,
+  Check,
+  ArrowLeft,
+  ArrowRight,
+  X,
+  Loader2,
+  FileText,
+  ShieldCheck,
+  ScanLine,
+  AlertCircle,
+  ChevronRight,
+  File,
+  Eye,
+  LogOut,
+  XCircle,
 } from "lucide-react";
 import axiosInstance from "@/API/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -72,9 +84,7 @@ function DocumentPreview({ file, previewUrl, serverUrl, onRemove, fileName }) {
   if (!url) return null;
 
   // Determine type: prefer the File object, fall back to URL extension
-  const isPdf = file
-    ? file.type === "application/pdf"
-    : url?.toLowerCase().endsWith(".pdf");
+  const isPdf = file ? file.type === "application/pdf" : url?.toLowerCase().endsWith(".pdf");
 
   return (
     <div className="rounded-2xl border border-slate-200 overflow-hidden mb-6">
@@ -113,7 +123,9 @@ function DocumentPreview({ file, previewUrl, serverUrl, onRemove, fileName }) {
             alt="Document preview"
             className="max-h-72 max-w-full object-contain rounded"
             style={{ padding: 12 }}
-            onError={(e) => { e.target.style.display = "none"; }}
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
           />
         )}
       </div>
@@ -158,7 +170,7 @@ export default function KycSubmitPage() {
 
   const [docIndex, setDocIndex] = useState(0);
   const [completedDocs, setCompletedDocs] = useState([]); // keys of successfully submitted docs
-  const [rejectedDocs, setRejectedDocs] = useState({});   // { key: rejectionReason }
+  const [rejectedDocs, setRejectedDocs] = useState({}); // { key: rejectionReason }
   const [loading, setLoading] = useState(true);
   const [extracting, setExtracting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -229,9 +241,7 @@ export default function KycSubmitPage() {
         setDocStates(initialDocStates);
 
         // Navigate to the first incomplete/rejected doc
-        const next = DOCUMENT_OPTIONS.findIndex(
-          (d) => !submitted.includes(d.key)
-        );
+        const next = DOCUMENT_OPTIONS.findIndex((d) => !submitted.includes(d.key));
         setDocIndex(next !== -1 ? next : 0);
       } catch {
         toast.error("Failed to load KYC status");
@@ -257,7 +267,7 @@ export default function KycSubmitPage() {
           .replace(/([A-Z])/g, " $1")
           .replace(/_/g, " ")
           .trim()
-          .replace(/^./, (s) => s.toUpperCase())
+          .replace(/^./, (s) => s.toUpperCase()),
       )
       .join(" › ");
 
@@ -313,7 +323,8 @@ export default function KycSubmitPage() {
     }
 
     // Create blob preview URL
-    if (blobUrlsRef.current[currentDoc.key]) URL.revokeObjectURL(blobUrlsRef.current[currentDoc.key]);
+    if (blobUrlsRef.current[currentDoc.key])
+      URL.revokeObjectURL(blobUrlsRef.current[currentDoc.key]);
     const blobUrl = URL.createObjectURL(file);
     blobUrlsRef.current[currentDoc.key] = blobUrl;
 
@@ -478,7 +489,6 @@ export default function KycSubmitPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FC] flex items-start justify-center p-6 pt-12">
       <div className="w-full max-w-5xl flex gap-6">
-
         {/* ── Sidebar ── */}
         <aside className="w-64 shrink-0">
           {/* Header + logout */}
@@ -534,36 +544,54 @@ export default function KycSubmitPage() {
               return (
                 <button
                   key={doc.key}
-                  onClick={() => { if (isAccessible) handleSidebarDocClick(i); }}
+                  onClick={() => {
+                    if (isAccessible) handleSidebarDocClick(i);
+                  }}
                   disabled={!isAccessible}
                   className={`w-full text-left rounded-xl px-3 py-3 flex items-center gap-3 transition-all
-                    ${isCurrent
-                      ? "bg-blue-50 border border-blue-200/80"
-                      : "hover:bg-slate-50 border border-transparent"}
+                    ${
+                      isCurrent
+                        ? "bg-blue-50 border border-blue-200/80"
+                        : "hover:bg-slate-50 border border-transparent"
+                    }
                     ${!isAccessible ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
                   `}
                 >
-                  <div className={`h-8 w-8 rounded-lg grid place-items-center shrink-0 transition-all
+                  <div
+                    className={`h-8 w-8 rounded-lg grid place-items-center shrink-0 transition-all
                     ${isDone ? "bg-emerald-500" : isRej ? "bg-red-500" : isCurrent ? "bg-blue-600" : "bg-slate-100"}
-                  `}>
+                  `}
+                  >
                     {isDone ? (
                       <Check className="h-4 w-4 text-white" />
                     ) : isRej ? (
                       <XCircle className="h-4 w-4 text-white" />
                     ) : (
-                      <DocIcon className={`h-4 w-4 ${isCurrent ? "text-white" : "text-slate-400"}`} />
+                      <DocIcon
+                        className={`h-4 w-4 ${isCurrent ? "text-white" : "text-slate-400"}`}
+                      />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-medium truncate leading-snug
+                    <p
+                      className={`text-xs font-medium truncate leading-snug
                       ${isCurrent ? "text-blue-700" : isDone ? "text-slate-600" : isRej ? "text-red-600" : "text-slate-500"}
-                    `}>
+                    `}
+                    >
                       {doc.label}
                     </p>
-                    <p className={`text-[10px] mt-0.5 truncate
+                    <p
+                      className={`text-[10px] mt-0.5 truncate
                       ${isDone ? "text-emerald-600" : isRej ? "text-red-500" : isCurrent ? "text-blue-500" : "text-slate-400"}
-                    `}>
-                      {isDone ? "Submitted" : isRej ? "Rejected" : isCurrent ? "In progress" : "Pending"}
+                    `}
+                    >
+                      {isDone
+                        ? "Submitted"
+                        : isRej
+                          ? "Rejected"
+                          : isCurrent
+                            ? "In progress"
+                            : "Pending"}
                     </p>
                   </div>
                   {isCurrent && !isDone && (
@@ -579,7 +607,8 @@ export default function KycSubmitPage() {
             <div className="flex items-start gap-2">
               <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-[11px] text-amber-700 leading-relaxed">
-                All documents are encrypted and processed securely. Verification typically takes under 24 hours.
+                All documents are encrypted and processed securely. Verification typically takes
+                under 24 hours.
               </p>
             </div>
           </div>
@@ -588,7 +617,6 @@ export default function KycSubmitPage() {
         {/* ── Main content ── */}
         <main className="flex-1 min-w-0">
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-
             {/* Card header */}
             <div className="px-8 py-6 border-b border-slate-100">
               <div className="flex items-start justify-between">
@@ -636,20 +664,26 @@ export default function KycSubmitPage() {
                   <div key={i} className="flex items-center gap-2">
                     <div
                       className={`h-5 w-5 rounded-full grid place-items-center text-[10px] font-semibold transition
-                        ${docStep === i
-                          ? "bg-blue-600 text-white"
-                          : docStep > i
-                            ? "bg-emerald-500 text-white"
-                            : "bg-slate-100 text-slate-400"}
+                        ${
+                          docStep === i
+                            ? "bg-blue-600 text-white"
+                            : docStep > i
+                              ? "bg-emerald-500 text-white"
+                              : "bg-slate-100 text-slate-400"
+                        }
                       `}
                     >
                       {docStep > i ? <Check className="h-3 w-3" /> : i + 1}
                     </div>
-                    <span className={`text-xs ${docStep === i ? "text-slate-800 font-medium" : "text-slate-400"}`}>
+                    <span
+                      className={`text-xs ${docStep === i ? "text-slate-800 font-medium" : "text-slate-400"}`}
+                    >
                       {label}
                     </span>
                     {i < 1 && (
-                      <div className={`w-8 h-px mx-1 ${docStep > 0 ? "bg-emerald-300" : "bg-slate-200"}`} />
+                      <div
+                        className={`w-8 h-px mx-1 ${docStep > 0 ? "bg-emerald-300" : "bg-slate-200"}`}
+                      />
                     )}
                   </div>
                 ))}
@@ -658,7 +692,6 @@ export default function KycSubmitPage() {
 
             {/* Card body */}
             <div className="px-8 py-6">
-
               {/* ── Step 0: Upload ── */}
               {docStep === 0 && !extracting && (
                 <>
@@ -673,21 +706,30 @@ export default function KycSubmitPage() {
                   />
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
                     onDragLeave={() => setDragOver(false)}
                     onDrop={handleDrop}
                     className={`group relative rounded-2xl border-2 border-dashed p-12 flex flex-col items-center justify-center cursor-pointer transition-all
-                      ${dragOver
-                        ? "border-blue-400 bg-blue-50/60"
-                        : "border-slate-200 hover:border-blue-300 hover:bg-slate-50/60"}
+                      ${
+                        dragOver
+                          ? "border-blue-400 bg-blue-50/60"
+                          : "border-slate-200 hover:border-blue-300 hover:bg-slate-50/60"
+                      }
                     `}
                   >
-                    <div className={`h-16 w-16 rounded-2xl grid place-items-center mb-5 transition-all
+                    <div
+                      className={`h-16 w-16 rounded-2xl grid place-items-center mb-5 transition-all
                       ${dragOver ? "bg-blue-100" : "bg-slate-100 group-hover:bg-blue-50"}
-                    `}>
-                      <UploadCloud className={`h-7 w-7 transition-all
+                    `}
+                    >
+                      <UploadCloud
+                        className={`h-7 w-7 transition-all
                         ${dragOver ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"}
-                      `} />
+                      `}
+                      />
                     </div>
                     <p className="text-base font-semibold text-slate-700 mb-1">
                       {dragOver ? "Drop it here" : "Drop file or click to browse"}
@@ -721,7 +763,9 @@ export default function KycSubmitPage() {
                       <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
                     </div>
                   </div>
-                  <h3 className="text-base font-semibold text-slate-800 mb-1">Processing document</h3>
+                  <h3 className="text-base font-semibold text-slate-800 mb-1">
+                    Processing document
+                  </h3>
                   <p className="text-sm text-slate-400 text-center max-w-xs leading-relaxed">
                     Our OCR engine is extracting and verifying data from your document…
                   </p>
@@ -731,7 +775,9 @@ export default function KycSubmitPage() {
                       <span className="text-xs text-slate-600 font-medium truncate max-w-[200px]">
                         {selectedFile.name}
                       </span>
-                      <span className="text-xs text-slate-400">{bytesToHuman(selectedFile.size)}</span>
+                      <span className="text-xs text-slate-400">
+                        {bytesToHuman(selectedFile.size)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -761,7 +807,9 @@ export default function KycSubmitPage() {
                         <Check className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-emerald-800 truncate">{serverFileName}</p>
+                        <p className="text-xs font-medium text-emerald-800 truncate">
+                          {serverFileName}
+                        </p>
                         <p className="text-[11px] text-emerald-600">
                           {bytesToHuman(serverFileSize)} · Previously uploaded
                         </p>
@@ -773,8 +821,12 @@ export default function KycSubmitPage() {
                   {flatFields.length > 0 ? (
                     <>
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-semibold text-slate-800">Extracted information</h2>
-                        <span className="text-[11px] text-slate-400">{flatFields.length} fields detected</span>
+                        <h2 className="text-sm font-semibold text-slate-800">
+                          Extracted information
+                        </h2>
+                        <span className="text-[11px] text-slate-400">
+                          {flatFields.length} fields detected
+                        </span>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -784,13 +836,16 @@ export default function KycSubmitPage() {
                               {formatLabel(path)}
                             </label>
                             <input
-
                               disabled={!temporaryUploadId}
                               type="text"
                               value={value ?? ""}
                               onChange={(e) =>
                                 updateCurrentDocState(currentDoc.key, {
-                                  extractedData: setNestedValue(extractedData, path, e.target.value),
+                                  extractedData: setNestedValue(
+                                    extractedData,
+                                    path,
+                                    e.target.value,
+                                  ),
                                 })
                               }
                               className={`h-10 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-sm text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition placeholder:text-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400`}
@@ -803,7 +858,8 @@ export default function KycSubmitPage() {
                       <div className="mt-5 flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200/70">
                         <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
                         <p className="text-xs text-amber-700 leading-relaxed">
-                          Please review all extracted fields carefully. Incorrect data may delay verification.
+                          Please review all extracted fields carefully. Incorrect data may delay
+                          verification.
                         </p>
                       </div>
                     </>
@@ -813,7 +869,9 @@ export default function KycSubmitPage() {
                         <FileText className="h-5 w-5 text-slate-400" />
                       </div>
                       <p className="text-sm font-medium text-slate-600 mb-1">Document uploaded</p>
-                      <p className="text-xs text-slate-400">No extracted fields to review for this document type.</p>
+                      <p className="text-xs text-slate-400">
+                        No extracted fields to review for this document type.
+                      </p>
                     </div>
                   )}
                 </>
@@ -828,7 +886,9 @@ export default function KycSubmitPage() {
                   <h3 className="text-base font-semibold text-slate-800 mb-1">
                     Submitting {currentDoc.label}
                   </h3>
-                  <p className="text-sm text-slate-400">Saving securely to your compliance profile…</p>
+                  <p className="text-sm text-slate-400">
+                    Saving securely to your compliance profile…
+                  </p>
                 </div>
               )}
             </div>
@@ -861,7 +921,9 @@ export default function KycSubmitPage() {
                     onClick={handleSubmit}
                     className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-blue-200"
                   >
-                    {docIndex === DOCUMENT_OPTIONS.length - 1 ? "Submit & finish" : "Submit & continue"}
+                    {docIndex === DOCUMENT_OPTIONS.length - 1
+                      ? "Submit & finish"
+                      : "Submit & continue"}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 )}

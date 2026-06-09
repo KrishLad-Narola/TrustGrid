@@ -36,7 +36,7 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // RESPONSE INTERCEPTOR
@@ -85,10 +85,7 @@ axiosInstance.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        const response = await axios.post(
-          `${BASE_URL}/auth/refresh`,
-          { refreshToken }
-        );
+        const response = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken });
 
         const newAccessToken = response.data?.data?.accessToken;
         const newRefreshToken = response.data?.data?.refreshToken;
@@ -113,7 +110,6 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    
     switch (status) {
       case 400:
         toast.error(error.response.data?.message || "Bad request");
@@ -127,7 +123,7 @@ axiosInstance.interceptors.response.use(
       case 404:
         toast.error(error.response.data?.message || "Resource not found");
         break;
-      case 409: 
+      case 409:
         toast.error(error.response.data?.message || "Conflict error");
         break;
       case 422:
@@ -142,7 +138,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

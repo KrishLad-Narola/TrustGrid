@@ -75,12 +75,7 @@ function resolveFileUrl(rawPath) {
 
 // ── Document Preview ──────────────────────────────────────────────────────────
 function DocumentPreview({ file, previewUrl, serverUrl, onRemove, fileName }) {
-  // console.log(fileName)
-  // console.log(serverUrl)
-
-  // const url = ` http://192.168.100.149:3000/uploads/${fileName}`;
   const url = previewUrl || (fileName ? `http://192.168.100.149:3000/uploads/${fileName}` : null);
-  // console.log(url)
   if (!url) return null;
 
   // Determine type: prefer the File object, fall back to URL extension
@@ -154,20 +149,8 @@ export default function KycSubmitPage() {
   const fileInputRef = useRef(null);
   const blobUrlsRef = useRef({}); // track blob URL so we can revoke it
   const { logout } = useAuth();
-  // Per-document state stored as a map keyed by doc.key so switching docs
-  // preserves each document's individual state.
+  
   const [docStates, setDocStates] = useState({});
-  // docStates[key] = {
-  //   step: 0 | 1,
-  //   temporaryUploadId: string | null,
-  //   extractedData: object | null,
-  //   selectedFile: File | null,
-  //   previewUrl: string | null,   ← blob URL (freshly uploaded)
-  //   serverFileUrl: string | null ← URL from API (already submitted)
-  //   serverFileName: string | null
-  //   serverFileSize: number | null
-  // }
-
   const [docIndex, setDocIndex] = useState(0);
   const [completedDocs, setCompletedDocs] = useState([]); // keys of successfully submitted docs
   const [rejectedDocs, setRejectedDocs] = useState({}); // { key: rejectionReason }
@@ -179,7 +162,7 @@ export default function KycSubmitPage() {
   const currentDoc = DOCUMENT_OPTIONS[docIndex];
   const currentState = docStates[currentDoc?.key] ?? { step: 0 };
   const isRejected = !!rejectedDocs[currentDoc?.key];
-  // console.log(currentState)
+
   // Derived helpers
   const docStep = currentState.step ?? 0;
   const extractedData = currentState.extractedData ?? null;
@@ -187,7 +170,6 @@ export default function KycSubmitPage() {
   const previewUrl = blobUrlsRef.current[currentDoc?.key] ?? null;
   const serverFileUrl = currentState.serverFileUrl ?? null;
   const serverFileName = currentState.serverFileName ?? null;
-  // const serverFileName = currentState.serverFileName ?? null;
   const serverFileSize = currentState.serverFileSize ?? null;
   const temporaryUploadId = currentState.temporaryUploadId ?? null;
 
@@ -217,15 +199,11 @@ export default function KycSubmitPage() {
             submitted.push(d.type);
           }
 
-          // For any uploaded doc (submitted OR rejected that has a file),
-          // pre-populate its state so the user can see what was uploaded.
           if (d.isUploaded && d.file?.url) {
             const metaData = d.metaData || d.ocrExtractedData || {};
             initialDocStates[d.type] = {
-              // Already submitted (not rejected) → land on review step.
-              // Rejected → land on upload step so user re-uploads.
               step: d.status === "REJECTED" ? 0 : 1,
-              temporaryUploadId: null, // already finalised on server
+              temporaryUploadId: null,
               extractedData: metaData,
               selectedFile: null,
               previewUrl: null,
@@ -294,7 +272,6 @@ export default function KycSubmitPage() {
   };
 
   const resetDocToUpload = () => {
-    // Revoke any blob URL for this doc
     if (blobUrlsRef.current[currentDoc.key]) {
       URL.revokeObjectURL(blobUrlsRef.current[currentDoc.key]);
       delete blobUrlsRef.current[currentDoc.key];
@@ -305,9 +282,23 @@ export default function KycSubmitPage() {
       extractedData: null,
       selectedFile: null,
       previewUrl: null,
-      // Keep serverFileUrl so previous preview is still accessible if needed
     });
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // ── Smart Back Button Handler ─────────────────────────────────────────────
+  const handleBackNavigation = () => {
+    if (docStep === 1) {
+      // If we are reviewing an unsaved doc, let's reset to step 0 layout
+      resetDocToUpload();
+    } else if (docIndex > 0) {
+      // If we are on step 0 and there's a previous document, step backward safely
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setDocIndex(docIndex - 1);
+    } else {
+      // Fallback fallback if they are at the absolute beginning
+      navigate(-1);
+    }
   };
 
   // ── File processing ───────────────────────────────────────────────────────
@@ -322,16 +313,13 @@ export default function KycSubmitPage() {
       return;
     }
 
-    // Create blob preview URL
     if (blobUrlsRef.current[currentDoc.key])
       URL.revokeObjectURL(blobUrlsRef.current[currentDoc.key]);
     const blobUrl = URL.createObjectURL(file);
     blobUrlsRef.current[currentDoc.key] = blobUrl;
 
-    // Optimistically set the file & preview so UI updates immediately
     updateCurrentDocState(currentDoc.key, {
       selectedFile: file,
-      // previewUrl: blobUrl,
     });
 
     try {
@@ -348,13 +336,13 @@ export default function KycSubmitPage() {
         temporaryUploadId: data.temporaryUploadId ?? null,
         extractedData: data.extractedData || {},
         selectedFile: file,
-        // previewUrl: blobUrl,
       });
       toast.success("Extraction complete", { description: "Review the fields below." });
     } catch (err) {
-      // Clear file state on failure
-      URL.revokeObjectURL(blobUrl);
-      objectUrlRef.current = null;
+      if (blobUrlsRef.current[currentDoc.key]) {
+        URL.revokeObjectURL(blobUrlsRef.current[currentDoc.key]);
+        delete blobUrlsRef.current[currentDoc.key];
+      }
       updateCurrentDocState(currentDoc.key, {
         selectedFile: null,
         previewUrl: null,
@@ -368,7 +356,6 @@ export default function KycSubmitPage() {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) processFile(file);
-    // Reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -381,7 +368,6 @@ export default function KycSubmitPage() {
 
   // ── Submit ────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    // Snapshot values from current state to avoid stale closure issues
     const snapIndex = docIndex;
     const snapDoc = DOCUMENT_OPTIONS[snapIndex];
     const snapState = docStates[snapDoc.key] ?? {};
@@ -390,10 +376,7 @@ export default function KycSubmitPage() {
     try {
       setSubmitting(true);
 
-      // If temporaryUploadId is null it means this is a previously-submitted doc
-      // being re-confirmed (e.g. after navigating away and back). Guard the call.
       if (!snapState.temporaryUploadId) {
-        // Nothing new was uploaded – just move forward
         if (snapIsLast) {
           navigate("/kyc-complete");
         } else {
@@ -407,13 +390,11 @@ export default function KycSubmitPage() {
         metaData: snapState.extractedData,
       });
 
-      // Update completed list using functional updater to avoid stale closure
       setCompletedDocs((prev) => {
         if (prev.includes(snapDoc.key)) return prev;
         return [...prev, snapDoc.key];
       });
 
-      // Clear rejection status on successful resubmit
       setRejectedDocs((prev) => {
         if (!prev[snapDoc.key]) return prev;
         const next = { ...prev };
@@ -421,8 +402,6 @@ export default function KycSubmitPage() {
         return next;
       });
 
-      // Mark this doc as finalised in docStates (clear temporaryUploadId so
-      // a back-navigation doesn't try to re-submit the same temp ID)
       setDocStates((prev) => ({
         ...prev,
         [snapDoc.key]: {
@@ -437,43 +416,30 @@ export default function KycSubmitPage() {
       if (snapIsLast) {
         navigate("/kyc-complete");
       } else {
-        // Move to next doc — reset input ref
         if (fileInputRef.current) fileInputRef.current.value = "";
         setDocIndex(snapIndex + 1);
       }
     } catch (err) {
-      // Toast already handled by axios interceptor
       console.error("Document submission failed:", err);
-
       return;
     } finally {
       setSubmitting(false);
     }
   };
 
-  // ── Logout ────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     await logout();
   };
 
-  // ── Nav helpers ───────────────────────────────────────────────────────────
   const handleSidebarDocClick = (i) => {
-    const doc = DOCUMENT_OPTIONS[i];
-    const state = docStates[doc.key];
-    // Revoke current blob URL if switching away
-    if (i !== docIndex && blobUrlsRef.current[doc.key]) {
-      // Don't revoke — keep it alive so returning to the doc still shows preview
-    }
     if (fileInputRef.current) fileInputRef.current.value = "";
     setDocIndex(i);
   };
-  // ── Derived values ────────────────────────────────────────────────────────
+
   const flatFields = extractedData ? flattenObject(extractedData) : [];
   const completedCount = completedDocs.length;
   const progressPct = (completedCount / DOCUMENT_OPTIONS.length) * 100;
 
-  // console.log(flattenObject(extractedData))
-  // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -485,13 +451,11 @@ export default function KycSubmitPage() {
     );
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#F8F9FC] flex items-start justify-center p-6 pt-12">
       <div className="w-full max-w-5xl flex gap-6">
         {/* ── Sidebar ── */}
         <aside className="w-64 shrink-0">
-          {/* Header + logout */}
           <div className="mb-8 flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -505,7 +469,7 @@ export default function KycSubmitPage() {
             <button
               onClick={handleLogout}
               title="Logout"
-              className="h-8 w-8 rounded-lg grid place-items-center text-slate-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all"
+              className="h-8 w-8 rounded-lg grid place-items-center cursor-pointer text-slate-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -538,7 +502,6 @@ export default function KycSubmitPage() {
               const isRej = !!rejectedDocs[doc.key];
               const isCurrent = i === docIndex;
               const DocIcon = doc.icon;
-              // Accessible if done, rejected, or at/before current index
               const isAccessible = isDone || isRej || i <= docIndex;
 
               return (
@@ -602,7 +565,6 @@ export default function KycSubmitPage() {
             })}
           </nav>
 
-          {/* Info callout */}
           <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200/70 p-3">
             <div className="flex items-start gap-2">
               <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
@@ -617,7 +579,6 @@ export default function KycSubmitPage() {
         {/* ── Main content ── */}
         <main className="flex-1 min-w-0">
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            {/* Card header */}
             <div className="px-8 py-6 border-b border-slate-100">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
@@ -786,21 +747,16 @@ export default function KycSubmitPage() {
               {/* ── Step 1: Review ── */}
               {docStep === 1 && !submitting && (
                 <>
-                  {/* Document preview — show blob URL (fresh upload) or server URL (returning user) */}
                   {(previewUrl || serverFileUrl) && (
                     <DocumentPreview
                       file={selectedFile}
                       fileName={serverFileName}
                       previewUrl={previewUrl}
                       serverUrl={serverFileUrl}
-                      onRemove={
-                        // Only allow replace if this is a fresh upload with a temporaryUploadId
-                        temporaryUploadId ? resetDocToUpload : undefined
-                      }
+                      onRemove={temporaryUploadId ? resetDocToUpload : undefined}
                     />
                   )}
 
-                  {/* Returning user: show file info badge when we only have server info */}
                   {!previewUrl && !serverFileUrl && serverFileName && (
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200/70 mb-6">
                       <div className="h-8 w-8 rounded-lg bg-emerald-500 grid place-items-center shrink-0">
@@ -817,7 +773,6 @@ export default function KycSubmitPage() {
                     </div>
                   )}
 
-                  {/* Editable extracted fields */}
                   {flatFields.length > 0 ? (
                     <>
                       <div className="flex items-center justify-between mb-4">
@@ -848,7 +803,7 @@ export default function KycSubmitPage() {
                                   ),
                                 })
                               }
-                              className={`h-10 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-sm text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition placeholder:text-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400`}
+                              className="h-10 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 text-sm text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition placeholder:text-slate-300 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400"
                               placeholder="—"
                             />
                           </div>
@@ -896,10 +851,10 @@ export default function KycSubmitPage() {
             {/* Card footer */}
             {!extracting && !submitting && (
               <div className="px-8 py-5 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                {/* Left: Back / Re-upload */}
+                {/* Left: Enhanced Back / Re-upload Navigation */}
                 <button
-                  onClick={docStep === 1 ? resetDocToUpload : () => navigate(-1)}
-                  className="h-10 px-5 rounded-xl border border-slate-200 bg-white text-sm text-slate-600 font-medium hover:bg-slate-50 hover:border-slate-300 flex items-center gap-2 transition-all"
+                  onClick={handleBackNavigation}
+                  className="h-10 px-5 rounded-xl border cursor-pointer border-slate-200 bg-white text-sm text-slate-600 font-medium hover:bg-slate-50 hover:border-slate-300 flex items-center gap-2 transition-all"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {docStep === 1 ? "Re-upload" : "Back"}
@@ -909,7 +864,7 @@ export default function KycSubmitPage() {
                 {docStep === 0 && (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-blue-200"
+                    className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 cursor-pointer text-white text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-blue-200"
                   >
                     <UploadCloud className="h-4 w-4" />
                     Select file
@@ -919,7 +874,7 @@ export default function KycSubmitPage() {
                 {docStep === 1 && (
                   <button
                     onClick={handleSubmit}
-                    className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-blue-200"
+                    className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 cursor-pointer text-white text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-blue-200"
                   >
                     {docIndex === DOCUMENT_OPTIONS.length - 1
                       ? "Submit & finish"

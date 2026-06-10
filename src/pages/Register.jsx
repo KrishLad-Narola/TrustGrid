@@ -394,7 +394,7 @@ export default function Register() {
 
             <div className="flex items-center gap-3">
               {step < 1 ? (
-                <button onClick={handleNext} className="btn-primary">
+                <button onClick={handleNext} className="btn-primary cursor-pointer">
                   Continue
                   <ArrowRight className="h-4 w-4" />
                 </button>

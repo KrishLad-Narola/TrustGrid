@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Panel } from "@/components/ui-kit";
-import { Bell, Eye, LockKeyhole, Trash2, Upload, ChevronRight, X, Save } from "lucide-react";
+import { Bell, Eye, LockKeyhole, Trash2, Camera, ChevronRight, X, Save } from "lucide-react";
 import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
 import { useAuth } from "@/lib/auth-context";
@@ -36,9 +36,7 @@ export default function SettingsPage() {
     if (business) {
       const data = {
         legalName: business.legalName || business.legal_name || "",
-
         companyType: business.companyType || business.company_type || "",
-
         logo: business.logo || business.logoUrl || null,
       };
 
@@ -48,13 +46,6 @@ export default function SettingsPage() {
   }, [business]);
 
   const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData) || !!logoFile;
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
@@ -83,7 +74,10 @@ export default function SettingsPage() {
     toast.success("Logo selected");
   };
 
-  const handleRemoveLogo = () => {
+  const handleRemoveLogo = (e) => {
+    // Prevents the click from triggering the file upload overlay underneath
+    e.stopPropagation(); 
+    
     setLogoFile(null);
 
     setFormData((prev) => ({
@@ -99,10 +93,6 @@ export default function SettingsPage() {
       setSaving(true);
 
       const payload = new FormData();
-
-      payload.append("legalName", formData.legalName);
-
-      payload.append("companyType", formData.companyType);
 
       if (logoFile) {
         payload.append("logo", logoFile);
@@ -125,6 +115,7 @@ export default function SettingsPage() {
 
       toast.success("Profile updated successfully");
     } catch (error) {
+      toast.error("Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -147,6 +138,7 @@ export default function SettingsPage() {
 
       navigate("/login");
     } catch (error) {
+      toast.error("Failed to deactivate account");
     } finally {
       setDeleteAccountLoading(false);
     }
@@ -161,24 +153,52 @@ export default function SettingsPage() {
             <h3 className="text-xl font-semibold text-foreground">Business Profile</h3>
 
             <p className="text-sm text-muted-foreground mt-1">
-              Update your business information, branding and organization details.
+              View your registration details and update your business branding.
             </p>
           </div>
         </div>
 
         <div className="border-t border-border pt-6">
-          <div className="flex items-center gap-5 mb-8">
-            <div className="h-20 w-20 rounded-2xl overflow-hidden bg-gradient-to-br from-primary to-primary/80 shadow-sm">
-              {formData.logo ? (
-                <img
-                  src={formData.logo}
-                  alt="Company logo"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center text-2xl font-semibold btn-primary text-white">
-                  {formData.legalName?.charAt(0) || "B"}
+          
+          {/* Avatar Area */}
+          <div className="flex items-center gap-6 mb-8">
+            <div className="relative h-24 w-24">
+              
+              {/* Clickable Profile Circle */}
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="relative group h-full w-full rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 bg-gradient-to-br from-primary to-primary/80 shadow-md cursor-pointer transition-all duration-200 hover:opacity-95"
+              >
+                {formData.logo ? (
+                  <img
+                    src={formData.logo}
+                    alt="Company logo"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-3xl font-semibold btn-primary text-white">
+                  </div>
+                )}
+
+                {/* Dark bottom gradient backdrop + Camera Icon */}
+                <div className="absolute inset-0 rounded-lg flex flex-col items-center justify-end pb-6 opacity-85 transition-opacity">
+                  <Camera className="h-4 w-4 text-white drop-shadow-sm mb-0.5" />
+                  <span className="text-[11px] font-medium text-white/95 select-none tracking-wide">
+                    Update
+                  </span>
                 </div>
+              </div>
+
+              {/* Floating Modern Remove Badge */}
+              {formData.logo && (
+                <button
+                  type="button"
+                  onClick={handleRemoveLogo}
+                  title="Remove current logo"
+                  className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-md border border-background flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 z-10"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               )}
             </div>
 
@@ -189,40 +209,22 @@ export default function SettingsPage() {
               onChange={handleLogoUpload}
               className="hidden"
             />
-
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background hover:bg-muted transition cursor-pointer text-sm font-medium"
-              >
-                <Upload className="h-4 w-4" />
-                <span>Upload Logo</span>
-              </button>
-
-              {formData.logo && (
-                <button
-                  type="button"
-                  onClick={handleRemoveLogo}
-                  className="px-4 py-2.5 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition cursor-pointer text-sm font-medium"
-                >
-                  Remove
-                </button>
-              )}
-            </div>
           </div>
 
+          {/* Form Fields */}
           <div className="grid md:grid-cols-2 gap-5">
             <Input
               label="Legal Name"
               value={formData.legalName}
-              onChange={(e) => handleInputChange("legalName", e.target.value)}
+              disabled={true} 
+              className="w-full h-11 px-4 rounded-xl border border-border bg-muted text-sm text-muted-foreground cursor-not-allowed opacity-70 focus:outline-none"
             />
 
             <Input
               label="Company Type"
               value={formData.companyType}
-              onChange={(e) => handleInputChange("companyType", e.target.value)}
+              disabled={true}
+              className="w-full h-11 px-4 rounded-xl border border-border bg-muted text-sm text-muted-foreground cursor-not-allowed opacity-70 focus:outline-none"
             />
           </div>
 
@@ -230,7 +232,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={!hasChanges || saving}
-              className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${
+              className={`inline-flex items-center cursor-pointer justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${
                 hasChanges
                   ? "btn-primary text-primary-foreground hover:opacity-90"
                   : "bg-muted text-muted-foreground cursor-not-allowed"
@@ -258,22 +260,10 @@ export default function SettingsPage() {
 
         <div className="divide-y divide-border">
           {[
-            {
-              k: "verifications",
-              l: "Verification Updates",
-            },
-            {
-              k: "deals",
-              l: "Deal Activity",
-            },
-            {
-              k: "score",
-              l: "Trust Score Changes",
-            },
-            {
-              k: "flags",
-              l: "Risk Flag Alerts",
-            },
+            { k: "verifications", l: "Verification Updates" },
+            { k: "deals", l: "Deal Activity" },
+            { k: "score", l: "Trust Score Changes" },
+            { k: "flags", l: "Risk Flag Alerts" },
           ].map(({ k, l }) => (
             <Toggle
               key={k}
@@ -385,7 +375,6 @@ export default function SettingsPage() {
               className="w-full sm:w-auto cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="h-4 w-4" />
-
               {deleteAccountLoading ? "Deactivating..." : "Deactivate Account"}
             </button>
           </div>
@@ -394,16 +383,15 @@ export default function SettingsPage() {
     </div>
   );
 
-  function Input({ label, ...p }) {
+  function Input({ label, className, ...p }) {
     return (
       <div className="mb-5">
         <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
           {label}
         </label>
-
         <input
           {...p}
-          className="w-full h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          className={className || "w-full h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"}
         />
       </div>
     );
@@ -413,7 +401,6 @@ export default function SettingsPage() {
     return (
       <label className="flex items-center justify-between py-3 cursor-pointer">
         <span className="text-sm font-medium">{label}</span>
-
         <button
           type="button"
           onClick={() => onChange?.(!checked)}

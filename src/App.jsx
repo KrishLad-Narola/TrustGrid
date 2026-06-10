@@ -3,7 +3,6 @@ import { Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { ThemeProvider } from "../src/lib/ThemeContext";
 import { useTheme } from "@/lib/ThemeContext";
 
 /* Public Pages */
@@ -201,14 +200,16 @@ function AppRoutes() {
 }
 
 function AppContent() {
-  console.log("AppContent rendered");
-
   const { theme } = useTheme();
 
   return (
     <>
       <AppRoutes />
-      <Toaster theme={theme} />
+      <Toaster
+        richColors
+        position="top-right"
+        theme={theme}
+      />
     </>
   );
 }

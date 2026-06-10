@@ -31,8 +31,16 @@ const tabs = ["All", "GST", "PAN", "INCORPORATION", "BANK"];
 const tabsMapping = {
   GST: "GST_CERTIFICATE",
   PAN: "PAN_CARD",
-  Incorporation: "INCORPORATION_CERTIFICATE",
-  Bank: "BANK_PROOF",
+  INCORPORATION: "INCORPORATION_CERTIFICATE",
+  BANK: "BANK_PROOF",
+};
+
+// Map backend document types back to dropdown select option labels
+const inverseTabsMapping = {
+  GST_CERTIFICATE: "GST Certificate",
+  PAN_CARD: "PAN Card",
+  INCORPORATION_CERTIFICATE: "Incorporation Certificate",
+  BANK_PROOF: "Bank Proof",
 };
 
 const docTypeOptions = ["GST Certificate", "PAN Card", "Incorporation Certificate", "Bank Proof"];
@@ -102,8 +110,9 @@ export default function KYCPage() {
     getKYCDocuments();
   }, []);
 
-  const handleReuploadAction = (type) => {
-    const matchedType = docTypeOptions.includes(type) ? type : "GST Certificate";
+  const handleReuploadAction = (backendType) => {
+    // Resolve the display variant from the backend database token
+    const matchedType = inverseTabsMapping[backendType] || "GST Certificate";
     setDocType(matchedType);
     setUploadOpen(true);
   };
@@ -117,11 +126,10 @@ export default function KYCPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${
-                  tab === t
+                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${tab === t
                     ? "btn-primary text-white shadow-sm border border-slate-200"
                     : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 border border-transparent"
-                }`}
+                  }`}
               >
                 {t}
               </button>
@@ -435,7 +443,7 @@ function UploadModal({ onClose, docType, setDocType }) {
                 {docTypeOptions.map((opt) => (
                   <option key={opt}>{opt}</option>
                 ))}
-              </select> 
+              </select>
             </div>
 
             <div className="border border-dashed p-6 text-center justify-center cursor-pointer rounded-lg">

@@ -231,7 +231,7 @@ export default function AdminKyc() {
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => loadDocumentDetails(doc._id)}
-                        className="inline-flex h-8 w-8 rounded-lg border border-input items-center justify-center hover:bg-accent hover:text-accent-foreground shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="inline-flex h-8 w-8 rounded-lg cursor-pointer border border-input items-center justify-center hover:bg-accent hover:text-accent-foreground shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         title="View Document"
                       >
                         <Eye size={15} />
@@ -368,13 +368,13 @@ export default function AdminKyc() {
                   setVerificationWarnings([]);
                   setForceVerifyDocId(null);
                 }}
-                className="h-9 px-4 border border-input rounded-lg hover:bg-accent text-sm font-medium transition-colors"
+                className="h-9 px-4 border border-input rounded-lg hover:bg-accent cursor-pointer text-sm font-medium transition-colors"
               >
                 Back
               </button>
               <button
                 onClick={forceVerifyDocument}
-                className="h-9 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm"
+                className="h-9 px-4 bg-emerald-600 text-white rounded-lg cursor-pointer hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm"
               >
                 Force Verify
               </button>
@@ -606,14 +606,14 @@ function DocumentPreviewModal({
           <div className="border-t border-border p-4 bg-muted/40 flex gap-2.5 justify-end">
             <button
               onClick={onReject}
-              className="inline-flex items-center gap-1.5 px-4 h-9 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 text-sm font-medium transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-4 h-9 cursor-pointer bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 text-sm font-medium transition-colors shadow-sm"
             >
               <X size={15} />
               Reject
             </button>
             <button
               onClick={onAccept}
-              className="inline-flex items-center gap-1.5 px-4 h-9 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-4 h-9 cursor-pointer bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm"
             >
               <Check size={15} />
               Accept

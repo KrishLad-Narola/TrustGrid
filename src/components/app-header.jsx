@@ -65,16 +65,11 @@ export function AppHeader({ title, subtitle }) {
 
           <button
             onClick={toggleTheme}
-            aria-label="Toggle Theme"
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95"
           >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4  text-foreground" />
-            ) : (
-              <Moon className="h-4 w-4 text-foreground" />
-            )}
+            {theme === "dark" ? <Sun strokeWidth={1} size={18} /> : <Moon   strokeWidth={1.25} size={18} />}
           </button>
-
+                                                                                                                                         
           {/* Notifications */}
 
           <button

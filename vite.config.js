@@ -4,10 +4,14 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), tsconfigPaths()],
-  server: {
-    port: 5173,
-    host: true,
+  darkMode: "class",
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
   },
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  plugins: [react(), tailwindcss(), tsconfigPaths()],
+
 });

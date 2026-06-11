@@ -215,7 +215,7 @@ export default function DealsPage() {
 
   const loadCounterparties = useCallback(async () => {
     try {
-      const res = await axiosInstance.get("/businesses/counterparties");
+      const res = await axiosInstance.post("/businesses/counterparties");
       setCounterparties(res?.businesses || res?.data?.businesses || res?.data || []);
     } catch {}
   }, []);

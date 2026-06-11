@@ -14,6 +14,7 @@ import ResetPassword from "@/pages/ResetPassword";
 
 /* Protected Pages */
 import ProfilePage from "@/pages/ProfilePage";
+import ProfileDetailPage from "@/pages/ProfileDetailPage"; // <-- Added Detail Import
 import ChangePassword from "@/pages/ChnagePassword";
 import KycSubmitPage from "@/pages/KycSubmitPage";
 
@@ -160,6 +161,7 @@ function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/:id" element={<ProfileDetailPage />} /> {/* <-- Added Profile Detail Route */}
 
         <Route element={<KycFlowCheck />}>
           <Route path="/kyc-submit" element={<KycSubmitPage />} />
@@ -213,6 +215,7 @@ function AppContent() {
     </>
   );
 }
+
 export default function App() {
   return (
     <AuthProvider>

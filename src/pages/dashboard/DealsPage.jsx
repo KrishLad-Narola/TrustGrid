@@ -462,7 +462,6 @@ export default function DealsPage() {
         ))}
       </div>
 
-      {/* ── Deal List ── */}
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (

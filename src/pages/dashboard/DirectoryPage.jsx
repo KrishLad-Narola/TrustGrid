@@ -14,7 +14,8 @@ export default function DirectoryPage() {
   const [scoreMin, setScoreMin] = useState(0);
   
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  // Fixed: Changed from 5 to 10 items per page
+  const itemsPerPage = 10; 
 
   useEffect(() => {
     let isMounted = true;

@@ -75,9 +75,9 @@ export function AppHeader({ title, subtitle }) {
           <button
             onClick={() => setOpen(true)}
             aria-label="Open notifications"
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95"
+            className="relative flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95"
           >
-            <Bell className="h-4 w-4 text-foreground cursor-pointer" />
+            <Bell className="h-4 w-4 text-foreground" />
 
             <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-background">
               3

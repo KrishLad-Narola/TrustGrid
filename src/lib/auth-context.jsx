@@ -1,4 +1,5 @@
 import axiosInstance from "@/API/axiosInstance";
+import { connectSocket, socket } from "../utils/socket.io";
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -43,6 +44,17 @@ export function AuthProvider({ children }) {
       activityScore: businessData.activityScore ?? trust.activityScore ?? 0,
     };
   };
+
+  useEffect(() => {
+
+    const {accessToken} =  getTokens()
+
+    connectSocket(accessToken)
+
+  }, []);
+
+
+
 
   const fetchUserProfile = async () => {
     try {

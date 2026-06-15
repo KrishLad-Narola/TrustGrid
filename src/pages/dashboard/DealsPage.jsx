@@ -691,12 +691,7 @@ function DealActions({
   if (activeTab === "incoming") {
     return (
       <>
-        <Btn
-          variant="ghost"
-          icon={ExternalLink}
-          onClick={() => onView(deal.id)}
-          className="cursor-pointer"
-        >
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>
           View
         </Btn>
         <Btn variant="ghost-danger" icon={ThumbsDown} onClick={() => onReject(deal.id)}>
@@ -712,28 +707,13 @@ function DealActions({
   if (activeTab === "sent") {
     return (
       <>
-        <Btn
-          variant="ghost"
-          icon={ExternalLink}
-          onClick={() => onView(deal.id)}
-          className="cursor-pointer"
-        >
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>
           View
         </Btn>
-        <Btn
-          variant="ghost"
-          icon={Pencil}
-          onClick={() => onEdit(deal.id)}
-          className="cursor-pointer"
-        >
+        <Btn variant="ghost" icon={Pencil} onClick={() => onEdit(deal.id)}>
           Edit
         </Btn>
-        <Btn
-          variant="ghost-danger"
-          icon={XCircle}
-          onClick={() => onCancel(deal.id)}
-          className="cursor-pointer"
-        >
+        <Btn variant="ghost-danger" icon={XCircle} onClick={() => onCancel(deal.id)}>
           Cancel
         </Btn>
       </>
@@ -743,12 +723,7 @@ function DealActions({
   if (activeTab === "active") {
     return (
       <>
-        <Btn
-          variant="ghost"
-          icon={ExternalLink}
-          onClick={() => onView(deal.id)}
-          className="cursor-pointer"
-        >
+        <Btn variant="ghost" icon={ExternalLink} onClick={() => onView(deal.id)}>
           View
         </Btn>
 
@@ -834,7 +809,7 @@ function DealActions({
 
 function Btn({ children, icon: Icon, variant = "ghost", onClick, disabled }) {
   const base =
-    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
   const variants = {
     ghost: "bg-slate-100 text-slate-700 hover:bg-slate-200",
     "ghost-danger": "bg-rose-50 text-rose-600 hover:bg-rose-100",
@@ -1134,14 +1109,14 @@ function DisputeDealModal({ deal, onClose, onSubmit }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 h-10 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="flex-1 h-10 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading || !reason.trim()}
-            className="flex-1 h-10 rounded-lg bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 h-10 rounded-lg bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? "Submitting…" : "Raise Dispute"}
           </button>
@@ -1199,14 +1174,14 @@ function ResolveDisputeModal({ deal, onClose, onSubmit }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 h-10 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="flex-1 h-10 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading || !note.trim()}
-            className="flex-1 h-10 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 h-10 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? "Resolving…" : "Mark Resolved"}
           </button>

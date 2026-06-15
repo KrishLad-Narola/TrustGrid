@@ -24,7 +24,7 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <React.StrictMode>
+  
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
@@ -32,5 +32,5 @@ createRoot(rootElement).render(
         </BrowserRouter>
       </ThemeProvider>
     </QueryClientProvider>
-  </React.StrictMode>
+  
 );

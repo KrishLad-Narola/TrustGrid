@@ -102,7 +102,6 @@ axiosInstance.interceptors.response.use(
         processQueue(refreshError, null);
 
         localStorage.clear();
-        toast.error("Session expired. Please login again.");
 
         return Promise.reject(refreshError);
       } finally {

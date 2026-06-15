@@ -1,133 +1,260 @@
-// import { X, FileCheck2, AlertTriangle, Handshake, Gauge } from "lucide-react";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import {
+  X,
+  AlertTriangle,
+  FileCheck2,
+  Handshake,
+  FileText,
+  CheckCircle2,
+  Bell,
+  ShieldAlert,
+  UserPlus
+} from "lucide-react";
+import axiosInstance from "../API/axiosInstance";
 
-// const items = [
-//   { icon: AlertTriangle, color: "text-warning", title: "Bank Statement expiring", desc: "Expires in 28 days. Re-upload soon.", time: "12m" },
-//   { icon: FileCheck2, color: "text-success", title: "GST re-verified", desc: "Verification refreshed by admin.", time: "2h" },
-//   { icon: Handshake, color: "text-primary", title: "New deal request", desc: "Helios Renewables wants to initiate a deal.", time: "5h" },
-//   { icon: Gauge, color: "text-accent", title: "Trust score updated", desc: "Your score increased by +2 to 85.", time: "1d" },
-// ];
+// --- Dynamic Icon & Styling Map ---
+const getTypeStyles = (type = "") => {
+  const upperType = type.toUpperCase();
 
-// export function NotificationDrawer({ open, onClose }) {
-//   return (
-//     <>
-//       <div
-//         className={`fixed inset-0 bg-foreground/20 backdrop-blur-sm z-30 transition-opacity ${open ? "opacity-100" : "opacity-0 pointer-events-none"
-//           }`}
-//         onClick={onClose}
-//       />
-//       <aside
-//         className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-card border-l border-border z-40 transition-transform shadow-xl ${open ? "translate-x-0" : "translate-x-full"
-//           }`}
-//       >
-//         <div className="h-16 px-5 flex items-center justify-between border-b border-border">
-//           <h3 className="font-semibold">Notifications</h3>
-//           <button onClick={onClose} className="size-8 rounded-md hover:bg-muted flex items-center justify-center">
-//             <X className="size-4" />
-//           </button>
-//         </div>
-//         <div className="p-4 space-y-2 overflow-y-auto h-[calc(100%-4rem)]">
-//           {items.map((n, i) => {
-//             const Icon = n.icon;
-//             return (
-//               <div key={i} className="glass-card p-3 flex gap-3">
-//                 <div className={`size-9 rounded-lg bg-muted flex items-center justify-center ${n.color}`}>
-//                   <Icon className="size-4" />
-//                 </div>
-//                 <div className="flex-1 min-w-0">
-//                   <div className="flex items-center justify-between gap-2">
-//                     <p className="text-sm font-medium truncate">{n.title}</p>
-//                     <span className="text-[10px] text-muted-foreground font-mono">{n.time}</span>
-//                   </div>
-//                   <p className="text-xs text-muted-foreground">{n.desc}</p>
-//                 </div>
-//               </div>
-//             );
-//           })}
-//         </div>
-//       </aside>
-//     </>
-//   );
-// }
+  if (upperType.includes("KYC")) {
+    if (upperType.includes("REJECTED")) return { icon: AlertTriangle, color: "text-red-600 bg-red-100 dark:bg-red-950/50" };
+    if (upperType.includes("VERIFIED")) return { icon: FileCheck2, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50" };
+    return { icon: FileText, color: "text-amber-600 bg-amber-100 dark:bg-amber-950/50" };
+  }
 
-import { X, FileCheck2, AlertTriangle, Handshake, Gauge } from "lucide-react";
+  if (upperType.includes("DEAL")) {
+    if (upperType.includes("CREATED")) return { icon: Handshake, color: "text-blue-600 bg-neutral-400/20" };
+    if (upperType.includes("COMPLETED")) return { icon: CheckCircle2, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50" };
+    if (upperType.includes("REJECTED") || upperType.includes("CANCELLED")) return { icon: X, color: "text-slate-500 bg-slate-100" };
+    return { icon: Handshake, color: "text-blue-600 bg-neutral-400/20" };
+  }
 
-const items = [
-  {
-    icon: AlertTriangle,
-    color: "text-warning",
-    title: "Bank Statement expiring",
-    desc: "Expires in 28 days. Re-upload soon.",
-    time: "12m",
-  },
-  {
-    icon: FileCheck2,
-    color: "text-success",
-    title: "GST re-verified",
-    desc: "Verification refreshed by admin.",
-    time: "2h",
-  },
-  {
-    icon: Handshake,
-    color: "text-primary",
-    title: "New deal request",
-    desc: "Helios Renewables wants to initiate a deal.",
-    time: "5h",
-  },
-  {
-    icon: Gauge,
-    color: "text-accent",
-    title: "Trust score updated",
-    desc: "Your score increased by +2 to 85.",
-    time: "1d",
-  },
-];
+  if (upperType.includes("DISPUTE")) {
+    return { icon: ShieldAlert, color: "text-red-600 bg-red-100 dark:bg-red-950/50 animate-pulse" };
+  }
 
-export function NotificationDrawer({ open, onClose }) {
+  if (upperType.includes("MEMBER") || upperType.includes("ROLE")) {
+    return { icon: UserPlus, color: "text-sky-600 bg-sky-100" };
+  }
+
+  return { icon: Bell, color: "text-slate-500 bg-slate-100" };
+};
+
+// --- Time Formatter ---
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return "";
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffMs = now.getTime() - past.getTime();
+
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  return `${diffDays}d`;
+};
+
+export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
+  const [notifications, setNotifications] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const fetchNotifications = async (pageToFetch = 1, append = false) => {
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.post("/notifications", {
+        options: { page: pageToFetch, limit: 20 }
+      });
+      const data = response.data;
+      if (data?.docs) {
+        setNotifications(prev => append ? [...prev, ...data.docs] : data.docs);
+        setPagination(data.paginate);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notifications from DB:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications(1, false);
+  }, []);
+
+  const markAsRead = async (notificationId) => {
+    console.log("Notification ID:", notificationId);
+    setNotifications(prev =>
+      prev.map(n => n._id === notificationId ? { ...n, isRead: true } : n)
+    );
+    try {
+      const response = await axiosInstance.post(`/notifications`);
+
+      console.log(`/notifications/${notificationId}/read`);
+      console.log("Backend response for markAsRead:", response.data);
+    } catch (err) {
+      console.error("Status:", err.response?.status);
+      console.error("Data:", err.response?.data);
+      console.error("Message:", err.message);
+      fetchNotifications(1, false);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+
+    try {
+      const response = await axiosInstance.patch("/notifications/read-all");
+      console.log("Backend response for markAllAsRead:", response.data);
+    } catch (err) {
+      console.error("CRITICAL BACKEND ERROR: Could not mark all as read in database!", err.response || err);
+      fetchNotifications(1, false);
+    }
+  };
+
+
+  useEffect(() => {
+    if (!accessToken || !apiUrl) return;
+
+    const socket = io(apiUrl, { auth: { token: accessToken } });
+
+    socket.on("connect", () => {
+      console.log("Connected to notification engine socket stream.");
+    });
+
+    socket.on("notification:new", (newNotification) => {
+      setNotifications(prev => {
+        const exists = prev.some(n => n._id === newNotification._id);
+        if (exists) return prev;
+
+        // Use backend status if it exists, otherwise fall back to unread (false)
+        const initialReadStatus = typeof newNotification.isRead === 'boolean' ? newNotification.isRead : false;
+        return [{ ...newNotification, isRead: initialReadStatus }, ...prev];
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [apiUrl, accessToken]);
+
+  const handleLoadMore = () => {
+    if (pagination?.hasNextPage && !isLoading) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchNotifications(nextPage, true);
+    }
+  };
+
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-foreground/20 backdrop-blur-sm z-30 transition-opacity duration-300 opacity-0 pointer-events-none overflow-hidden ${
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-30 transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
         onClick={onClose}
       />
 
-      {/* Drawer */}
+      {/* Drawer Container */}
       <aside
-        className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-card border-l border-border z-40 transition-all duration-300 shadow-xl ${
-          open ? "translate-x-0 opacity-100 visible" : "translate-x-full opacity-0 invisible"
-        }`}
+        className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-white border-l border-slate-100 z-40 transition-all duration-300 shadow-2xl flex flex-col ${open ? "translate-x-0 opacity-100 visible" : "translate-x-full opacity-0 invisible"
+          }`}
       >
-        <div className="h-16 px-5 flex items-center justify-between border-b border-border">
-          <h3 className="font-semibold">Notifications</h3>
-          <button
-            onClick={onClose}
-            className="size-8 rounded-md hover:bg-muted flex items-center cursor-pointer justify-center"
-          >
-            <X className="size-4" />
-          </button>
+        {/* Header */}
+        <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-slate-800 text-lg">Notifications</h3>
+            {unreadCount > 0 && (
+              <span className="bg-black text-white px-2 py-0.5 rounded-full text-[11px] font-bold">
+                {unreadCount} new
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="flex justify-end cursor-pointer btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+              >
+                Mark all read
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="size-8 rounded-full hover:bg-slate-100 flex items-center cursor-pointer justify-center text-slate-500 transition-colors"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
         </div>
-        <div className="p-4 space-y-2 overflow-y-auto">
-          {items.map((n, i) => {
-            const Icon = n.icon;
-            return (
-              <div key={i} className="glass-card p-3 flex gap-3">
+
+        {/* Dynamic Lists Display Box */}
+        <div className="p-4 space-y-3 overflow-y-auto flex-1 bg-slate-50/50">
+          {notifications.length === 0 ? (
+            <div className="text-center py-12 text-sm text-slate-400">
+              No recent notifications to display.
+            </div>
+          ) : (
+            notifications.map((n) => {
+              const { icon: DynamicIcon, color: iconStyleClasses } = getTypeStyles(n.type);
+
+              return (
                 <div
-                  className={`size-9 rounded-lg bg-muted flex items-center justify-center ${n.color}`}
+                  key={n._id}
+                  onClick={() => !n.isRead && markAsRead(n._id)}
+                  className={`p-4 flex gap-3 rounded-2xl transition-all duration-200 border relative group cursor-pointer ${n.isRead
+                    ? "bg-white border-slate-100 opacity-70 shadow-sm"
+                    : "bg-white border-[#F4E3B1] shadow-md shadow-amber-500/5 hover:scale-[1.01]"
+                    }`}
                 >
-                  <Icon className="size-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium truncate">{n.title}</p>
-                    <span className="text-[10px] text-muted-foreground font-mono">{n.time}</span>
+                  {/* Unread indicator dot */}
+                  {!n.isRead && (
+                    <span className="absolute top-4 left-4 flex h-2 w-2 transform -translate-x-1/2 -translate-y-1/2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                  )}
+
+                  {/* Icon Wrapper Asset Indicator */}
+                  <div className={`size-11 rounded-2xl flex items-center justify-center transition-transform ${iconStyleClasses}`}>
+                    <DynamicIcon className="size-5 stroke-[1.5]" />
                   </div>
-                  <p className="text-xs text-muted-foreground">{n.desc}</p>
+
+                  {/* Message Layout Area */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className={`text-sm tracking-tight text-slate-800 ${!n.isRead ? "font-bold text-slate-900" : "font-medium"}`}>
+                        {n.title}
+                      </p>
+                      <span className="text-[11px] text-slate-500 font-semibold flex-shrink-0 pt-0.5">
+                        {formatTimeAgo(n.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed font-medium">
+                      {n.message}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
+
+          {/* Load More Action Section */}
+          {pagination?.hasNextPage && (
+            <button
+              onClick={handleLoadMore}
+              disabled={isLoading}
+              className="w-full text-center py-2.5 text-xs text-blue-600 hover:text-blue-700 bg-white border border-slate-100 hover:border-amber-200 shadow-sm rounded-xl transition-all font-semibold mt-4"
+            >
+              {isLoading ? "Loading older updates..." : "View older notifications"}
+            </button>
+          )}
         </div>
       </aside>
     </>

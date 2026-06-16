@@ -58,6 +58,29 @@ const formatTimeAgo = (dateString) => {
   return `${diffDays}d`;
 };
 
+// --- LocalStorage Helpers ---
+const STORAGE_KEY = "removed_notification_ids";
+
+const getRemovedIds = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Error reading localStorage", e);
+    return [];
+  }
+};
+
+const saveRemovedId = (id) => {
+  if (!id) return;
+  const currentIds = getRemovedIds();
+  if (!currentIds.includes(id)) {
+    const updated = [...currentIds, id];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    console.log("Saved to localStorage hidden list:", updated); // Debug log
+  }
+};
+
 export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   const [notifications, setNotifications] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -72,9 +95,22 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
       const response = await axiosInstance.post("/notifications", {
         options: { page: pageToFetch, limit: 20 }
       });
+
+      // Fallback handles if backend sends raw array or wrapping objects
       const data = response.data;
-      if (data?.docs) {
-        setNotifications(prev => append ? [...prev, ...data.docs] : data.docs);
+      const rawDocs = data?.docs || (Array.isArray(data) ? data : []);
+
+      const removedIds = getRemovedIds();
+
+      // Strict filter: matches against both standard variations of ID properties
+      const filteredDocs = rawDocs.filter(n => {
+        const id = n._id || n.id;
+        return !removedIds.includes(id);
+      });
+
+      setNotifications(prev => append ? [...prev, ...filteredDocs] : filteredDocs);
+
+      if (data?.paginate) {
         setPagination(data.paginate);
       }
     } catch (err) {
@@ -89,51 +125,50 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   }, []);
 
   const markAsRead = async (notificationId) => {
-    console.log("Notification ID:", notificationId);
-    setNotifications(prev =>
-      prev.map(n => n._id === notificationId ? { ...n, isRead: true } : n)
-    );
     try {
-      const response = await axiosInstance.post(`/notifications`);
+      // 1. Immediately push to localStorage and clear local UI state
+      saveRemovedId(notificationId);
+      setNotifications(prev => prev.filter(n => (n._id !== notificationId && n.id !== notificationId)));
 
-      console.log(`/notifications/${notificationId}/read`);
-      console.log("Backend response for markAsRead:", response.data);
+      // 2. Fire API call
+      await axiosInstance.patch(`/notifications/${notificationId}/read`);
     } catch (err) {
-      console.error("Status:", err.response?.status);
-      console.error("Data:", err.response?.data);
-      console.error("Message:", err.message);
-      fetchNotifications(1, false);
+      console.error("Failed to mark notification as read:", err);
     }
   };
 
   const markAllAsRead = async () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    // Hidden cache syncing
+    notifications.forEach(n => {
+      const id = n._id || n.id;
+      saveRemovedId(id);
+    });
+    setNotifications([]);
 
     try {
-      const response = await axiosInstance.patch("/notifications/read-all");
-      console.log("Backend response for markAllAsRead:", response.data);
+      await axiosInstance.patch("/notifications/read-all");
     } catch (err) {
-      console.error("CRITICAL BACKEND ERROR: Could not mark all as read in database!", err.response || err);
-      fetchNotifications(1, false);
+      console.error("Could not complete backend mark-all clear request:", err);
+      fetchNotifications();
     }
   };
-
 
   useEffect(() => {
     if (!accessToken || !apiUrl) return;
 
     const socket = io(apiUrl, { auth: { token: accessToken } });
 
-    socket.on("connect", () => {
-      console.log("Connected to notification engine socket stream.");
-    });
-
     socket.on("notification:new", (newNotification) => {
+      const targetId = newNotification._id || newNotification.id;
+      const removedIds = getRemovedIds();
+
+      // Prevent hidden IDs from popping back up through websockets live
+      if (removedIds.includes(targetId)) return;
+
       setNotifications(prev => {
-        const exists = prev.some(n => n._id === newNotification._id);
+        const exists = prev.some(n => (n._id === targetId || n.id === targetId));
         if (exists) return prev;
 
-        // Use backend status if it exists, otherwise fall back to unread (false)
         const initialReadStatus = typeof newNotification.isRead === 'boolean' ? newNotification.isRead : false;
         return [{ ...newNotification, isRead: initialReadStatus }, ...prev];
       });
@@ -170,14 +205,14 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100 flex-shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-slate-800 text-lg">Notifications</h3>
-            {unreadCount > 0 && (
+            {notifications.length > 0 && unreadCount > 0 && (
               <span className="bg-black text-white px-2 py-0.5 rounded-full text-[11px] font-bold">
                 {unreadCount} new
               </span>
             )}
           </div>
           <div className="flex items-center gap-2">
-            {unreadCount > 0 && (
+            {notifications.length > 0 && unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
                 className="flex justify-end cursor-pointer btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -202,12 +237,13 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
             </div>
           ) : (
             notifications.map((n) => {
+              const currentId = n._id || n.id;
               const { icon: DynamicIcon, color: iconStyleClasses } = getTypeStyles(n.type);
 
               return (
                 <div
-                  key={n._id}
-                  onClick={() => !n.isRead && markAsRead(n._id)}
+                  key={currentId}
+                  onClick={() => !n.isRead && markAsRead(currentId)}
                   className={`p-4 flex gap-3 rounded-2xl transition-all duration-200 border relative group cursor-pointer ${n.isRead
                     ? "bg-white border-slate-100 opacity-70 shadow-sm"
                     : "bg-white border-[#F4E3B1] shadow-md shadow-amber-500/5 hover:scale-[1.01]"

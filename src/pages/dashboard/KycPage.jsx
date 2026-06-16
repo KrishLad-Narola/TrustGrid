@@ -35,7 +35,6 @@ const tabsMapping = {
   BANK: "BANK_PROOF",
 };
 
-// Map backend document types back to dropdown select option labels
 const inverseTabsMapping = {
   GST_CERTIFICATE: "GST Certificate",
   PAN_CARD: "PAN Card",
@@ -46,28 +45,27 @@ const inverseTabsMapping = {
 const docTypeOptions = ["GST Certificate", "PAN Card", "Incorporation Certificate", "Bank Proof"];
 
 const MAX_BYTES = 10 * 1024 * 1024;
-
 const ACCEPTED_MIME = ["application/pdf", "image/png", "image/jpeg", "image/jpg"];
 const ACCEPTED_EXT = [".pdf", ".png", ".jpg", ".jpeg"];
 
 const validators = {
   "GST Certificate": {
-    field: "GSTIN",
+    field: "gstNumber",
     regex: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
     example: "27AAACH1234A1Z9",
   },
   "PAN Card": {
-    field: "PAN",
+    field: "panNumber",
     regex: /^[A-Z]{5}[0-9]{4}[A-Z]$/,
     example: "AAACH1234A",
   },
   "Incorporation Certificate": {
-    field: "CIN",
+    field: "cinNumber",
     regex: /^[A-Z][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/,
     example: "U74999MH2018PLC312841",
   },
   "Bank Proof": {
-    field: "IFSC",
+    field: "ifscCode",
     regex: /^[A-Z]{4}0[A-Z0-9]{6}$/,
     example: "HDFC0001234",
   },
@@ -102,7 +100,7 @@ export default function KYCPage() {
       const response = await axiosInstance.get("/kyc/documents");
       setKycDocuments(response.data || []);
     } catch (error) {
-      // Error handling can go here
+      console.error("Failed to fetch documents", error);
     }
   }
 
@@ -111,7 +109,6 @@ export default function KYCPage() {
   }, []);
 
   const handleReuploadAction = (backendType) => {
-    // Resolve the display variant from the backend database token
     const matchedType = inverseTabsMapping[backendType] || "GST Certificate";
     setDocType(matchedType);
     setUploadOpen(true);
@@ -193,14 +190,12 @@ function DocRow({ d, onReupload }) {
   const handleView = async () => {
     try {
       toast.info("Opening document preview...");
-
       const response = await axiosInstance.get(`/kyc/documents/${d._id}`);
       let filePath = response.data?.fileUrl;
 
       if (filePath) {
         filePath = filePath.replace(/\\/g, "/").replace(/^public\//, "");
         const fullUrl = `http://192.168.100.149:3000/${filePath}`;
-
         setPreviewData({ ...response.data, previewUrl: fullUrl });
         setPreviewOpen(true);
       } else {
@@ -220,7 +215,6 @@ function DocRow({ d, onReupload }) {
         window.open(url, "_blank");
       } else {
         setDownloading(true);
-
         const response = await fetch(url);
         if (!response.ok) throw new Error("Network response error");
 
@@ -233,10 +227,8 @@ function DocRow({ d, onReupload }) {
         document.body.appendChild(link);
         link.click();
 
-        // Clean up memory and elements
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
-
         toast.success("Download started");
       }
     } catch (error) {
@@ -272,11 +264,7 @@ function DocRow({ d, onReupload }) {
             disabled={downloading}
             className="cursor-pointer disabled:opacity-50"
           >
-            {downloading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Download className="size-4" />
-            )}
+            {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
           </button>
           <button onClick={() => onReupload(d.documentType)} className="cursor-pointer">
             <CloudSync className="size-4" />
@@ -286,12 +274,8 @@ function DocRow({ d, onReupload }) {
 
       {previewOpen &&
         createPortal(
-          <DocumentPreviewModal
-            open={previewOpen}
-            onClose={() => setPreviewOpen(false)}
-            data={previewData}
-          />,
-          document.body,
+          <DocumentPreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} data={previewData} />,
+          document.body
         )}
     </>
   );
@@ -300,9 +284,15 @@ function DocRow({ d, onReupload }) {
 function UploadModal({ onClose, docType, setDocType }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const [uploadedDoc, setUploadedDoc] = useState(null);
-  const [documentData, setDocumentData] = useState({});
+
+  const [documentData, setDocumentData] = useState({
+    gstNumber: "",
+    legalName: "",
+    tradeName: "",
+    address: "",
+    pincode: "",
+  });
 
   const fileInputRef = useRef(null);
 
@@ -311,8 +301,7 @@ function UploadModal({ onClose, docType, setDocType }) {
     if (!file) return;
 
     const isValid =
-      ACCEPTED_MIME.includes(file.type) ||
-      ACCEPTED_EXT.some((ext) => file.name.toLowerCase().endsWith(ext));
+      ACCEPTED_MIME.includes(file.type) || ACCEPTED_EXT.some((ext) => file.name.toLowerCase().endsWith(ext));
 
     if (!isValid) {
       toast.error("Invalid file type");
@@ -335,25 +324,35 @@ function UploadModal({ onClose, docType, setDocType }) {
 
     try {
       setLoading(true);
-
       const formData = new FormData();
       formData.append("type", tabsMapping[docType] || "GST_CERTIFICATE");
       formData.append("document", selectedFile);
 
       const res = await axiosInstance.post("/kyc/documents/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       const data = res.data?.data || res.data;
-
       setUploadedDoc(data || {});
 
-      // extract metadata safely
       const meta = data?.metadata || data?.extractedData || {};
 
-      setDocumentData(meta);
+      const gstNo = meta.gstNumber || meta.GSTIN || meta.gstin || "";
+      let rawAddress = meta.address || meta.registeredAddress?.address || "";
+      let pin = meta.pincode || meta.registeredAddress?.pincode || "";
+
+      if (typeof rawAddress === "object") {
+        rawAddress = Object.values(rawAddress).filter(Boolean).join(", ");
+      }
+
+      setDocumentData({
+        gstNumber: gstNo,
+        legalName: meta.legalName || meta.legal_name || "",
+        tradeName: meta.tradeName || meta.trade_name || "",
+        address: rawAddress,
+        pincode: pin,
+        ...meta, // Keep original parameters intact in case other document schemas exist
+      });
 
       toast.success("Document uploaded. Please verify details.");
     } catch (err) {
@@ -365,20 +364,42 @@ function UploadModal({ onClose, docType, setDocType }) {
   };
 
   const handleConfirm = async () => {
+    const activeValidator = validators[docType];
+    if (activeValidator) {
+      const valueToTest = documentData[activeValidator.field];
+      if (valueToTest && !activeValidator.regex.test(valueToTest)) {
+        toast.error(`Invalid ${activeValidator.field} format. Example: ${activeValidator.example}`);
+        return;
+      }
+    }
+
+    // CRITICAL FIX: Re-structure the data to perfectly fit backend validation expectations
+    const finalMetadata = { ...documentData };
+
+    if (docType === "GST Certificate") {
+      finalMetadata.gstNumber = documentData.gstNumber;
+      finalMetadata.registeredAddress = {
+        address: documentData.address,
+        pincode: documentData.pincode,
+      };
+
+      // Clean up top-level duplicated variable parameters if necessary
+      delete finalMetadata.pincode;
+    }
+
     try {
       setLoading(true);
-
       await axiosInstance.post("/kyc/documents", {
         temporaryUploadId: uploadedDoc?.temporaryUploadId || uploadedDoc?.data?.temporaryUploadId,
-
-        metaData: documentData,
+        metaData: finalMetadata,
       });
 
       toast.success("Document confirmed successfully");
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Confirmation failed");
+      const backendMessage = err.response?.data?.message || "Confirmation failed";
+      toast.error(backendMessage);
     } finally {
       setLoading(false);
     }
@@ -386,31 +407,47 @@ function UploadModal({ onClose, docType, setDocType }) {
 
   const reset = () => {
     setUploadedDoc(null);
-    setDocumentData({});
+    setDocumentData({
+      gstNumber: "",
+      legalName: "",
+      tradeName: "",
+      address: "",
+      pincode: "",
+    });
     setSelectedFile(null);
   };
 
   const renderFormFields = () => {
     return Object.keys(documentData || {}).length > 0 ? (
       <div className="space-y-4">
-        {Object.entries(documentData).map(([key, value]) => (
-          <div key={key}>
-            <label className="block text-xs text-muted-foreground mb-1">
-              {key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
-            </label>
+        {Object.entries(documentData).map(([key, value]) => {
+          // Hide nested objects from rendering as inputs directly
+          if (typeof value === "object" && value !== null) return null;
 
-            <input
-              value={value || ""}
-              onChange={(e) =>
-                setDocumentData((prev) => ({
-                  ...prev,
-                  [key]: e.target.value,
-                }))
-              }
-              className="w-full px-3  py-2 border rounded-lg bg-input"
-            />
-          </div>
-        ))}
+          return (
+            <div key={key}>
+              <label className="block text-xs text-muted-foreground mb-1 font-medium">
+                {key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
+              </label>
+
+              {key === "address" ? (
+                <textarea
+                  rows={3}
+                  value={value || ""}
+                  onChange={(e) => setDocumentData((prev) => ({ ...prev, [key]: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-lg bg-input text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={value || ""}
+                  onChange={(e) => setDocumentData((prev) => ({ ...prev, [key]: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-lg bg-input text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     ) : (
       <p className="text-sm text-muted-foreground">No metadata extracted from document.</p>
@@ -419,26 +456,22 @@ function UploadModal({ onClose, docType, setDocType }) {
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="glass-card w-full max-w-xl p-6 space-y-4 max-h-[90vh] overflow-auto">
-        {/* Header */}
+      <div className="glass-card w-full max-w-xl p-6 space-y-4 max-h-[90vh] overflow-auto bg-background rounded-xl shadow-lg border">
         <div className="flex justify-between items-center">
           <h3 className="font-semibold text-lg">Upload KYC Document</h3>
-
-          <button onClick={onClose}>
+          <button onClick={onClose} className="hover:opacity-70 transition">
             <X className="size-4 cursor-pointer" />
           </button>
         </div>
 
-        {/* STEP 1: Upload */}
         {!uploadedDoc && (
           <>
             <div>
               <label className="text-xs text-muted-foreground">Document Type</label>
-
               <select
                 value={docType}
                 onChange={(e) => setDocType(e.target.value)}
-                className="w-full mt-1 px-3 py-2 border rounded-lg cursor-pointer bg-input"
+                className="w-full mt-1 px-3 py-2 border rounded-lg cursor-pointer bg-input focus:outline-none"
               >
                 {docTypeOptions.map((opt) => (
                   <option key={opt}>{opt}</option>
@@ -446,46 +479,46 @@ function UploadModal({ onClose, docType, setDocType }) {
               </select>
             </div>
 
-            <div className="border border-dashed p-6 text-center justify-center cursor-pointer rounded-lg">
-              <CloudUpload className="mx-auto mb-2 size-6" />
+            <div className="border border-dashed p-6 text-center flex flex-col items-center justify-center cursor-pointer rounded-lg hover:bg-muted/20 transition">
+              <CloudUpload className="mx-auto mb-2 size-6 text-muted-foreground" />
 
-              <input
-                className="text-sm justify-center ml-25 cursor-pointer"
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-              />
-
-              {selectedFile && <p className="text-xs mt-2">{selectedFile.name}</p>}
+              {!selectedFile ? (
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="text-sm cursor-pointer justify-center ml-25"
+                />
+              ) : (
+                <p className="text-sm mt-2 font-medium text-emerald-600">
+                  {selectedFile.name}
+                </p>
+              )}
             </div>
 
-            <div className="flex justify-end gap-2 ">
-              <button onClick={onClose} className="btn-ghost cursor-pointer ">
+            <div className="flex justify-end gap-2">
+              <button onClick={onClose} className="btn-ghost cursor-pointer px-4 py-2 rounded-md text-sm">
                 Cancel
               </button>
-
-              <button onClick={handleUpload} disabled={loading} className="btn-primary cursor-pointer">
+              <button onClick={handleUpload} disabled={loading} className="btn-primary cursor-pointer px-4 py-2 rounded-md text-sm text-white">
                 {loading ? "Uploading..." : "Upload"}
               </button>
             </div>
           </>
         )}
 
-        {/* STEP 2: REVIEW + EDIT */}
         {uploadedDoc && (
           <>
             <div className="rounded-lg border p-4 space-y-3">
-              <h4 className="font-medium">Verify Document Details</h4>
-
+              <h4 className="font-medium text-sm">Verify Document Details</h4>
               {renderFormFields()}
             </div>
 
             <div className="flex justify-end gap-2">
-              <button onClick={reset} className="btn-ghost">
+              <button onClick={reset} className="btn-ghost cursor-pointer px-4 py-2 rounded-md text-sm">
                 Reupload
               </button>
-
-              <button onClick={handleConfirm} disabled={loading} className="btn-primary">
+              <button onClick={handleConfirm} disabled={loading} className="btn-primary cursor-pointer px-4 py-2 rounded-md text-sm text-white">
                 {loading ? "Confirming..." : "Confirm Upload"}
               </button>
             </div>
@@ -493,6 +526,6 @@ function UploadModal({ onClose, docType, setDocType }) {
         )}
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }

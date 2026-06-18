@@ -77,7 +77,6 @@ const saveRemovedId = (id) => {
   if (!currentIds.includes(id)) {
     const updated = [...currentIds, id];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    console.log("Saved to localStorage hidden list:", updated); // Debug log
   }
 };
 
@@ -87,7 +86,7 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter(n => n.isRead === false || n.read === false).length;
 
   const fetchNotifications = async (pageToFetch = 1, append = false) => {
     try {
@@ -96,17 +95,19 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
         options: { page: pageToFetch, limit: 20 }
       });
 
-      // Fallback handles if backend sends raw array or wrapping objects
       const data = response.data;
       const rawDocs = data?.docs || (Array.isArray(data) ? data : []);
-
       const removedIds = getRemovedIds();
 
-      // Strict filter: matches against both standard variations of ID properties
-      const filteredDocs = rawDocs.filter(n => {
-        const id = n._id || n.id;
-        return !removedIds.includes(id);
-      });
+      const filteredDocs = rawDocs
+        .filter(n => {
+          const id = n._id || n.id;
+          return !removedIds.includes(id);
+        })
+        .map(n => ({
+          ...n,
+          isRead: typeof n.isRead === "boolean" ? n.isRead : (typeof n.read === "boolean" ? n.read : false)
+        }));
 
       setNotifications(prev => append ? [...prev, ...filteredDocs] : filteredDocs);
 
@@ -126,11 +127,8 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
 
   const markAsRead = async (notificationId) => {
     try {
-      // 1. Immediately push to localStorage and clear local UI state
       saveRemovedId(notificationId);
-      setNotifications(prev => prev.filter(n => (n._id !== notificationId && n.id !== notificationId)));
-
-      // 2. Fire API call
+      setNotifications(prev => prev.filter(n => n._id !== notificationId && n.id !== notificationId));
       await axiosInstance.patch(`/notifications/${notificationId}/read`);
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -138,7 +136,6 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   };
 
   const markAllAsRead = async () => {
-    // Hidden cache syncing
     notifications.forEach(n => {
       const id = n._id || n.id;
       saveRemovedId(id);
@@ -162,14 +159,16 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
       const targetId = newNotification._id || newNotification.id;
       const removedIds = getRemovedIds();
 
-      // Prevent hidden IDs from popping back up through websockets live
       if (removedIds.includes(targetId)) return;
 
       setNotifications(prev => {
-        const exists = prev.some(n => (n._id === targetId || n.id === targetId));
+        const exists = prev.some(n => n._id === targetId || n.id === targetId);
         if (exists) return prev;
 
-        const initialReadStatus = typeof newNotification.isRead === 'boolean' ? newNotification.isRead : false;
+        const initialReadStatus = typeof newNotification.isRead === 'boolean' 
+          ? newNotification.isRead 
+          : (typeof newNotification.read === 'boolean' ? newNotification.read : false);
+
         return [{ ...newNotification, isRead: initialReadStatus }, ...prev];
       });
     });
@@ -205,14 +204,15 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100 flex-shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-slate-800 text-lg">Notifications</h3>
-            {notifications.length > 0 && unreadCount > 0 && (
+            {/* Count Badge - ONLY displays when unreadCount is strictly greater than 0 */}
+            {unreadCount > 0 && (
               <span className="bg-black text-white px-2 py-0.5 rounded-full text-[11px] font-bold">
                 {unreadCount} new
               </span>
             )}
           </div>
           <div className="flex items-center gap-2">
-            {notifications.length > 0 && unreadCount > 0 && (
+            {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
                 className="flex justify-end cursor-pointer btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"

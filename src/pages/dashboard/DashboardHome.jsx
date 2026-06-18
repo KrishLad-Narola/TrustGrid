@@ -44,9 +44,7 @@ export default function DashboardHome() {
   const { business } = useAuth();
 
   const verified = kycDocuments.filter((d) => d.status === "verified").length;
-
   const pending = kycDocuments.filter((d) => d.status === "pending").length;
-
   const activeDeals = deals.filter((d) => d.status === "active").length;
 
   const dealTotal = deals
@@ -59,14 +57,12 @@ export default function DashboardHome() {
         <Card className="lg:col-span-1 flex flex-col items-center">
           <SectionTitle>Trust Score</SectionTitle>
 
-          {/* API Overall Score */}
-          <TrustGauge score={business?.overall} size={220} />
+          <TrustGauge score={business?.overall} size={220} /> 
 
           <div className="mt-4 text-xs text-muted-foreground text-center">
             Updated 12m ago · Tier: <span className="text-success font-medium">Trusted</span>
           </div>
 
-          {/* API Breakdown Scores */}
           <div className="w-full mt-5 space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">KYC Score</span>

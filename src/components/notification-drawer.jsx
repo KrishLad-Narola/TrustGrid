@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import axiosInstance from "../API/axiosInstance";
 
-// --- Dynamic Icon & Styling Map ---
 const getTypeStyles = (type = "") => {
   const upperType = type.toUpperCase();
 
@@ -41,7 +40,6 @@ const getTypeStyles = (type = "") => {
   return { icon: Bell, color: "text-slate-500 bg-slate-100" };
 };
 
-// --- Time Formatter ---
 const formatTimeAgo = (dateString) => {
   if (!dateString) return "";
   const now = new Date();
@@ -165,8 +163,8 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
         const exists = prev.some(n => n._id === targetId || n.id === targetId);
         if (exists) return prev;
 
-        const initialReadStatus = typeof newNotification.isRead === 'boolean' 
-          ? newNotification.isRead 
+        const initialReadStatus = typeof newNotification.isRead === 'boolean'
+          ? newNotification.isRead
           : (typeof newNotification.read === 'boolean' ? newNotification.read : false);
 
         return [{ ...newNotification, isRead: initialReadStatus }, ...prev];

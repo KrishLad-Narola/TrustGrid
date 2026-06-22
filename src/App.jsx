@@ -3,7 +3,6 @@ import { Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { useTheme } from "@/lib/ThemeContext";
 
 /* Public Pages */
 import Landing from "@/pages/Landing";
@@ -201,25 +200,11 @@ function AppRoutes() {
   );
 }
 
-function AppContent() {
-  const { theme } = useTheme();
-
-  return (
-    <>
-      <AppRoutes />
-      <Toaster
-        richColors
-        position="top-right"
-        theme={theme}
-      />
-    </>
-  );
-}
-
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AppRoutes />
+      <Toaster richColors closeButton position="top-right" />
     </AuthProvider>
   );
 }

@@ -76,8 +76,8 @@ export default function SettingsPage() {
 
   const handleRemoveLogo = (e) => {
     // Prevents the click from triggering the file upload overlay underneath
-    e.stopPropagation(); 
-    
+    e.stopPropagation();
+
     setLogoFile(null);
 
     setFormData((prev) => ({
@@ -159,13 +159,13 @@ export default function SettingsPage() {
         </div>
 
         <div className="border-t border-border pt-6">
-          
+
           {/* Avatar Area */}
           <div className="flex items-center gap-6 mb-8">
             <div className="relative h-24 w-24">
-              
+
               {/* Clickable Profile Circle */}
-              <div 
+              <div
                 onClick={() => fileInputRef.current?.click()}
                 className="relative group h-full w-full rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 bg-gradient-to-br from-primary to-primary/80 shadow-md cursor-pointer transition-all duration-200 hover:opacity-95"
               >
@@ -180,13 +180,6 @@ export default function SettingsPage() {
                   </div>
                 )}
 
-                {/* Dark bottom gradient backdrop + Camera Icon */}
-                <div className="absolute inset-0 rounded-lg flex flex-col items-center justify-end pb-6 opacity-85 transition-opacity">
-                  <Camera className="h-4 w-4 text-white drop-shadow-sm mb-0.5" />
-                  <span className="text-[11px] font-medium text-white/95 select-none tracking-wide">
-                    Update
-                  </span>
-                </div>
               </div>
 
               {/* Floating Modern Remove Badge */}
@@ -216,7 +209,7 @@ export default function SettingsPage() {
             <Input
               label="Legal Name"
               value={formData.legalName}
-              disabled={true} 
+              disabled={true}
               className="w-full h-11 px-4 rounded-xl border border-border bg-muted text-sm text-muted-foreground cursor-not-allowed opacity-70 focus:outline-none"
             />
 
@@ -232,11 +225,10 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={!hasChanges || saving}
-              className={`inline-flex items-center cursor-pointer justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${
-                hasChanges
+              className={`inline-flex items-center cursor-pointer justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${hasChanges
                   ? "btn-primary text-primary-foreground hover:opacity-90"
                   : "bg-muted text-muted-foreground cursor-not-allowed"
-              }`}
+                }`}
             >
               <Save className="h-4 w-4" />
               {saving ? "Saving..." : "Save Profile Changes"}
@@ -300,11 +292,10 @@ export default function SettingsPage() {
               <button
                 key={o}
                 onClick={() => setVis(o)}
-                className={`px-4 py-3 rounded-xl border text-sm font-medium transition cursor-pointer ${
-                  vis === o
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition cursor-pointer ${vis === o
                     ? "btn-primary text-primary-foreground"
                     : "bg-background border-border hover:bg-muted"
-                }`}
+                  }`}
               >
                 {o}
               </button>
@@ -404,14 +395,12 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={() => onChange?.(!checked)}
-          className={`relative h-6 w-11 rounded-full cursor-pointer transition ${
-            checked ? "btn-primary" : "bg-slate-300"
-          }`}
+          className={`relative h-6 w-11 rounded-full cursor-pointer transition ${checked ? "btn-primary" : "bg-slate-300"
+            }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${
-              checked ? "left-5" : "left-0.5"
-            }`}
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${checked ? "left-5" : "left-0.5"
+              }`}
           />
         </button>
       </label>

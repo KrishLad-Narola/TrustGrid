@@ -2,7 +2,6 @@ import { Bell, Search, Moon, Sun } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationDrawer } from "./notification-drawer";
-import { useTheme } from "@/lib/ThemeContext";
 import axiosInstance from "@/API/axiosInstance";
 import { socket } from "@/utils/socket.io";
 
@@ -43,7 +42,6 @@ export function AppHeader({
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const { theme, toggleTheme } = useTheme();
   const searchRef = useRef(null);
 
   const calculateUnreadCount = useCallback((notifs) => {
@@ -225,18 +223,6 @@ export function AppHeader({
               </div>
             )}
           </div>
-
-          {/* Light/Dark Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95"
-          >
-            {theme === "dark" ? (
-              <Sun strokeWidth={1} size={18} />
-            ) : (
-              <Moon strokeWidth={1.25} size={18} />
-            )}
-          </button>
 
           {/* Notifications Panel Trigger */}
           <button

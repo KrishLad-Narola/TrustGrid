@@ -4,14 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  darkMode: "class",
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+  plugins: [
+    react(), 
+    tailwindcss(), 
+    tsconfigPaths()
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [react(), tailwindcss(), tsconfigPaths()],
-
 });

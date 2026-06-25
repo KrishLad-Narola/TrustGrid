@@ -9,12 +9,16 @@ import {
   EyeOff,
   Download,
   Undo2,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+import axiosInstance from "@/API/axiosInstance";
+
 import { z } from "zod";
 import jsPDF from "jspdf";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import { useTheme } from "@/lib/theme-context";
 
 const steps = ["Company", "Account"];
 
@@ -48,9 +52,11 @@ const registerSchema = z
   });
 
 export default function Register() {
+  const { theme, toggleTheme } = useTheme();
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -179,7 +185,7 @@ export default function Register() {
     try {
       setLoading(true);
 
-      await axios.post("http://192.168.100.149:3000/api/v1/businesses/onboard", {
+      await axiosInstance.post("/businesses/onboard", {
         businessName: form.businessName,
         companyType: form.businessType.toUpperCase(),
         industry: form.industry,
@@ -205,12 +211,21 @@ export default function Register() {
       <div className="w-full mx-auto flex flex-col justify-center items-center">
         <div className="flex max-w-7xl justify-between items-center w-full">
           <CompanyLogo />
-          <Link
-            to="/"
-            className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Undo2 className="size-4" /> Back to home
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 text-foreground"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <Link
+              to="/"
+              className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Undo2 className="size-4" /> Back to home
+            </Link>
+          </div>
         </div>
 
         {/* Stepper Header */}

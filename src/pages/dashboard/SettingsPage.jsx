@@ -159,11 +159,9 @@ export default function SettingsPage() {
         </div>
 
         <div className="border-t border-border pt-6">
-
           {/* Avatar Area */}
           <div className="flex items-center gap-6 mb-8">
             <div className="relative h-24 w-24">
-
               {/* Clickable Profile Circle */}
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -176,10 +174,8 @@ export default function SettingsPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center text-3xl font-semibold btn-primary text-white">
-                  </div>
+                  <div className="h-full w-full flex items-center justify-center text-3xl font-semibold btn-primary text-white"></div>
                 )}
-
               </div>
 
               {/* Floating Modern Remove Badge */}
@@ -225,10 +221,11 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={!hasChanges || saving}
-              className={`inline-flex items-center cursor-pointer justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${hasChanges
+              className={`inline-flex items-center cursor-pointer justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition  ${
+                hasChanges
                   ? "btn-primary text-primary-foreground hover:opacity-90"
                   : "bg-muted text-muted-foreground cursor-not-allowed"
-                }`}
+              }`}
             >
               <Save className="h-4 w-4" />
               {saving ? "Saving..." : "Save Profile Changes"}
@@ -292,10 +289,11 @@ export default function SettingsPage() {
               <button
                 key={o}
                 onClick={() => setVis(o)}
-                className={`px-4 py-3 rounded-xl border text-sm font-medium transition cursor-pointer ${vis === o
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition cursor-pointer ${
+                  vis === o
                     ? "btn-primary text-primary-foreground"
                     : "bg-background border-border hover:bg-muted"
-                  }`}
+                }`}
               >
                 {o}
               </button>
@@ -382,7 +380,10 @@ export default function SettingsPage() {
         </label>
         <input
           {...p}
-          className={className || "w-full h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"}
+          className={
+            className ||
+            "w-full h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          }
         />
       </div>
     );
@@ -395,12 +396,14 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={() => onChange?.(!checked)}
-          className={`relative h-6 w-11 rounded-full cursor-pointer transition ${checked ? "btn-primary" : "bg-slate-300"
-            }`}
+          className={`relative h-6 w-11 rounded-full cursor-pointer transition ${
+            checked ? "btn-primary" : "bg-slate-300"
+          }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${checked ? "left-5" : "left-0.5"
-              }`}
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${
+              checked ? "left-5" : "left-0.5"
+            }`}
           />
         </button>
       </label>

@@ -3,6 +3,7 @@ import { Routes, Route, Link, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 
 /* Public Pages */
 import Landing from "@/pages/Landing";
@@ -14,7 +15,7 @@ import ResetPassword from "@/pages/ResetPassword";
 /* Protected Pages */
 import ProfilePage from "@/pages/ProfilePage";
 import ProfileDetailPage from "@/pages/ProfileDetailPage"; // <-- Added Detail Import
-import ChangePassword from "@/pages/ChnagePassword";
+import ChangePassword from "@/pages/ChangePassword";
 import KycSubmitPage from "@/pages/KycSubmitPage";
 
 /* Dashboard Pages */
@@ -160,13 +161,12 @@ function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/profile/:id" element={<ProfileDetailPage />} /> {/* <-- Added Profile Detail Route */}
-
+        <Route path="/profile/:id" element={<ProfileDetailPage />} />{" "}
+        {/* <-- Added Profile Detail Route */}
         <Route element={<KycFlowCheck />}>
           <Route path="/kyc-submit" element={<KycSubmitPage />} />
           <Route path="/kyc-complete" element={<KycCompletePage />} />
         </Route>
-
         <Route element={<MainAppGuard />}>
           <Route path="/change-password" element={<ChangePassword />} />
 
@@ -202,9 +202,11 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-      <Toaster richColors closeButton position="top-right" />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+        <Toaster richColors closeButton position="top-right" />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

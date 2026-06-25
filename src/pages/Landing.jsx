@@ -11,6 +11,8 @@ import {
   Lock,
   Eye,
   EyeOff,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import { TrustGauge } from "@/components/trust-gauge";
@@ -18,6 +20,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import { useTheme } from "@/lib/theme-context";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Enter a valid email address"),
@@ -27,6 +30,7 @@ const loginSchema = z.object({
 export default function Landing() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,22 +55,7 @@ export default function Landing() {
 
       await login({ accessToken, refreshToken });
 
-      const role = response.data.user?.role || response.data.data?.user?.role;
-
       toast.success(response.data.message || "Welcome back to TrustGrid");
-      useEffect(() => {
-        if (user?.role === "admin") {
-          navigate("/admin/dashboard");
-          return;
-        }
-
-        if (!user?.isKycApproved) {
-          navigate("/kyc-submit");
-          return;
-        }
-
-        navigate("/dashboard");
-      }, [user]);
     } catch (error) {
       console.error(error);
 
@@ -98,6 +87,14 @@ export default function Landing() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 text-foreground mr-1"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <Link to="/register" className="btn-ghost">
               Register Business
             </Link>

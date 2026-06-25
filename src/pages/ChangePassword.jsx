@@ -11,7 +11,6 @@ import {
   Undo2,
 } from "lucide-react";
 
-import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
 import axiosInstance from "@/API/axiosInstance";
@@ -21,15 +20,12 @@ const changePasswordSchema = z
   .object({
     currentPassword: z.string().trim(),
     newPassword: z.string().trim().min(6, "Password must be at least 6 characters"),
-
     confirmPassword: z.string().trim(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
-
-const API_URL = "http://192.168.100.149:3000";
 
 export default function ChangePassword() {
   const navigate = useNavigate();
@@ -68,7 +64,6 @@ export default function ChangePassword() {
     e.preventDefault();
 
     const validation = changePasswordSchema.safeParse(formData);
-    console.log(formData);
     if (!validation.success) {
       const errors = validation.error.flatten();
 
@@ -91,7 +86,7 @@ export default function ChangePassword() {
         },
       });
 
-      toast.success(response.data.message || "Password changed successfully");
+      toast.success(response.message || response.data?.message || "Password changed successfully");
 
       setFormData({
         currentPassword: "",
@@ -141,7 +136,7 @@ export default function ChangePassword() {
         <section className="relative z-10 px-6 lg:px-12 pt-16  flex justify-center items-center">
           <div className="w-full max-w-lg">
             <form onSubmit={handleSubmit} className="glass-card rounded-3xl p-8 shadow-card">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-mono text-primary mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card border border-primary/20 bg-primary/10 text-xs font-mono text-primary mb-6">
                 <Sparkles className="h-3 w-3" />
                 <span>Password Security</span>
               </div>

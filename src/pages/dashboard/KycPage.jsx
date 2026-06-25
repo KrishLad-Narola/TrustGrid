@@ -23,7 +23,7 @@ import {
 
 import { Card, StatusBadge } from "@/components/ui-kit";
 import { toast } from "sonner";
-import axiosInstance from "@/API/axiosInstance";
+import axiosInstance, { API_URL } from "@/API/axiosInstance";
 import DocumentPreviewModal from "./DocumentPreviewModal";
 
 const tabs = ["All", "GST", "PAN", "INCORPORATION", "BANK"];
@@ -123,10 +123,11 @@ export default function KYCPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${tab === t
+                className={`px-3 py-1.5 cursor-pointer rounded-md text-xs font-medium transition ${
+                  tab === t
                     ? "btn-primary text-white shadow-sm border border-slate-200"
                     : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 border border-transparent"
-                  }`}
+                }`}
               >
                 {t}
               </button>
@@ -145,24 +146,26 @@ export default function KYCPage() {
         )}
 
         <Card className="!p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="text-left px-4 py-3">Document</th>
-                <th className="text-left px-4 py-3">Uploaded</th>
-                <th className="text-left px-4 py-3">Expires</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">File Size</th>
-                <th className="text-right px-4 py-3">Actions</th>
-              </tr>
-            </thead>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[700px]">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="text-left px-4 py-3">Document</th>
+                  <th className="text-left px-4 py-3">Uploaded</th>
+                  <th className="text-left px-4 py-3">Expires</th>
+                  <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-left px-4 py-3">File Size</th>
+                  <th className="text-right px-4 py-3">Actions</th>
+                </tr>
+              </thead>
 
-            <tbody className="divide-y divide-border">
-              {filtered.map((d, index) => (
-                <DocRow key={d?._id || index} d={d} onReupload={handleReuploadAction} />
-              ))}
-            </tbody>
-          </table>
+              <tbody className="divide-y divide-border">
+                {filtered.map((d, index) => (
+                  <DocRow key={d?._id || index} d={d} onReupload={handleReuploadAction} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
       </div>
 
@@ -195,7 +198,7 @@ function DocRow({ d, onReupload }) {
 
       if (filePath) {
         filePath = filePath.replace(/\\/g, "/").replace(/^public\//, "");
-        const fullUrl = `http://192.168.100.149:3000/${filePath}`;
+        const fullUrl = `${API_URL}/${filePath}`;
         setPreviewData({ ...response.data, previewUrl: fullUrl });
         setPreviewOpen(true);
       } else {
@@ -209,7 +212,7 @@ function DocRow({ d, onReupload }) {
   const handleDownload = async (openInTab = false) => {
     try {
       const filePath = (d.fileUrl || "").replace(/\\/g, "/").replace(/^public\//, "");
-      const url = `http://192.168.100.149:3000/${filePath}`;
+      const url = `${API_URL}/${filePath}`;
 
       if (openInTab) {
         window.open(url, "_blank");
@@ -264,7 +267,11 @@ function DocRow({ d, onReupload }) {
             disabled={downloading}
             className="cursor-pointer disabled:opacity-50"
           >
-            {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+            {downloading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Download className="size-4" />
+            )}
           </button>
           <button onClick={() => onReupload(d.documentType)} className="cursor-pointer">
             <CloudSync className="size-4" />
@@ -274,8 +281,12 @@ function DocRow({ d, onReupload }) {
 
       {previewOpen &&
         createPortal(
-          <DocumentPreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} data={previewData} />,
-          document.body
+          <DocumentPreviewModal
+            open={previewOpen}
+            onClose={() => setPreviewOpen(false)}
+            data={previewData}
+          />,
+          document.body,
         )}
     </>
   );
@@ -301,7 +312,8 @@ function UploadModal({ onClose, docType, setDocType }) {
     if (!file) return;
 
     const isValid =
-      ACCEPTED_MIME.includes(file.type) || ACCEPTED_EXT.some((ext) => file.name.toLowerCase().endsWith(ext));
+      ACCEPTED_MIME.includes(file.type) ||
+      ACCEPTED_EXT.some((ext) => file.name.toLowerCase().endsWith(ext));
 
     if (!isValid) {
       toast.error("Invalid file type");
@@ -490,17 +502,22 @@ function UploadModal({ onClose, docType, setDocType }) {
                   className="text-sm cursor-pointer justify-center ml-25"
                 />
               ) : (
-                <p className="text-sm mt-2 font-medium text-emerald-600">
-                  {selectedFile.name}
-                </p>
+                <p className="text-sm mt-2 font-medium text-emerald-600">{selectedFile.name}</p>
               )}
             </div>
 
             <div className="flex justify-end gap-2">
-              <button onClick={onClose} className="btn-ghost cursor-pointer px-4 py-2 rounded-md text-sm">
+              <button
+                onClick={onClose}
+                className="btn-ghost cursor-pointer px-4 py-2 rounded-md text-sm"
+              >
                 Cancel
               </button>
-              <button onClick={handleUpload} disabled={loading} className="btn-primary cursor-pointer px-4 py-2 rounded-md text-sm text-white">
+              <button
+                onClick={handleUpload}
+                disabled={loading}
+                className="btn-primary cursor-pointer px-4 py-2 rounded-md text-sm text-white"
+              >
                 {loading ? "Uploading..." : "Upload"}
               </button>
             </div>
@@ -515,10 +532,17 @@ function UploadModal({ onClose, docType, setDocType }) {
             </div>
 
             <div className="flex justify-end gap-2">
-              <button onClick={reset} className="btn-ghost cursor-pointer px-4 py-2 rounded-md text-sm">
+              <button
+                onClick={reset}
+                className="btn-ghost cursor-pointer px-4 py-2 rounded-md text-sm"
+              >
                 Reupload
               </button>
-              <button onClick={handleConfirm} disabled={loading} className="btn-primary cursor-pointer px-4 py-2 rounded-md text-sm text-white">
+              <button
+                onClick={handleConfirm}
+                disabled={loading}
+                className="btn-primary cursor-pointer px-4 py-2 rounded-md text-sm text-white"
+              >
                 {loading ? "Confirming..." : "Confirm Upload"}
               </button>
             </div>
@@ -526,6 +550,6 @@ function UploadModal({ onClose, docType, setDocType }) {
         )}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

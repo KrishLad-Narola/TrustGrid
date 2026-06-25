@@ -1,11 +1,22 @@
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Sparkles, ArrowLeft, Undo2 } from "lucide-react";
-import axios from "axios";
+import {
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Sparkles,
+  ArrowLeft,
+  Undo2,
+  Sun,
+  Moon,
+} from "lucide-react";
+import axiosInstance from "@/API/axiosInstance";
 import { toast } from "sonner";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import { useTheme } from "@/lib/theme-context";
 
 export default function VerifyEmail() {
+  const { theme, toggleTheme } = useTheme();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -17,7 +28,7 @@ export default function VerifyEmail() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        await axios.post("http://192.168.100.149:3000/api/v1/auth/verify-email", { token });
+        await axiosInstance.post("/auth/verify-email", { token });
 
         setVerified(true);
         toast.success("Email verified successfully");
@@ -45,12 +56,21 @@ export default function VerifyEmail() {
       <div className="w-full mx-auto flex flex-col justify-center items-center">
         <div className="flex max-w-7xl justify-between items-center w-full">
           <CompanyLogo />
-          <Link
-            to="/"
-            className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Undo2 className="size-4" /> Back to home
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 text-foreground"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <Link
+              to="/"
+              className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Undo2 className="size-4" /> Back to home
+            </Link>
+          </div>
         </div>
       </div>
       {/* Content */}

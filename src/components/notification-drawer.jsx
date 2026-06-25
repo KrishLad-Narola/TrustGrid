@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   Bell,
   ShieldAlert,
-  UserPlus
+  UserPlus,
 } from "lucide-react";
 import axiosInstance from "../API/axiosInstance";
 
@@ -17,15 +17,23 @@ const getTypeStyles = (type = "") => {
   const upperType = type.toUpperCase();
 
   if (upperType.includes("KYC")) {
-    if (upperType.includes("REJECTED")) return { icon: AlertTriangle, color: "text-red-600 bg-red-100 dark:bg-red-950/50" };
-    if (upperType.includes("VERIFIED")) return { icon: FileCheck2, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50" };
+    if (upperType.includes("REJECTED"))
+      return { icon: AlertTriangle, color: "text-red-600 bg-red-100 dark:bg-red-950/50" };
+    if (upperType.includes("VERIFIED"))
+      return { icon: FileCheck2, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50" };
     return { icon: FileText, color: "text-amber-600 bg-amber-100 dark:bg-amber-950/50" };
   }
 
   if (upperType.includes("DEAL")) {
-    if (upperType.includes("CREATED")) return { icon: Handshake, color: "text-blue-600 bg-neutral-400/20" };
-    if (upperType.includes("COMPLETED")) return { icon: CheckCircle2, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50" };
-    if (upperType.includes("REJECTED") || upperType.includes("CANCELLED")) return { icon: X, color: "text-slate-500 bg-slate-100" };
+    if (upperType.includes("CREATED"))
+      return { icon: Handshake, color: "text-blue-600 bg-neutral-400/20" };
+    if (upperType.includes("COMPLETED"))
+      return {
+        icon: CheckCircle2,
+        color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50",
+      };
+    if (upperType.includes("REJECTED") || upperType.includes("CANCELLED"))
+      return { icon: X, color: "text-slate-500 bg-slate-100" };
     return { icon: Handshake, color: "text-blue-600 bg-neutral-400/20" };
   }
 
@@ -84,13 +92,13 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => n.isRead === false || n.read === false).length;
+  const unreadCount = notifications.filter((n) => n.isRead === false || n.read === false).length;
 
   const fetchNotifications = async (pageToFetch = 1, append = false) => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.post("/notifications", {
-        options: { page: pageToFetch, limit: 20 }
+        options: { page: pageToFetch, limit: 20 },
       });
 
       const data = response.data;
@@ -98,16 +106,17 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
       const removedIds = getRemovedIds();
 
       const filteredDocs = rawDocs
-        .filter(n => {
+        .filter((n) => {
           const id = n._id || n.id;
           return !removedIds.includes(id);
         })
-        .map(n => ({
+        .map((n) => ({
           ...n,
-          isRead: typeof n.isRead === "boolean" ? n.isRead : (typeof n.read === "boolean" ? n.read : false)
+          isRead:
+            typeof n.isRead === "boolean" ? n.isRead : typeof n.read === "boolean" ? n.read : false,
         }));
 
-      setNotifications(prev => append ? [...prev, ...filteredDocs] : filteredDocs);
+      setNotifications((prev) => (append ? [...prev, ...filteredDocs] : filteredDocs));
 
       if (data?.paginate) {
         setPagination(data.paginate);
@@ -126,7 +135,9 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   const markAsRead = async (notificationId) => {
     try {
       saveRemovedId(notificationId);
-      setNotifications(prev => prev.filter(n => n._id !== notificationId && n.id !== notificationId));
+      setNotifications((prev) =>
+        prev.filter((n) => n._id !== notificationId && n.id !== notificationId),
+      );
       await axiosInstance.patch(`/notifications/${notificationId}/read`);
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -134,7 +145,7 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
   };
 
   const markAllAsRead = async () => {
-    notifications.forEach(n => {
+    notifications.forEach((n) => {
       const id = n._id || n.id;
       saveRemovedId(id);
     });
@@ -159,13 +170,16 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
 
       if (removedIds.includes(targetId)) return;
 
-      setNotifications(prev => {
-        const exists = prev.some(n => n._id === targetId || n.id === targetId);
+      setNotifications((prev) => {
+        const exists = prev.some((n) => n._id === targetId || n.id === targetId);
         if (exists) return prev;
 
-        const initialReadStatus = typeof newNotification.isRead === 'boolean'
-          ? newNotification.isRead
-          : (typeof newNotification.read === 'boolean' ? newNotification.read : false);
+        const initialReadStatus =
+          typeof newNotification.isRead === "boolean"
+            ? newNotification.isRead
+            : typeof newNotification.read === "boolean"
+              ? newNotification.read
+              : false;
 
         return [{ ...newNotification, isRead: initialReadStatus }, ...prev];
       });
@@ -188,15 +202,17 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-30 transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-30 transition-opacity duration-300 ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
         onClick={onClose}
       />
 
       {/* Drawer Container */}
       <aside
-        className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-white border-l border-slate-100 z-40 transition-all duration-300 shadow-2xl flex flex-col ${open ? "translate-x-0 opacity-100 visible" : "translate-x-full opacity-0 invisible"
-          }`}
+        className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-white border-l border-slate-100 z-40 transition-all duration-300 shadow-2xl flex flex-col ${
+          open ? "translate-x-0 opacity-100 visible" : "translate-x-full opacity-0 invisible"
+        }`}
       >
         {/* Header */}
         <div className="h-16 px-5 flex items-center justify-between border-b border-slate-100 flex-shrink-0">
@@ -242,10 +258,11 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
                 <div
                   key={currentId}
                   onClick={() => !n.isRead && markAsRead(currentId)}
-                  className={`p-4 flex gap-3 rounded-2xl transition-all duration-200 border relative group cursor-pointer ${n.isRead
-                    ? "bg-white border-slate-100 opacity-70 shadow-sm"
-                    : "bg-white border-[#F4E3B1] shadow-md shadow-amber-500/5 hover:scale-[1.01]"
-                    }`}
+                  className={`p-4 flex gap-3 rounded-2xl transition-all duration-200 border relative group cursor-pointer ${
+                    n.isRead
+                      ? "bg-white border-slate-100 opacity-70 shadow-sm"
+                      : "bg-white border-[#F4E3B1] shadow-md shadow-amber-500/5 hover:scale-[1.01]"
+                  }`}
                 >
                   {/* Unread indicator dot */}
                   {!n.isRead && (
@@ -256,14 +273,18 @@ export function NotificationDrawer({ open, onClose, apiUrl, accessToken }) {
                   )}
 
                   {/* Icon Wrapper Asset Indicator */}
-                  <div className={`size-11 rounded-2xl flex items-center justify-center transition-transform ${iconStyleClasses}`}>
+                  <div
+                    className={`size-11 rounded-2xl flex items-center justify-center transition-transform ${iconStyleClasses}`}
+                  >
                     <DynamicIcon className="size-5 stroke-[1.5]" />
                   </div>
 
                   {/* Message Layout Area */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
-                      <p className={`text-sm tracking-tight text-slate-800 ${!n.isRead ? "font-bold text-slate-900" : "font-medium"}`}>
+                      <p
+                        className={`text-sm tracking-tight text-slate-800 ${!n.isRead ? "font-bold text-slate-900" : "font-medium"}`}
+                      >
                         {n.title}
                       </p>
                       <span className="text-[11px] text-slate-500 font-semibold flex-shrink-0 pt-0.5">

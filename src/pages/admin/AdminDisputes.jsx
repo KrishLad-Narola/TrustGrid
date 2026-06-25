@@ -25,45 +25,49 @@ export default function AdminDisputes() {
   return (
     <>
       <Panel className="overflow-hidden p-0">
-        <table className="w-full text-sm">
-          <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground bg-slate-900/[0.02]">
-            <tr>
-              <th className="px-5 py-3 font-medium">Deal</th>
-              <th className="px-5 py-3 font-medium">Parties</th>
-              <th className="px-5 py-3 font-medium">Reason</th>
-              <th className="px-5 py-3 font-medium">Severity</th>
-              <th className="px-5 py-3 font-medium">Date</th>
-              <th className="px-5 py-3 font-medium text-right"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {disputes.map((d) => (
-              <tr
-                key={d.id}
-                className="border-t border-slate-900/[0.06] hover:bg-slate-900/[0.03] cursor-pointer"
-                onClick={() => setOpen(d.id)}
-              >
-                <td className="px-5 py-4">
-                  <div className="font-medium">{d.name}</div>
-                  <div className="text-[10px] font-mono text-muted-foreground">
-                    {d.id} · {formatINR(d.value)}
-                  </div>
-                </td>
-                <td className="px-5 py-4 text-muted-foreground">Helios ↔ {d.counterparty}</td>
-                <td className="px-5 py-4 text-muted-foreground">Quality issues</td>
-                <td className="px-5 py-4">
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-danger/15 text-danger">
-                    High
-                  </span>
-                </td>
-                <td className="px-5 py-4 font-mono text-xs text-muted-foreground">{d.createdAt}</td>
-                <td className="px-5 py-4 text-right">
-                  <ArrowUpRight className="size-4 inline text-primary" />
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
+            <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground bg-slate-900/[0.02]">
+              <tr>
+                <th className="px-5 py-3 font-medium">Deal</th>
+                <th className="px-5 py-3 font-medium">Parties</th>
+                <th className="px-5 py-3 font-medium">Reason</th>
+                <th className="px-5 py-3 font-medium">Severity</th>
+                <th className="px-5 py-3 font-medium">Date</th>
+                <th className="px-5 py-3 font-medium text-right"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {disputes.map((d) => (
+                <tr
+                  key={d.id}
+                  className="border-t border-slate-900/[0.06] hover:bg-slate-900/[0.03] cursor-pointer"
+                  onClick={() => setOpen(d.id)}
+                >
+                  <td className="px-5 py-4">
+                    <div className="font-medium">{d.name}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground">
+                      {d.id} · {formatINR(d.value)}
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 text-muted-foreground">Helios ↔ {d.counterparty}</td>
+                  <td className="px-5 py-4 text-muted-foreground">Quality issues</td>
+                  <td className="px-5 py-4">
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-danger/15 text-danger">
+                      High
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 font-mono text-xs text-muted-foreground">
+                    {d.createdAt}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <ArrowUpRight className="size-4 inline text-primary" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Panel>
 
       {sel && (

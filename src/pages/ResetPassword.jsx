@@ -1,10 +1,22 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { ArrowRight, Sparkles, Lock, Eye, EyeOff, ArrowLeft, Loader2, Undo2 } from "lucide-react";
-import axios from "axios";
+import {
+  ArrowRight,
+  Sparkles,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  Loader2,
+  Undo2,
+  Sun,
+  Moon,
+} from "lucide-react";
+import axiosInstance from "@/API/axiosInstance";
 import { toast } from "sonner";
 import { z } from "zod";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import { useTheme } from "@/lib/theme-context";
 
 const resetPasswordSchema = z
   .object({
@@ -18,7 +30,9 @@ const resetPasswordSchema = z
   });
 
 export default function ResetPassword() {
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
 
   const token = searchParams.get("token") || "";
@@ -52,7 +66,7 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://192.168.100.149:3000/api/v1/auth/reset-password", {
+      const response = await axiosInstance.post("/auth/reset-password", {
         token,
         password,
         confirmPassword,
@@ -86,12 +100,21 @@ export default function ResetPassword() {
         <div className="flex max-w-7xl justify-between items-center w-full">
           <CompanyLogo />
 
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm btn-ghost text-muted-foreground hover:text-foreground mb-8"
-          >
-            <Undo2 className="size-4" /> Back to home
-          </Link>
+          <div className="flex items-center gap-2 mb-8">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 text-foreground"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm btn-ghost text-muted-foreground hover:text-foreground"
+            >
+              <Undo2 className="size-4" /> Back to home
+            </Link>
+          </div>
         </div>
         <form onSubmit={handleResetPassword} className="glass-card mt-10 p-8">
           <h1 className="font-display text-2xl font-semibold">Reset your password</h1>

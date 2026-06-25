@@ -57,7 +57,7 @@ export default function DashboardHome() {
         <Card className="lg:col-span-1 flex flex-col items-center">
           <SectionTitle>Trust Score</SectionTitle>
 
-          <TrustGauge score={business?.overall} size={220} /> 
+          <TrustGauge score={business?.overall} size={220} />
 
           <div className="mt-4 text-xs text-muted-foreground text-center">
             Updated 12m ago · Tier: <span className="text-success font-medium">Trusted</span>

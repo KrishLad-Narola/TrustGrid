@@ -32,9 +32,7 @@ export default function ProfileDetailPage() {
       try {
         setLoading(true);
 
-        const res = await axiosInstance.get(
-          `/businesses/${id}/profile`
-        );
+        const res = await axiosInstance.get(`/businesses/${id}/profile`);
 
         if (!mounted) return;
         const profileData = res?.data;
@@ -47,10 +45,7 @@ export default function ProfileDetailPage() {
       } catch (error) {
         console.error("Profile fetch error:", error);
 
-        toast.error(
-          error?.response?.data?.message ||
-            "Failed to load business profile"
-        );
+        toast.error(error?.response?.data?.message || "Failed to load business profile");
       } finally {
         if (mounted) {
           setLoading(false);
@@ -70,9 +65,7 @@ export default function ProfileDetailPage() {
       <div className="flex min-h-[500px] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">
-            Loading business profile...
-          </p>
+          <p className="text-sm text-muted-foreground">Loading business profile...</p>
         </div>
       </div>
     );
@@ -82,9 +75,7 @@ export default function ProfileDetailPage() {
     return (
       <div className="mx-auto mt-10 max-w-lg">
         <Card className="p-8 text-center">
-          <h2 className="mb-2 text-lg font-semibold">
-            Business Not Found
-          </h2>
+          <h2 className="mb-2 text-lg font-semibold">Business Not Found</h2>
 
           <p className="mb-6 text-sm text-muted-foreground">
             Unable to load the requested business profile.
@@ -106,8 +97,7 @@ export default function ProfileDetailPage() {
   const verification = business?.verification || {};
   const dealStats = business?.dealStats || {};
 
-  const tradeName =
-    basicInfo?.tradeName || "Unknown Business";
+  const tradeName = basicInfo?.tradeName || "Unknown Business";
 
   const initials = tradeName
     .split(" ")
@@ -117,13 +107,10 @@ export default function ProfileDetailPage() {
     .toUpperCase();
 
   const memberSince = basicInfo?.memberSince
-    ? new Date(basicInfo.memberSince).toLocaleDateString(
-        "en-IN",
-        {
-          month: "long",
-          year: "numeric",
-        }
-      )
+    ? new Date(basicInfo.memberSince).toLocaleDateString("en-IN", {
+        month: "long",
+        year: "numeric",
+      })
     : "N/A";
 
   const statCards = [
@@ -156,12 +143,8 @@ export default function ProfileDetailPage() {
 
   const InfoItem = ({ label, value }) => (
     <div className="space-y-1">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      <p className="font-medium break-words">
-        {value || "-"}
-      </p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="font-medium break-words">{value || "-"}</p>
     </div>
   );
 
@@ -186,9 +169,7 @@ export default function ProfileDetailPage() {
               </div>
 
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">
-                  {tradeName}
-                </h1>
+                <h1 className="text-3xl font-bold tracking-tight">{tradeName}</h1>
 
                 <p className="mt-1 text-muted-foreground">
                   {basicInfo?.industry || "Industry Not Available"}
@@ -214,11 +195,7 @@ export default function ProfileDetailPage() {
                   Verification Status
                 </p>
 
-                <StatusBadge
-                  status={
-                    verification?.kycStatus || "PENDING"
-                  }
-                />
+                <StatusBadge status={verification?.kycStatus || "PENDING"} />
               </div>
             </div>
           </div>
@@ -239,13 +216,9 @@ export default function ProfileDetailPage() {
                 <Icon className="h-5 w-5 text-primary" />
               </div>
 
-              <div className="text-3xl font-bold">
-                {item.value}
-              </div>
+              <div className="text-3xl font-bold">{item.value}</div>
 
-              <p className="mt-2 text-sm text-muted-foreground">
-                {item.title}
-              </p>
+              <p className="mt-2 text-sm text-muted-foreground">{item.title}</p>
             </Card>
           );
         })}
@@ -258,42 +231,21 @@ export default function ProfileDetailPage() {
           <div className="mb-6 flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
 
-            <h2 className="text-lg font-semibold">
-              Business Information
-            </h2>
+            <h2 className="text-lg font-semibold">Business Information</h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <InfoItem
-              label="Trade Name"
-              value={basicInfo?.tradeName}
-            />
+            <InfoItem label="Trade Name" value={basicInfo?.tradeName} />
 
-            <InfoItem
-              label="Legal Name"
-              value={basicInfo?.legalName}
-            />
+            <InfoItem label="Legal Name" value={basicInfo?.legalName} />
 
-            <InfoItem
-              label="Company Type"
-              value={basicInfo?.companyType
-                ?.replaceAll("_", " ")}
-            />
+            <InfoItem label="Company Type" value={basicInfo?.companyType?.replaceAll("_", " ")} />
 
-            <InfoItem
-              label="Industry"
-              value={basicInfo?.industry}
-            />
+            <InfoItem label="Industry" value={basicInfo?.industry} />
 
-            <InfoItem
-              label="City"
-              value={basicInfo?.city}
-            />
+            <InfoItem label="City" value={basicInfo?.city} />
 
-            <InfoItem
-              label="State"
-              value={basicInfo?.state}
-            />
+            <InfoItem label="State" value={basicInfo?.state} />
           </div>
         </Card>
 
@@ -302,9 +254,7 @@ export default function ProfileDetailPage() {
           <div className="mb-6 flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
 
-            <h2 className="text-lg font-semibold">
-              Verification
-            </h2>
+            <h2 className="text-lg font-semibold">Verification</h2>
           </div>
 
           <div className="mb-5">
@@ -312,11 +262,7 @@ export default function ProfileDetailPage() {
               KYC Status
             </p>
 
-            <StatusBadge
-              status={
-                verification?.kycStatus || "PENDING"
-              }
-            />
+            <StatusBadge status={verification?.kycStatus || "PENDING"} />
           </div>
 
           <div>
@@ -338,9 +284,7 @@ export default function ProfileDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No verified documents found.
-              </p>
+              <p className="text-sm text-muted-foreground">No verified documents found.</p>
             )}
           </div>
         </Card>
@@ -351,30 +295,20 @@ export default function ProfileDetailPage() {
         <div className="mb-6 flex items-center gap-2">
           <Briefcase className="h-5 w-5 text-primary" />
 
-          <h2 className="text-lg font-semibold">
-            Deal Performance Overview
-          </h2>
+          <h2 className="text-lg font-semibold">Deal Performance Overview</h2>
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
           <div className="rounded-xl border p-4">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              Total Deals
-            </p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Total Deals</p>
 
-            <p className="mt-2 text-2xl font-bold">
-              {dealStats?.totalDeals ?? 0}
-            </p>
+            <p className="mt-2 text-2xl font-bold">{dealStats?.totalDeals ?? 0}</p>
           </div>
 
           <div className="rounded-xl border p-4">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              Active Deals
-            </p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Active Deals</p>
 
-            <p className="mt-2 text-2xl font-bold">
-              {dealStats?.activeDeals ?? 0}
-            </p>
+            <p className="mt-2 text-2xl font-bold">{dealStats?.activeDeals ?? 0}</p>
           </div>
 
           <div className="rounded-xl border p-4">
@@ -382,40 +316,28 @@ export default function ProfileDetailPage() {
               Completed Deals
             </p>
 
-            <p className="mt-2 text-2xl font-bold">
-              {dealStats?.completedDeals ?? 0}
-            </p>
+            <p className="mt-2 text-2xl font-bold">{dealStats?.completedDeals ?? 0}</p>
           </div>
 
           <div className="rounded-xl border p-4">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              Disputed Deals
-            </p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Disputed Deals</p>
 
-            <p className="mt-2 text-2xl font-bold">
-              {dealStats?.disputedDeals ?? 0}
-            </p>
+            <p className="mt-2 text-2xl font-bold">{dealStats?.disputedDeals ?? 0}</p>
           </div>
         </div>
 
         <div className="mt-6">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Completion Rate
-            </span>
+            <span className="text-sm font-medium">Completion Rate</span>
 
-            <span className="text-sm font-semibold">
-              {dealStats?.completionRate ?? 0}%
-            </span>
+            <span className="text-sm font-semibold">{dealStats?.completionRate ?? 0}%</span>
           </div>
 
           <div className="h-3 overflow-hidden rounded-full bg-muted">
             <div
               className="h-full rounded-full btn-primary transition-all duration-500"
               style={{
-                width: `${
-                  dealStats?.completionRate ?? 0
-                }%`,
+                width: `${dealStats?.completionRate ?? 0}%`,
               }}
             />
           </div>

@@ -12,16 +12,17 @@ export default function DirectoryPage() {
   const [q, setQ] = useState("");
   const [industry, setIndustry] = useState("All");
   const [scoreMin, setScoreMin] = useState(0);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; 
+  const itemsPerPage = 10;
 
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
     setError(null);
 
-    axiosInstance.post("/businesses/counterparties", {})
+    axiosInstance
+      .post("/businesses/counterparties", {})
       .then((res) => {
         if (!isMounted) return;
 
@@ -41,12 +42,15 @@ export default function DirectoryPage() {
       .catch((err) => {
         if (!isMounted) return;
         console.error("Fetch Exception Logs:", err);
-        
-        const errMsg = err?.response?.data?.message 
-          || (err?.response?.status === 401 ? "Unauthorized access (401). Your session may have expired." : null)
-          || err.message 
-          || "An unexpected error occurred while fetching data.";
-          
+
+        const errMsg =
+          err?.response?.data?.message ||
+          (err?.response?.status === 401
+            ? "Unauthorized access (401). Your session may have expired."
+            : null) ||
+          err.message ||
+          "An unexpected error occurred while fetching data.";
+
         setError(errMsg);
         setLoading(false);
       });
@@ -60,17 +64,16 @@ export default function DirectoryPage() {
     setCurrentPage(1);
   }, [q, industry, scoreMin]);
 
-  const industries = [
-    "All",
-    ...new Set(businesses.map((b) => b.industry).filter(Boolean)),
-  ];
+  const industries = ["All", ...new Set(businesses.map((b) => b.industry).filter(Boolean))];
 
   const filtered = businesses.filter((b) => {
     const displayName = b.tradeName || b.legalName || b.basicInfo?.tradeName || "Unknown Business";
     const businessIndustry = b.industry || b.basicInfo?.industry || "";
-    const overallScore = typeof b.trustScore === "object" ? (b.trustScore?.overall || 0) : (b.trustScore || 0);
+    const overallScore =
+      typeof b.trustScore === "object" ? b.trustScore?.overall || 0 : b.trustScore || 0;
 
-    const matchesIndustry = industry === "All" || businessIndustry.toLowerCase() === industry.toLowerCase();
+    const matchesIndustry =
+      industry === "All" || businessIndustry.toLowerCase() === industry.toLowerCase();
     const matchesScore = overallScore >= scoreMin;
     const matchesSearch =
       displayName.toLowerCase().includes(q.toLowerCase()) ||
@@ -107,7 +110,9 @@ export default function DirectoryPage() {
               className="px-3 py-2 rounded-lg bg-input cursor-pointer border border-border text-sm outline-none"
             >
               {industries.map((i) => (
-                <option key={i} value={i}>{i}</option>
+                <option key={i} value={i}>
+                  {i}
+                </option>
               ))}
             </select>
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-input border border-border">
@@ -133,12 +138,15 @@ export default function DirectoryPage() {
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center min-h-[300px] p-6 text-center border border-dashed border-destructive/30 rounded-xl bg-destructive/5 mt-4">
-            <p className="text-sm font-semibold text-destructive mb-1">Authentication or Network issue</p>
+            <p className="text-sm font-semibold text-destructive mb-1">
+              Authentication or Network issue
+            </p>
             <p className="text-xs text-muted-foreground max-w-md mb-4">{error}</p>
             <p className="text-xs text-muted-foreground mb-4">
-              If you see an unauthorized message, make sure you are logged in so a valid token is present in your local browser storage.
+              If you see an unauthorized message, make sure you are logged in so a valid token is
+              present in your local browser storage.
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="px-3 py-1.5 text-xs bg-destructive text-white rounded-md hover:opacity-90 transition-opacity"
             >
@@ -152,15 +160,22 @@ export default function DirectoryPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mt-4">
             {currentItems.map((b) => {
-              const displayName = b.tradeName || b.legalName || b.basicInfo?.tradeName || "Unknown Business";
+              const displayName =
+                b.tradeName || b.legalName || b.basicInfo?.tradeName || "Unknown Business";
               const businessIndustry = b.industry || b.basicInfo?.industry || "N/A";
-              const overallScore = typeof b.trustScore === "object" ? (b.trustScore?.overall || 0) : (b.trustScore || 0);
+              const overallScore =
+                typeof b.trustScore === "object" ? b.trustScore?.overall || 0 : b.trustScore || 0;
               const displayLocation = b.registeredAddress?.city || b.basicInfo?.city || "India";
-              
-              const initials = displayName ? displayName.split(" ")[0].slice(0, 2).toUpperCase() : "BI";
+
+              const initials = displayName
+                ? displayName.split(" ")[0].slice(0, 2).toUpperCase()
+                : "BI";
 
               return (
-                <Card key={b._id} className="flex flex-col hover:border-primary/30 transition-colors">
+                <Card
+                  key={b._id}
+                  className="flex flex-col hover:border-primary/30 transition-colors"
+                >
                   <div className="flex items-start gap-3 mb-4">
                     <div className="size-12 rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-display font-bold flex items-center justify-center shrink-0">
                       {initials}
@@ -178,7 +193,9 @@ export default function DirectoryPage() {
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         Trust Score
                       </div>
-                      <div className={`font-mono text-2xl font-semibold ${scoreColor(overallScore)}`}>
+                      <div
+                        className={`font-mono text-2xl font-semibold ${scoreColor(overallScore)}`}
+                      >
                         {overallScore}
                       </div>
                     </div>
@@ -202,10 +219,8 @@ export default function DirectoryPage() {
         <div className="flex items-center justify-between border-t border-border pt-4 mt-auto">
           <div className="text-xs text-muted-foreground">
             Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
-            <span className="font-medium">
-              {Math.min(indexOfLastItem, filtered.length)}
-            </span>{" "}
-            of <span className="font-medium">{filtered.length}</span> entries
+            <span className="font-medium">{Math.min(indexOfLastItem, filtered.length)}</span> of{" "}
+            <span className="font-medium">{filtered.length}</span> entries
           </div>
           <div className="flex items-center gap-2">
             <button

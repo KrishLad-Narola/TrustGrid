@@ -23,10 +23,9 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </QueryClientProvider>
+  </QueryClientProvider>,
 );

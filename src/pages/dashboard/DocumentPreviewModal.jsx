@@ -77,7 +77,10 @@ function DocumentPreviewModal({ open, onClose, data }) {
               {formatKey(data.documentType || "Document")}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full cursor-pointer hover:bg-gray-100 transition">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full cursor-pointer hover:bg-gray-100 transition"
+          >
             <X size={22} />
           </button>
         </div>

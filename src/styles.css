@@ -140,11 +140,18 @@
       linear-gradient(to right, oklch(0.21 0.04 260 / 0.04) 1px, transparent 1px),
       linear-gradient(to bottom, oklch(0.21 0.04 260 / 0.04) 1px, transparent 1px),
       var(--gradient-glow);
-    background-size: 48px 48px, 48px 48px, 100% 100__;
+    background-size:
+      48px 48px,
+      48px 48px,
+      100% 100__;
     background-attachment: fixed;
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
@@ -184,7 +191,9 @@
     color: var(--color-primary-foreground);
     font-size: 0.875rem;
     font-weight: 500;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s;
     box-shadow: var(--shadow-glow);
   }
   .btn-primary:hover {
@@ -209,8 +218,12 @@
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 oklch(0.55 0.22 262 / 0.4); }
-  100% { box-shadow: 0 0 0 18px oklch(0.55 0.22 262 / 0); }
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.55 0.22 262 / 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 18px oklch(0.55 0.22 262 / 0);
+  }
 }
 .pulse-ring {
   animation: pulse-ring 2s infinite;
@@ -226,7 +239,11 @@
   .dark .bg-slate-200,
   .dark .bg-gray-100,
   .dark .bg-gray-200 {
-    background-color: color-mix(in oklab, var(--color-card) 90%, var(--color-background) 10%) !important;
+    background-color: color-mix(
+      in oklab,
+      var(--color-card) 90%,
+      var(--color-background) 10%
+    ) !important;
   }
   .dark .text-slate-900,
   .dark .text-slate-800,

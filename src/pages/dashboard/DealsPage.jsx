@@ -25,7 +25,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { de } from "date-fns/locale/de";
 
-const mapStatus = (status) => { 
+const mapStatus = (status) => {
   const map = {
     PENDING_ACCEPTANCE: "pending",
     ACTIVE: "active",
@@ -43,7 +43,7 @@ const normalizeDeal = (deal) => {
     deal.counterPartyBusinessId ?? deal.counterPartyBusiness ?? deal.counterparty;
   const rawCreator = deal.createdByBusinessId ?? deal.createdByBusiness;
 
-  return {      
+  return {
     id: deal._id,
     name: deal.title,
     description: deal.description,

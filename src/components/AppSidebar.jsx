@@ -50,7 +50,7 @@ function initials(name) {
     .toUpperCase();
 }
 
-export function AppSidebar({ kind }) {
+export function AppSidebar({ kind, onLinkClick }) {
   const { pathname } = useLocation();
   const { user, business, logout } = useAuth();
 
@@ -106,6 +106,7 @@ export function AppSidebar({ kind }) {
             <Link
               key={item.to}
               to={item.to}
+              onClick={onLinkClick}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 active
                   ? "bg-primary/10 text-primary border border-primary/20 font-medium"

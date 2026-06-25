@@ -16,7 +16,7 @@ import {
   LogOut,
   XCircle,
 } from "lucide-react";
-import axiosInstance from "@/API/axiosInstance";
+import axiosInstance, { API_URL } from "@/API/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -75,7 +75,7 @@ function resolveFileUrl(rawPath) {
 
 // ── Document Preview ──────────────────────────────────────────────────────────
 function DocumentPreview({ file, previewUrl, serverUrl, onRemove, fileName }) {
-  const url = previewUrl || (fileName ? `http://192.168.100.149:3000/uploads/${fileName}` : null);
+  const url = previewUrl || (fileName ? `${API_URL}/uploads/${fileName}` : null);
   if (!url) return null;
 
   // Determine type: prefer the File object, fall back to URL extension
@@ -149,7 +149,7 @@ export default function KycSubmitPage() {
   const fileInputRef = useRef(null);
   const blobUrlsRef = useRef({}); // track blob URL so we can revoke it
   const { logout } = useAuth();
-  
+
   const [docStates, setDocStates] = useState({});
   const [docIndex, setDocIndex] = useState(0);
   const [completedDocs, setCompletedDocs] = useState([]); // keys of successfully submitted docs

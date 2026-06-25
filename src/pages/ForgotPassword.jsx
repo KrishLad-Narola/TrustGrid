@@ -1,17 +1,20 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, Mail, Loader2, Clock3, ArrowLeft } from "lucide-react";
+import { ArrowRight, Sparkles, Mail, Loader2, Clock3, ArrowLeft, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import axiosInstance from "@/API/axiosInstance";
 import { z } from "zod";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import { useTheme } from "@/lib/theme-context";
 
 const forgotPasswordSchema = z.object({
   email: z.string().trim().min(1, "Email is required").email("Please enter a valid email address"),
 });
 
 export default function ForgotPassword() {
+  const { theme, toggleTheme } = useTheme();
   const [email, setEmail] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
 
@@ -56,6 +59,21 @@ export default function ForgotPassword() {
       <div className="w-full mx-auto flex flex-col justify-center items-center">
         <div className="flex max-w-7xl justify-between items-center w-full">
           <CompanyLogo />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 text-foreground"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <Link
+              to="/"
+              className="flex justify-end  btn-ghost items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="size-4" /> Back to Sign in
+            </Link>
+          </div>
         </div>
 
         <form onSubmit={handleForgotPassword} className="glass-card p-8 mt-10">

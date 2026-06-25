@@ -46,15 +46,10 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
+    const { accessToken } = getTokens();
 
-    const {accessToken} =  getTokens()
-
-    connectSocket(accessToken)
-
+    connectSocket(accessToken);
   }, []);
-
-
-
 
   const fetchUserProfile = async () => {
     try {

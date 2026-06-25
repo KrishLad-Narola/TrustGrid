@@ -220,23 +220,30 @@ export default function TrustPage() {
             <AreaChart data={trustHistory}>
               <defs>
                 <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopOpacity={0.35} />
-                  <stop offset="100%" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
 
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" fontSize={11} />
-              <YAxis domain={[0, 100]} fontSize={11} />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+              <XAxis dataKey="month" stroke="var(--color-muted-foreground)" fontSize={11} />
+              <YAxis domain={[0, 100]} stroke="var(--color-muted-foreground)" fontSize={11} />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--color-card)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: "var(--color-foreground)",
+                }}
+              />
 
               <Area
                 type="monotone"
                 dataKey="score"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                fill="#93c5fd"
-                fillOpacity={0.3}
+                stroke="var(--color-primary)"
+                strokeWidth={2.5}
+                fill="url(#scoreGrad)"
               />
             </AreaChart>
           </ResponsiveContainer>

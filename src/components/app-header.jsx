@@ -1,9 +1,10 @@
-import { Bell, Search, Moon, Sun } from "lucide-react";
+import { Bell, Search, Moon, Sun, Menu } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationDrawer } from "./notification-drawer";
 import axiosInstance from "@/API/axiosInstance";
 import { socket } from "@/utils/socket.io";
+import { useTheme } from "@/lib/theme-context";
 
 // FIX: Every single item directly points to an exact path defined in your AppRoutes
 const DEFAULT_MENU_DATA = [
@@ -17,7 +18,7 @@ const DEFAULT_MENU_DATA = [
   { title: "Dashboard Settings", path: "/dashboard/settings", category: "Dashboard" },
   { title: "My Profile", path: "/profile", category: "User" },
   { title: "Change Password", path: "/change-password", category: "Security" },
-  
+
   // Admin Context Routes
   { title: "Admin Home", path: "/admin", category: "Admin" },
   { title: "Admin Businesses Management", path: "/admin/businesses", category: "Admin" },
@@ -28,11 +29,8 @@ const DEFAULT_MENU_DATA = [
   { title: "Admin Settings Panel", path: "/admin/settings", category: "Admin" },
 ];
 
-export function AppHeader({
-  title,
-  subtitle,
-  menuData = DEFAULT_MENU_DATA,
-}) {
+export function AppHeader({ title, subtitle, menuData = DEFAULT_MENU_DATA, onMenuClick }) {
+  const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,7 +81,7 @@ export function AppHeader({
     try {
       await axiosInstance.patch(`/notifications/${notificationId}/read`);
       const updatedNotifications = notifications.map((notification) =>
-        notification._id === notificationId ? { ...notification, isRead: true } : notification
+        notification._id === notificationId ? { ...notification, isRead: true } : notification,
       );
       setNotifications(updatedNotifications);
       setUnreadCount(calculateUnreadCount(updatedNotifications));
@@ -106,10 +104,13 @@ export function AppHeader({
     }
   };
 
-  const handleNotificationsUpdate = useCallback((updatedNotifications) => {
-    setNotifications(updatedNotifications);
-    setUnreadCount(calculateUnreadCount(updatedNotifications));
-  }, [calculateUnreadCount]);
+  const handleNotificationsUpdate = useCallback(
+    (updatedNotifications) => {
+      setNotifications(updatedNotifications);
+      setUnreadCount(calculateUnreadCount(updatedNotifications));
+    },
+    [calculateUnreadCount],
+  );
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -161,16 +162,26 @@ export function AppHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold tracking-tight text-foreground">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {subtitle}
-            </p>
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl gap-4">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {onMenuClick && (
+            <button
+              onClick={onMenuClick}
+              className="md:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card shadow-sm text-foreground active:scale-95 cursor-pointer"
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
           )}
+
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-lg font-semibold tracking-tight text-foreground">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -207,9 +218,7 @@ export function AppHeader({
                       onClick={handleResultClick}
                       className="flex w-full cursor-pointer flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted"
                     >
-                      <span className="text-sm font-medium text-foreground">
-                        {result.title}
-                      </span>
+                      <span className="text-sm font-medium text-foreground">{result.title}</span>
                       <span className="text-[10px] text-muted-foreground">
                         {result.category} › {result.path}
                       </span>
@@ -223,6 +232,15 @@ export function AppHeader({
               </div>
             )}
           </div>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-xl border border-border bg-card shadow-sm transition-all hover:bg-muted hover:shadow-md active:scale-95 text-foreground"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
 
           {/* Notifications Panel Trigger */}
           <button

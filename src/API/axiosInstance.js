@@ -1,7 +1,9 @@
 import axios from "axios";
 import { toast } from "sonner";
 
-const BASE_URL = "http://192.168.100.149:3000/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://192.168.100.149:3000/api/v1";
+
+export const API_URL = BASE_URL.replace("/api/v1", "");
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

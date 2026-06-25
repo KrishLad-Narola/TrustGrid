@@ -9,7 +9,7 @@ export function AppShell({ kind, children, header }) {
   return (
     <div className="min-h-screen flex w-full bg-background text-foreground overflow-hidden">
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex shrink-0">
+      <div className="hidden md:block fixed inset-y-0 left-0 w-64 h-screen bg-sidebar border-r border-sidebar-border flex flex-col overflow-hidden">
         <AppSidebar kind={kind} />
       </div>
 
@@ -43,7 +43,7 @@ export function AppShell({ kind, children, header }) {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden md:ml-64">
         {header && (
           <AppHeader
             title={header.title}
